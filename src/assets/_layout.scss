@@ -1,0 +1,38 @@
+@use 'variables' as *;
+
+/**
+ * Grid System - Design System
+ * Simplified grid system based on the defined variables
+ */
+
+// Basic grid mixin
+@mixin create-grid($columns, $gutter) {
+  display: grid;
+  grid-template-columns: repeat($columns, 1fr);
+  gap: $gutter;
+  width: 100%;
+}
+
+// Standard container for content
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 $spacing-medium;
+}
+
+// Grid Container 
+.grid-container {
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  
+  &.computer {
+    @include create-grid($grid-columns-computer, $grid-gutter-computer);
+  }
+  
+  // Responsive Grid - 6 columns
+  &.responsive {
+    @include create-grid($grid-columns-responsive, $grid-gutter-responsive);
+  }
+}

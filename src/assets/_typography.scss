@@ -1,0 +1,81 @@
+@use 'variables' as *;
+
+/**
+ * Typography - Design System
+ * Reusable typography classes based on the design system
+ */
+
+/* Headings */
+.heading-1 {
+  font-size: $h1-font-size;
+  line-height: $h1-line-height;
+  letter-spacing: $h1-letter-spacing;
+  font-weight: $h1-font-weight;
+  color: $neutral-900;
+}
+
+.heading-2 {
+  font-size: $h2-font-size;
+  line-height: $h2-line-height;
+  font-weight: $h2-font-weight;
+  color: $neutral-900;
+}
+
+.heading-3 {
+  font-size: $h3-font-size;
+  line-height: $h3-line-height;
+  font-weight: $h3-font-weight;
+  color: $neutral-900;
+}
+
+/* Subtitles */
+.subtitle-1 {
+  font-size: $subtitle-1-font-size;
+  line-height: $subtitle-1-line-height;
+  font-weight: $subtitle-1-font-weight;
+  color: $neutral-900;
+}
+
+.subtitle-2 {
+  font-size: $subtitle-2-font-size;
+  line-height: $subtitle-2-line-height;
+  font-weight: $subtitle-2-font-weight;
+  letter-spacing: $subtitle-2-letter-spacing;
+  color: $neutral-900;
+}
+
+/* Body Text */
+.body-1-semibold {
+  font-size: $body-1-font-size;
+  line-height: $body-1-line-height;
+  font-weight: $body-1-font-weight-semibold;
+  color: $neutral-900;
+}
+
+.body-1-regular {
+  font-size: $body-1-font-size;
+  line-height: $body-1-line-height;
+  font-weight: $body-1-font-weight-regular;
+  color: $neutral-900;
+}
+
+.body-2-semibold {
+  font-size: $body-2-font-size;
+  line-height: $body-2-line-height;
+  font-weight: $body-2-font-weight-semibold;
+  color: $neutral-900;
+}
+
+.body-2-regular {
+  font-size: $body-2-font-size;
+  line-height: $body-2-line-height;
+  font-weight: $body-2-font-weight-regular;
+  color: $neutral-900;
+}
+
+.body-3-regular {
+  font-size: $body-3-font-size;
+  line-height: $body-3-line-height;
+  font-weight: $body-3-font-weight;
+  color: $neutral-900;
+} 

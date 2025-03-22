@@ -1,0 +1,167 @@
+@use 'variables' as *;
+
+/**
+ * Icons System - Design System
+ * Based on the design system from UI designers
+ */
+
+// Icon Sizes
+$icon-x-small: 12px;
+$icon-small: 20px;
+$icon-medium: 32px;
+$icon-large: 40px;
+$icon-x-large: 56px;
+
+// Icon Container Sizes (icon + padding)
+$icon-container-x-small: 36px; // 12px + 24px padding
+$icon-container-small: 52px;   // 20px + 32px padding
+$icon-container-medium: 56px;  // 32px + 24px padding
+$icon-container-large: 64px;   // 40px + 24px padding
+$icon-container-x-large: 80px; // 56px + 24px padding
+
+// Icon Colors
+$icon-color-default: $neutral-900;
+$icon-bg-default: $neutral-200;
+$icon-bg-filled: $secondary-300;
+$icon-bg-hover: $secondary-400;
+$icon-bg-pressed: $secondary-500;
+$icon-bg-disabled: $neutral-200;
+
+// Icon Stroke Width
+$icon-stroke-width: 1.5;
+
+/**
+ * Icon base class
+ * 
+ * Used like this:
+ * <span class="icon medium">
+ *   <IconComponent />
+ * </span>
+ * 
+ * Add one of these states: filled, clear, hover, pressed, disabled
+ */
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: $transition-base;
+  color: $icon-color-default;
+  background-color: $icon-bg-default;
+  
+  svg {
+    stroke-width: $icon-stroke-width;
+  }
+
+  // Icon sizes
+  &.x-small {
+    width: $icon-container-x-small;
+    height: $icon-container-x-small;
+    border-radius: 4px;
+    
+    svg {
+      width: $icon-x-small;
+      height: $icon-x-small;
+    }
+  }
+  
+  &.small {
+    width: $icon-container-small;
+    height: $icon-container-small;
+    border-radius: 4px;
+    
+    svg {
+      width: $icon-small;
+      height: $icon-small;
+    }
+  }
+  
+  &.medium {
+    width: $icon-container-medium;
+    height: $icon-container-medium;
+    border-radius: 6px;
+    
+    svg {
+      width: $icon-medium;
+      height: $icon-medium;
+    }
+  }
+  
+  &.large {
+    width: $icon-container-large;
+    height: $icon-container-large;
+    border-radius: 8px;
+    
+    svg {
+      width: $icon-large;
+      height: $icon-large;
+    }
+  }
+  
+  &.x-large {
+    width: $icon-container-x-large;
+    height: $icon-container-x-large;
+    border-radius: 8px;
+    
+    svg {
+      width: $icon-x-large;
+      height: $icon-x-large;
+    }
+  }
+
+  // Icon states
+  &.clear {
+    background-color: transparent;
+    color: $icon-color-default;
+  }
+
+  &.filled {
+    background-color: $icon-bg-filled;
+    color: white;
+  }
+
+  &.hover {
+    background-color: $icon-bg-hover;
+    color: white;
+  }
+
+  &.pressed {
+    background-color: $icon-bg-pressed;
+    color: white;
+  }
+
+  &.disabled {
+    background-color: $icon-bg-disabled;
+    color: $neutral-400;
+    cursor: not-allowed;
+  }
+}
+
+/**
+ * Icon Button component
+ * For buttons with icons and background
+ */
+.icon-button {
+  @extend .icon;
+  cursor: pointer;
+  
+  &:hover {
+    background-color: $icon-bg-hover;
+    color: white;
+  }
+  
+  &:active {
+    background-color: $icon-bg-pressed;
+    color: white;
+  }
+  
+  &.disabled {
+    background-color: $icon-bg-disabled;
+    color: $neutral-400;
+    cursor: not-allowed;
+    
+    &:hover, &:active {
+      background-color: $icon-bg-disabled;
+      color: $neutral-400;
+    }
+  }
+} 
