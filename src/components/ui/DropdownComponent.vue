@@ -138,7 +138,7 @@ const toggleDropdown = () => {
 			}
 		})
 	} else {
-		// Når dropdown lukkes via toggle, explicit fjern fokus
+		// When dropdown is closed via toggle, explicitly remove focus
 		nextTick(() => {
 			document.activeElement.blur()
 		})
@@ -230,32 +230,26 @@ onBeforeUnmount(() => {
 
 <style lang="scss" scoped>
 @use '@/assets/variables' as *;
+@use '@/assets/form-components' as *;
 
 .dropdown {
-	display: flex;
-	flex-direction: column;
-	margin-bottom: $spacing-medium;
-	width: 100%;
-	text-align: left;
-}
+	@extend .form-field;
 
-.dropdown-label {
-	font-size: $body-2-font-size;
-	font-weight: $body-2-font-weight-semibold;
-	color: $neutral-700;
-	margin-bottom: $spacing-2xs;
-	text-align: left;
+	&.disabled {
+		@extend .form-disabled;
+	}
 
-	.required-mark {
-		color: $error-base;
+	&.has-error {
+		@extend .form-error;
 	}
 }
 
+.dropdown-label {
+	@extend .form-label;
+}
+
 .dropdown-description {
-	font-size: $body-3-font-size;
-	color: $neutral-600;
-	margin-bottom: $spacing-2xs;
-	text-align: left;
+	@extend .form-description;
 }
 
 .dropdown-wrapper {
@@ -361,31 +355,5 @@ onBeforeUnmount(() => {
 		outline: none;
 		background-color: $secondary-100;
 	}
-}
-
-.dropdown.has-error {
-	.dropdown-label, .dropdown-description {
-		color: $error-base;
-	}
-
-	.dropdown-toggle {
-		border-color: $error-base;
-
-		&:focus, &:focus-visible {
-			border-color: $error-base;
-		}
-	}
-}
-
-.dropdown.disabled {
-	.dropdown-label, .dropdown-description {
-		opacity: $opacity-40;
-	}
-}
-
-.error-message {
-	font-size: $body-3-font-size;
-	color: $error-base;
-	margin-top: $spacing-2xs;
 }
 </style>

@@ -1,0 +1,101 @@
+@use 'variables' as *;
+
+// Common styling for form elements
+// Can be used by all form component types (Input, Dropdown, etc.)
+
+// Common base container
+.form-field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: $spacing-medium;
+  width: 100%;
+  text-align: left;
+}
+
+// Common label styling
+.form-label {
+  font-size: $body-2-font-size;
+  font-weight: $body-2-font-weight-semibold;
+  color: $neutral-700;
+  margin-bottom: $spacing-2xs;
+  text-align: left;
+
+  .required-mark {
+    color: $error-base;
+  }
+}
+
+// Common description styling
+.form-description {
+  font-size: $body-3-font-size;
+  color: $neutral-600;
+  margin-bottom: $spacing-2xs;
+  text-align: left;
+}
+
+// Common error message styling
+.error-message {
+  font-size: $body-3-font-size;
+  color: $error-base;
+  margin-top: $spacing-2xs;
+}
+
+// Common disabled state
+.form-disabled {
+  cursor: not-allowed;
+  
+  // Specific styling for input fields
+  input:disabled, 
+  button:disabled, 
+  select:disabled, 
+  textarea:disabled {
+    background-color: $neutral-100;
+    color: $neutral-500;
+    opacity: $opacity-40;
+  }
+}
+
+// Common error styling
+.form-error {
+  .form-label, 
+  .form-description {
+    color: $error-base;
+  }
+  
+  input, 
+  button, 
+  select, 
+  textarea {
+    border-color: $error-base;
+    
+    &:focus {
+      border-color: $error-base;
+      box-shadow: 0 0 0 1px $error-base;
+    }
+  }
+}
+
+// Form control common styles
+.form-control {
+  width: 100%;
+  font-size: $body-2-font-size;
+  color: $neutral-900;
+  background-color: white;
+  border: 1px solid $neutral-300;
+  transition: $transition-base;
+  
+  &::placeholder {
+    color: $neutral-500;
+  }
+  
+  &:focus {
+    outline: none;
+    border-color: $primary-500;
+    box-shadow: 0 0 0 1px $primary-500;
+  }
+  
+  &:focus-visible {
+    outline: 2px solid $secondary-500;
+    outline-offset: 1px;
+  }
+} 

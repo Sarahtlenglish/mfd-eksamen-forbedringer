@@ -14,7 +14,7 @@
 		<div v-if="description" class="input-description">{{ description }}</div>
 
 		<div class="input-wrapper">
-			<!-- Automatisk search ikon hvis typen er search -->
+			<!-- Automatic search icon if type is search -->
 			<div v-if="type === 'search'" class="input-icon-left">
 				<IconSearch />
 			</div>
@@ -34,7 +34,7 @@
 				ref="inputRef"
 			/>
 
-			<!-- Vis password toggle ikon automatisk ved password type -->
+			<!-- Show password toggle icon automatically for password type -->
 			<div v-if="type === 'password' && disabled !== true" class="input-icon-right password-toggle" @click="togglePasswordVisibility">
 				<component :is="passwordVisible ? IconEye : IconEyeOff" />
 			</div>
@@ -51,7 +51,7 @@ import { ref, computed, onMounted } from 'vue'
 import { IconEye, IconEyeOff, IconSearch } from '@tabler/icons-vue'
 
 const props = defineProps({
-	// Indhold
+	// Content
 	modelValue: {
 		type: [String, Number],
 		default: ''
@@ -73,7 +73,7 @@ const props = defineProps({
 		default: 'Error message'
 	},
 
-	// Tilstand
+	// State
 	hasError: {
 		type: Boolean,
 		default: false
@@ -107,7 +107,7 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue', 'focus', 'blur', 'input'])
 
-// Interni tilstand
+// Internal state
 const focused = ref(false)
 const inputRef = ref(null)
 const passwordVisible = ref(false)
@@ -121,7 +121,7 @@ const inputType = computed(() => {
 	return props.type
 })
 
-// Metoder
+// Methods
 const updateValue = (event) => {
 	emit('update:modelValue', event.target.value)
 	emit('input', event)
@@ -143,7 +143,7 @@ onMounted(() => {
 	}
 })
 
-// Eksponerer metoder til forældrekomponenten
+// Expose methods to parent component
 defineExpose({
 	focus: () => {
 		inputRef.value?.focus()
@@ -158,32 +158,26 @@ defineExpose({
 
 <style lang="scss" scoped>
 @use '@/assets/variables' as *;
+@use '@/assets/form-components' as *;
 
 .input-field {
-	display: flex;
-	flex-direction: column;
-	margin-bottom: $spacing-medium;
-	width: 100%;
-	text-align: left;
-}
+	@extend .form-field;
 
-.input-label {
-	font-size: $body-2-font-size;
-	font-weight: $body-2-font-weight-semibold;
-	color: $neutral-700;
-	margin-bottom: $spacing-2xs;
-	text-align: left;
+	&.disabled {
+		@extend .form-disabled;
+	}
 
-	.required-mark {
-		color: $error-base;
+	&.has-error {
+		@extend .form-error;
 	}
 }
 
+.input-label {
+	@extend .form-label;
+}
+
 .input-description {
-	font-size: $body-3-font-size;
-	color: $neutral-600;
-	margin-bottom: $spacing-2xs;
-	text-align: left;
+	@extend .form-description;
 }
 
 .input-wrapper {
@@ -193,31 +187,10 @@ defineExpose({
 }
 
 .input-control {
-	width: 100%;
+	@extend .form-control;
 	padding: $spacing-xs $spacing-small;
 	height: 2.5rem;
-	font-size: $body-2-font-size;
-	color: $neutral-900;
-	background-color: white;
-	border: 1px solid $neutral-300;
 	border-radius: $border-radius-md;
-	transition: $transition-base;
-
-	&::placeholder {
-		color: $neutral-500;
-	}
-
-	&:focus {
-		outline: none;
-		border-color: $primary-500;
-		box-shadow: 0 0 0 1px $primary-500;
-	}
-
-	&:focus-visible {
-		/* Accessibility focus styles - tilføj blå outline */
-		outline: 2px solid $secondary-500;
-		outline-offset: 1px;
-	}
 
 	&:disabled {
 		background-color: $neutral-100;
@@ -266,20 +239,8 @@ defineExpose({
 	cursor: pointer;
 }
 
+// Specific styling for error state on icons
 .has-error {
-	.input-label, .input-description {
-		color: $error-base;
-	}
-
-	.input-control {
-		border-color: $error-base;
-
-		&:focus {
-			border-color: $error-base;
-			box-shadow: 0 0 0 1px $error-base;
-		}
-	}
-
 	.input-icon-left, .input-icon-right, .password-toggle {
 		color: $error-base;
 
@@ -287,11 +248,5 @@ defineExpose({
 			color: $error-600;
 		}
 	}
-}
-
-.error-message {
-	font-size: $body-3-font-size;
-	color: $error-base;
-	margin-top: $spacing-2xs;
 }
 </style>
