@@ -12,13 +12,13 @@ export default [
 
 	{
 		name: 'app/files-to-ignore',
-    ignores: [
-      '**/dist/**', 
-      '**/dist-ssr/**', 
-      '**/coverage/**', 
-      'src/configs/firebase.js',
-      'src/router/index.js'
-    ]
+		ignores: [
+			'**/dist/**',
+			'**/dist-ssr/**',
+			'**/coverage/**',
+			'src/configs/firebase.js',
+			'src/router/index.js'
+		]
 	},
 
 	js.configs.recommended,
@@ -40,7 +40,7 @@ export default [
 			'@stylistic/semi': ['error', 'never'],
 			'@stylistic/brace-style': 'error',
 			'@stylistic/space-before-blocks': 'error',
-      '@stylistic/no-tabs': ['error', { allowIndentationTabs: true }]
+			'@stylistic/no-tabs': ['error', { allowIndentationTabs: true }]
 		}
 	}
 ]
