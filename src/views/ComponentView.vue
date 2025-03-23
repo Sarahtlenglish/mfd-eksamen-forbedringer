@@ -62,15 +62,6 @@
 									:type="selectedInputType"
 								>
 								</InputComponent>
-
-								<div class="icon-explanations">
-									<div class="icon-explanation" v-if="selectedInputType === 'search'">
-										<p>👆 Søge-input har automatisk et søge-ikon til venstre</p>
-									</div>
-									<div class="icon-explanation" v-if="selectedInputType === 'password'">
-										<p>👆 Password-input har automatisk et øje-ikon til højre for at vise/skjule password</p>
-									</div>
-								</div>
 							</div>
 
 							<div v-else-if="selectedFormType === 'dropdown'">
@@ -369,7 +360,7 @@ const icons = [
 	{ component: IconCheck, name: 'IconCheck' }
 ]
 
-const selectedIcon = ref(icons[2]) // Default to pencil icon
+const selectedIcon = ref(icons[0])
 
 // Code example functionality
 const codeBlock = ref(null)
@@ -977,30 +968,6 @@ const getCodeExample = () => {
 	align-items: center;
 	justify-content: center;
 	width: 100%;
-}
-
-.icon-explanations {
-	display: flex;
-	flex-direction: column;
-	gap: $spacing-xs;
-	width: 100%;
-	max-width: 400px;
-}
-
-.icon-explanation {
-	margin-top: $spacing-xs;
-	text-align: left;
-	background-color: $neutral-200;
-	padding: $spacing-small;
-	border-radius: $border-radius-sm;
-	width: 100%;
-	border-left: 4px solid $primary-500;
-
-	p {
-		margin: 0;
-		font-size: $body-3-font-size;
-		color: $neutral-700;
-	}
 }
 
 .button-preview-container {
