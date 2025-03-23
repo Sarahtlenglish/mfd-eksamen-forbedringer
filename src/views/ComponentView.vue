@@ -93,6 +93,18 @@
 								:required="formRequired"
 							/>
 						</div>
+
+						<!-- Filter Button Component Preview -->
+						<div v-if="activeTab === 'filter'" class="filter-button-preview-container">
+							<FilterButtonComponent
+								:text="filterButtonText"
+								:active="isFilterActive"
+								:disabled="isFilterDisabled"
+								:full-width="isFilterFullWidth"
+								@click="toggleFilterActive"
+							/>
+							<p class="preview-hint">Interact with the filter button to see hover, focus, and pressed states</p>
+						</div>
 					</div>
 					</div>
 
@@ -179,6 +191,40 @@
 											:is="icon.component"
 											class="icon-selector-svg"/>
 									</button>
+								</div>
+							</div>
+						</div>
+					</template>
+
+					<!-- Filter Button Controls -->
+					<template v-if="activeTab === 'filter'">
+						<div class="control-grid">
+							<div class="control-group">
+								<label class="control-label">Text</label>
+								<input
+									type="text"
+									v-model="filterButtonText"
+									class="control-input"
+									placeholder="Button text">
+							</div>
+
+							<div class="control-group">
+								<label class="control-label">Options</label>
+								<div class="option-group">
+									<label class="option">
+										<input type="checkbox" v-model="isFilterActive">
+										<span>Active</span>
+									</label>
+
+									<label class="option">
+										<input type="checkbox" v-model="isFilterFullWidth">
+										<span>Full width</span>
+									</label>
+
+									<label class="option">
+										<input type="checkbox" v-model="isFilterDisabled">
+										<span>Disabled</span>
+									</label>
 								</div>
 							</div>
 						</div>
@@ -312,6 +358,7 @@ import { ref, computed } from 'vue'
 import ButtonComponent from '../components/ui/ButtonComponent.vue'
 import InputComponent from '../components/ui/InputComponent.vue'
 import DropdownComponent from '../components/ui/DropdownComponent.vue'
+import FilterButtonComponent from '../components/ui/FilterButtonComponent.vue'
 import {
 	IconPlus,
 	IconTrash,
@@ -325,6 +372,7 @@ import {
 const activeTab = ref('buttons')
 const tabs = [
 	{ label: 'Buttons', value: 'buttons' },
+	{ label: 'Filter Button', value: 'filter' },
 	{ label: 'Cards', value: 'cards' },
 	{ label: 'Forms', value: 'forms' },
 	{ label: 'Navigation', value: 'navigation' },
@@ -382,29 +430,39 @@ const copyCodeToClipboard = () => {
 
 // Helper functions for dynamic content
 const hasComponentContent = () => {
-	return ['buttons', 'forms'].includes(activeTab.value)
+	return ['buttons', 'forms', 'filter'].includes(activeTab.value)
 }
 
 const getComponentTitle = () => {
-	const titles = {
-		buttons: 'Button Component',
-		cards: 'Card Component',
-		forms: 'Form Components',
-		navigation: 'Navigation Components',
-		modals: 'Modal Components'
+	switch (activeTab.value) {
+		case 'buttons':
+			return 'Button Component'
+		case 'filter':
+			return 'Filter Button Component'
+		case 'forms':
+			return selectedFormType.value === 'input'
+				? 'Input Component'
+				: 'Dropdown Component'
+		default:
+			return activeTab.value.charAt(0).toUpperCase() + activeTab.value.slice(1)
 	}
-	return titles[activeTab.value] || 'Component'
 }
 
 const getComponentDescription = () => {
-	const descriptions = {
-		buttons: 'Buttons allow users to take actions with a single tap. Use them throughout your interface for actions like submitting forms, opening dialogs, canceling actions, or performing new operations.',
-		forms: 'Form components help users input, edit, and select data.',
-		cards: 'Cards contain content and actions about a single subject.',
-		navigation: 'Navigation components help users move between pages and sections.',
-		modals: 'Modals display content that temporarily blocks interactions with the main view.'
+	switch (activeTab.value) {
+		case 'buttons':
+			return 'Buttons are used for actions, like submitting a form or clicking on a link. Buttons should communicate actions users can take.'
+		case 'filter':
+			return 'Filter Buttons are used for selecting options within predefined categories, often used in search interfaces or content filtering.'
+		case 'forms':
+			if (selectedFormType.value === 'input') {
+				return 'Input components are used for collecting user data, with various types for different data formats.'
+			} else {
+				return 'Dropdown components are used for selecting from a predefined list of options.'
+			}
+		default:
+			return ''
 	}
-	return descriptions[activeTab.value] || ''
 }
 
 // Form component state
@@ -440,6 +498,19 @@ const inputTypes = [
 
 // Dropdown props
 const dropdownOptions = ref(['Body 2 (Regular)', 'Body 2 (Regular)', 'Body 2 (Regular)'])
+
+// Filter button props
+const filterButtonText = ref('Filter Button')
+const isFilterActive = ref(false)
+const isFilterDisabled = ref(false)
+const isFilterFullWidth = ref(false)
+
+// Toggle filter active state
+const toggleFilterActive = () => {
+	if (!isFilterDisabled.value) {
+		isFilterActive.value = !isFilterActive.value
+	}
+}
 
 const addDropdownOption = () => {
 	dropdownOptions.value.push('New Option')
@@ -496,76 +567,99 @@ const getCodeExample = () => {
   ${buttonText.value}
 </ButtonComponent>`
 		}
-	}
+	} else if (activeTab.value === 'filter') {
+		const props = []
 
-	if (activeTab.value === 'forms') {
-		if (selectedFormType.value === 'input') {
-			const props = []
-
-			props.push(`label="${formLabelText.value}"`)
-
-			if (formShowDescription.value) {
-				props.push('description="This is a helper text for the input field"')
-			}
-
-			props.push(`placeholder="${formPlaceholder.value}"`)
-
-			if (formRequired.value) {
-				props.push(':required="true"')
-			}
-
-			if (selectedInputType.value !== 'text') {
-				props.push(`type="${selectedInputType.value}"`)
-			}
-
-			if (formDisabled.value) {
-				props.push(':disabled="true"')
-			}
-
-			if (formHasError.value) {
-				props.push(':has-error="true"')
-				props.push('error-message="Error message"')
-			}
-
-			const propsStr = props.join('\n  ')
-
-			return `<InputComponent
-  ${propsStr}
-  v-model="value"
-/>`
-		} else if (selectedFormType.value === 'dropdown') {
-			const props = []
-
-			props.push(`label="${formLabelText.value}"`)
-
-			if (formShowDescription.value) {
-				props.push('description="This is a helper text for the dropdown field"')
-			}
-
-			props.push(`placeholder="${formPlaceholder.value}"`)
-
-			if (formRequired.value) {
-				props.push(':required="true"')
-			}
-
-			if (formDisabled.value) {
-				props.push(':disabled="true"')
-			}
-
-			if (formHasError.value) {
-				props.push(':has-error="true"')
-				props.push('error-message="Error message"')
-			}
-
-			props.push(':options="[\'Option 1\', \'Option 2\', \'Option 3\', \'Option 4\']"')
-
-			const propsStr = props.join('\n  ')
-
-			return `<DropdownComponent
-  ${propsStr}
-  v-model="value"
-/>`
+		if (filterButtonText.value) {
+			props.push(`text="${filterButtonText.value}"`)
 		}
+
+		if (isFilterActive.value) {
+			props.push(':active="true"')
+		}
+
+		if (isFilterDisabled.value) {
+			props.push(':disabled="true"')
+		}
+
+		if (isFilterFullWidth.value) {
+			props.push(':full-width="true"')
+		}
+
+		const propsStr = props.length ? props.join('\n  ') : ''
+
+		return `<FilterButtonComponent
+  ${propsStr}
+  @click="handleFilterClick"
+/>`
+	} else if (activeTab.value === 'forms' && selectedFormType.value === 'input') {
+		// Input component code example generation
+		const props = []
+
+		props.push(`label="${formLabelText.value}"`)
+
+		if (formShowDescription.value) {
+			props.push('description="This is a helper text for the input field"')
+		}
+
+		props.push(`placeholder="${formPlaceholder.value}"`)
+
+		if (formRequired.value) {
+			props.push(':required="true"')
+		}
+
+		if (selectedInputType.value !== 'text') {
+			props.push(`type="${selectedInputType.value}"`)
+		}
+
+		if (formDisabled.value) {
+			props.push(':disabled="true"')
+		}
+
+		if (formHasError.value) {
+			props.push(':has-error="true"')
+			props.push('error-message="Error message"')
+		}
+
+		const propsStr = props.join('\n  ')
+
+		return `<InputComponent
+  ${propsStr}
+  v-model="value"
+/>`
+	} else if (activeTab.value === 'forms' && selectedFormType.value === 'dropdown') {
+		// Dropdown component code example generation
+		const props = []
+
+		props.push(`label="${formLabelText.value}"`)
+
+		if (formShowDescription.value) {
+			props.push('description="This is a helper text for the dropdown field"')
+		}
+
+		props.push(`placeholder="${formPlaceholder.value}"`)
+
+		if (formRequired.value) {
+			props.push(':required="true"')
+		}
+
+		if (formDisabled.value) {
+			props.push(':disabled="true"')
+		}
+
+		if (formHasError.value) {
+			props.push(':has-error="true"')
+			props.push('error-message="Error message"')
+		}
+
+		props.push(':options="[\'Option 1\', \'Option 2\', \'Option 3\', \'Option 4\']"')
+
+		const propsStr = props.join('\n  ')
+
+		return `<DropdownComponent
+  ${propsStr}
+  v-model="value"
+/>`
 	}
 
 	return '// Code example will appear here'
@@ -903,36 +997,43 @@ const getCodeExample = () => {
 .option-list {
 	display: flex;
 	flex-direction: column;
-	gap: $spacing-xs;
-	margin-top: $spacing-xs;
+	gap: 0.75rem;
+	width: 100%;
 }
 
-.option-item {
+.option-editor {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	width: 100%;
+	padding: 0.75rem;
+	background-color: $neutral-200;
+	border-radius: $border-radius-sm;
+}
+
+.option-controls {
 	display: flex;
 	align-items: center;
-	gap: $spacing-xs;
+	justify-content: space-between;
 }
 
-.remove-option-btn {
+.remove-btn {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	background: none;
 	border: none;
-	color: $neutral-500;
-	width: 24px;
-	height: 24px;
-	padding: 0;
+	background: none;
+	color: $error-base;
 	cursor: pointer;
-	transition: $transition-base;
+	padding: 0.25rem;
 
 	&:hover {
-		color: $error-base;
+		color: $error-600;
 	}
 
 	svg {
-		width: 16px;
-		height: 16px;
+		width: 1rem;
+		height: 1rem;
 	}
 }
 
@@ -992,5 +1093,20 @@ const getCodeExample = () => {
 	align-items: center;
 	justify-content: center;
 	width: 100%;
+}
+
+.filter-button-preview-container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	padding: 2rem;
+}
+
+.filter-button-icon-svg {
+	display: inline-block !important;
+	vertical-align: middle;
+	color: currentColor;
 }
 </style>
