@@ -50,7 +50,7 @@ defineEmits(['click'])
 
 .filter-button {
 	display: flex;
-	align-items: flex-start;
+	align-items: center;
 	justify-content: space-between;
 	min-width: 50%;
 	height: 48px;
