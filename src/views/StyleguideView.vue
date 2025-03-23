@@ -35,6 +35,10 @@ import {
 } from '@tabler/icons-vue'
 
 const activeTab = ref('layout')
+const showToast = ref(false)
+const toastMessage = ref('')
+const toastPosition = ref({ x: 0, y: 0 })
+
 const tabs = [
 	{ id: 'layout', label: 'Layout' },
 	{ id: 'typography', label: 'Typography' },
@@ -76,10 +80,35 @@ const icons = [
 	{ component: IconUsers, name: 'Users' },
 	{ component: IconX, name: 'X' }
 ]
+
+const copyVariable = async (variableName, event) => {
+	try {
+		await navigator.clipboard.writeText(variableName)
+		toastMessage.value = `Kopieret: ${variableName}`
+		toastPosition.value = { x: event.clientX, y: event.clientY }
+		showToast.value = true
+		setTimeout(() => {
+			showToast.value = false
+		}, 2000)
+	} catch (err) {
+		console.error('Failed to copy text: ', err)
+		toastMessage.value = 'Kunne ikke kopiere variabel'
+		toastPosition.value = { x: event.clientX, y: event.clientY }
+		showToast.value = true
+		setTimeout(() => {
+			showToast.value = false
+		}, 2000)
+	}
+}
 </script>
 
 <template>
   <div class="styleguide">
+    <!-- Toast Notification -->
+    <div v-if="showToast" class="toast" :style="{ left: `${toastPosition.x}px`, top: `${toastPosition.y}px` }">
+      {{ toastMessage }}
+    </div>
+
     <header class="main-header">
       <h1>Styleguide</h1>
       <nav class="component-nav">
@@ -94,6 +123,11 @@ const icons = [
     </header>
 
     <div class="component-container">
+      <!-- Global Copy Hint -->
+      <div v-if="activeTab === 'colors'" class="global-copy-hint">
+        <p>Klik på variabelnavnet for at kopiere det til udklipsholderet</p>
+      </div>
+
       <!-- Layout -->
       <div v-if="activeTab === 'layout'" class="tab-content">
         <section>
@@ -268,7 +302,7 @@ const icons = [
             <div class="color-item" v-for="n in [900, 800, 700, 600, 500, 400, 300, 200, 100]" :key="n">
               <div class="color-preview" :class="`primary-${n}`"></div>
               <p>Primary {{ n }}</p>
-              <code>$primary-{{ n }}</code>
+              <code @click="copyVariable(`$primary-${n}`, $event)" class="clickable-code">$primary-{{ n }}</code>
             </div>
           </div>
         </section>
@@ -280,7 +314,7 @@ const icons = [
             <div class="color-item" v-for="n in [900, 800, 700, 600, 500, 400, 300, 200, 100, 50, 25]" :key="n">
               <div class="color-preview" :class="`secondary-${n}`"></div>
               <p>Secondary {{ n }}</p>
-              <code>$secondary-{{ n }}</code>
+              <code @click="copyVariable(`$secondary-${n}`, $event)" class="clickable-code">$secondary-{{ n }}</code>
             </div>
           </div>
         </section>
@@ -292,7 +326,7 @@ const icons = [
             <div class="color-item" v-for="n in [900, 800, 700, 600, 500, 400, 300, 200, 100]" :key="n">
               <div class="color-preview" :class="`neutral-${n}`"></div>
               <p>Neutral {{ n }}</p>
-              <code>$neutral-{{ n }}</code>
+              <code @click="copyVariable(`$neutral-${n}`, $event)" class="clickable-code">$neutral-{{ n }}</code>
             </div>
           </div>
         </section>
@@ -305,7 +339,7 @@ const icons = [
             <div class="color-item" v-for="variant in ['warning', 'success', '600', '500', 'base', '400', '300', '200', '100']" :key="'error-'+variant">
               <div class="color-preview" :class="`error-${variant}`"></div>
               <p>Error {{ variant }}</p>
-              <code>$error-{{ variant }}</code>
+              <code @click="copyVariable(`$error-${variant}`, $event)" class="clickable-code">$error-{{ variant }}</code>
             </div>
 
             <!-- Warning Colors -->
@@ -313,7 +347,7 @@ const icons = [
             <div class="color-item" v-for="variant in ['base', '400', '300', '200', '100']" :key="'warning-'+variant">
               <div class="color-preview" :class="`warning-${variant}`"></div>
               <p>Warning {{ variant }}</p>
-              <code>$warning-{{ variant }}</code>
+              <code @click="copyVariable(`$warning-${variant}`, $event)" class="clickable-code">$warning-{{ variant }}</code>
             </div>
 
             <!-- Success Colors -->
@@ -321,7 +355,7 @@ const icons = [
             <div class="color-item" v-for="variant in ['base', '400', '300', '200', '100']" :key="'success-'+variant">
               <div class="color-preview" :class="`success-${variant}`"></div>
               <p>Success {{ variant }}</p>
-              <code>$success-{{ variant }}</code>
+              <code @click="copyVariable(`$success-${variant}`, $event)" class="clickable-code">$success-{{ variant }}</code>
             </div>
           </div>
         </section>
@@ -333,7 +367,7 @@ const icons = [
             <div class="color-item" v-for="opacity in [100, 80, 64, 56, 40, 24, 16, 8, 4]" :key="opacity">
               <div class="color-preview" :style="{ backgroundColor: '#000000', opacity: opacity/100 }"></div>
               <p>{{ opacity }}%</p>
-              <code>$opacity-{{ opacity }}</code>
+              <code @click="copyVariable(`$opacity-${opacity}`, $event)" class="clickable-code">$opacity-{{ opacity }}</code>
             </div>
           </div>
         </section>
@@ -771,6 +805,16 @@ section {
   font-family: $font-family-mono;
 }
 
+.clickable-code {
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: $neutral-300;
+    color: $neutral-900;
+  }
+}
+
 .icon-section {
   margin-bottom: $spacing-large;
 }
@@ -1043,6 +1087,47 @@ section {
     &:active:not(:disabled) {
       transform: scale(0.95);
     }
+  }
+}
+
+.global-copy-hint {
+  background-color: $secondary-50;
+  padding: $spacing-small $spacing-medium;
+  border-radius: $border-radius-sm;
+  margin-bottom: $spacing-medium;
+  text-align: center;
+
+  p {
+    margin: 0;
+    font-size: $body-3-font-size;
+    color: $neutral-700;
+  }
+}
+
+.toast {
+  position: fixed;
+  background-color: rgba($neutral-900, 0.9);
+  color: white;
+  padding: $spacing-2xs $spacing-small;
+  border-radius: $border-radius-sm;
+  font-size: $body-3-font-size;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-out;
+  transform: translate(10px, -100%);
+  margin-top: -8px;
+  pointer-events: none;
+  backdrop-filter: blur(4px);
+  box-shadow: $shadow-md;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translate(10px, -100%) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translate(10px, -100%) scale(1);
   }
 }
 </style>
