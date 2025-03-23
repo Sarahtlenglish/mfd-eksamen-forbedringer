@@ -96,7 +96,7 @@ defineEmits(['click'])
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	gap: $spacing-xs;
+	gap: $spacing-small;
 	border-radius: $border-radius-sm;
 	font-family: $font-family-base;
 	font-weight: $body-2-font-weight-semibold;
@@ -139,29 +139,16 @@ defineEmits(['click'])
 
 	// Icon styling
 	.button-icon {
-		display: flex;
+		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		line-height: 0;
-	}
-
-	.button-icon svg,
-	.button-icon .button-icon-svg {
-		fill: none;
-		stroke-width: $icon-stroke-width;
-		color: currentColor;
 		width: $icon-small;
 		height: $icon-small;
-		min-width: $icon-small;
-		min-height: $icon-small;
 	}
 
-	&.size-small .button-icon svg,
-	&.size-small .button-icon .button-icon-svg {
+	&.size-small .button-icon {
 		width: $icon-x-small;
 		height: $icon-x-small;
-		min-width: $icon-x-small;
-		min-height: $icon-x-small;
 	}
 
 	// PRIMARY VARIANT

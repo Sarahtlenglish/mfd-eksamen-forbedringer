@@ -32,13 +32,7 @@ $icon-stroke-width: 1.5;
 
 /**
  * Icon base class
- * 
- * Used like this:
- * <span class="icon medium">
- *   <IconComponent />
- * </span>
- * 
- * Add one of these states: filled, clear, hover, pressed, disabled
+ * Used for standalone icons with background and padding
  */
 .icon {
   display: inline-flex;
@@ -108,7 +102,7 @@ $icon-stroke-width: 1.5;
     }
   }
 
-  // Icon states
+  // States
   &.clear {
     background-color: transparent;
     color: $icon-color-default;
