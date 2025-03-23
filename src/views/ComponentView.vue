@@ -3,14 +3,14 @@
 		<header class="main-header">
 			<h1>Component Library</h1>
 			<nav class="component-nav">
-				<button
+					<button
 					v-for="tab in tabs"
 					:key="tab.value"
-					@click="activeTab = tab.value"
+						@click="activeTab = tab.value"
 					:class="['nav-btn', { active: activeTab === tab.value }]">
-					{{ tab.label }}
-				</button>
-			</nav>
+						{{ tab.label }}
+					</button>
+		</nav>
 		</header>
 
 		<!-- Component Container -->
@@ -24,41 +24,92 @@
 			<!-- If the component tab has content -->
 			<div v-if="hasComponentContent()" class="component-playground">
 				<!-- Preview Section -->
-				<div class="component-preview">
+					<div class="component-preview">
 					<div class="preview-container">
 						<h3 class="preview-heading">Preview</h3>
 
 						<!-- Button Component Preview -->
-						<div v-if="activeTab === 'buttons'">
-							<ButtonComponent
-								:variant="selectedVariant"
-								:size="selectedSize"
+						<div v-if="activeTab === 'buttons'" class="button-preview-container">
+						<ButtonComponent
+							:variant="selectedVariant"
+							:size="selectedSize"
 								:fullWidth="isFullWidth"
-								:disabled="isDisabled"
+							:disabled="isDisabled"
 								:noPadding="noPadding"
 								:isDelete="isDelete">
-								<template v-if="hasIcon" #icon>
+							<template v-if="hasIcon" #icon>
 									<component
 										:is="selectedIcon.component"
 										class="button-icon-svg"/>
-								</template>
-								{{ buttonText }}
-							</ButtonComponent>
+							</template>
+							{{ buttonText }}
+						</ButtonComponent>
 							<p class="preview-hint">Interact with the button to see hover, focus, and pressed states</p>
 						</div>
 
-						<!-- Other component previews would go here -->
+						<!-- Form Component Preview -->
 						<div v-else-if="activeTab === 'forms'">
-							<!-- Form components preview would go here -->
+							<div v-if="selectedFormType === 'input'" class="component-input-preview">
+								<InputComponent
+									v-model="formValue"
+									:label="formLabelText"
+									:placeholder="formPlaceholder"
+									:description="formShowDescription ? 'Beskrivelse' : ''"
+									:hasError="formHasError"
+									:disabled="formDisabled"
+									:required="formRequired"
+									:errorMessage="formHasError ? 'Error message' : ''"
+									:type="selectedInputType"
+								>
+								</InputComponent>
+
+								<div class="icon-explanations">
+									<div class="icon-explanation" v-if="selectedInputType === 'search'">
+										<p>👆 Søge-input har automatisk et søge-ikon til venstre</p>
+									</div>
+									<div class="icon-explanation" v-if="selectedInputType === 'password'">
+										<p>👆 Password-input har automatisk et øje-ikon til højre for at vise/skjule password</p>
+									</div>
+								</div>
+							</div>
+
+							<div v-else-if="selectedFormType === 'dropdown'">
+								<DropdownComponent
+									v-model="selectedDropdownValue"
+									:label="formLabelText"
+									:placeholder="formPlaceholder"
+									:description="formShowDescription ? 'Beskrivelse' : ''"
+									:hasError="formHasError"
+									:disabled="formDisabled"
+									:required="formRequired"
+									:options="dropdownOptions"
+									:errorMessage="formHasError ? 'Error message' : ''"
+								/>
+							</div>
+						</div>
+
+						<!-- Dropdown Component Preview -->
+						<div v-if="activeTab === 'dropdown'" class="dropdown-preview-container">
+							<DropdownComponent
+								v-model="selectedDropdownValue"
+								:options="dropdownOptions"
+								:label="formLabelText"
+								:placeholder="formPlaceholder"
+								:description="formShowDescription ? 'Beskrivelse' : ''"
+								:hasError="formHasError"
+								:errorMessage="formHasError ? 'Error message' : ''"
+								:disabled="formDisabled"
+								:required="formRequired"
+							/>
 						</div>
 					</div>
-				</div>
+					</div>
 
 				<!-- Controls Section -->
-				<div class="component-controls">
+					<div class="component-controls">
 					<!-- Button Controls -->
 					<template v-if="activeTab === 'buttons'">
-						<div class="control-section">
+						<div class="control-grid">
 							<div class="control-group">
 								<label class="control-label">Text</label>
 								<input
@@ -68,35 +119,33 @@
 									placeholder="Button text">
 							</div>
 
-							<div class="control-group">
+								<div class="control-group">
 								<label class="control-label">Variant</label>
 								<div class="button-group">
-									<button
-										v-for="variant in variants"
-										:key="variant.value"
-										@click="selectedVariant = variant.value"
+										<button
+											v-for="variant in variants"
+											:key="variant.value"
+											@click="selectedVariant = variant.value"
 										:class="['control-btn', { active: selectedVariant === variant.value }]">
-										{{ variant.label }}
-									</button>
+											{{ variant.label }}
+										</button>
+									</div>
 								</div>
-							</div>
 
 							<div class="control-group" v-if="selectedVariant === 'primary'">
 								<label class="control-label">Size</label>
 								<div class="button-group">
-									<button
-										v-for="size in sizes"
-										:key="size.value"
-										@click="selectedSize = size.value"
+										<button
+											v-for="size in sizes"
+											:key="size.value"
+											@click="selectedSize = size.value"
 										:class="['control-btn', { active: selectedSize === size.value }]">
-										{{ size.label }}
-									</button>
+											{{ size.label }}
+										</button>
 								</div>
 							</div>
-						</div>
 
-						<div class="control-section">
-							<div class="control-group">
+								<div class="control-group">
 								<label class="control-label">Options</label>
 								<div class="option-group">
 									<label class="option">
@@ -110,19 +159,19 @@
 									</label>
 
 									<label class="option">
-										<input type="checkbox" v-model="isDisabled">
+											<input type="checkbox" v-model="isDisabled">
 										<span>Disabled</span>
-									</label>
+										</label>
 
 									<label class="option" v-if="selectedVariant === 'tertiary'">
 										<input type="checkbox" v-model="noPadding">
 										<span>No padding</span>
-									</label>
+										</label>
 
 									<label class="option" v-if="selectedVariant === 'tertiary'">
 										<input type="checkbox" v-model="isDelete">
 										<span>Delete style (red)</span>
-									</label>
+										</label>
 								</div>
 							</div>
 
@@ -144,9 +193,104 @@
 						</div>
 					</template>
 
-					<!-- Form Controls would go here -->
+					<!-- Form Controls -->
 					<template v-else-if="activeTab === 'forms'">
-						<!-- Form controls would go here -->
+						<!-- Form Type Section -->
+						<div class="control-grid">
+						<div class="control-group">
+								<label class="control-label">Component Type</label>
+								<div class="button-group">
+									<button
+										v-for="type in formTypes"
+										:key="type.value"
+										@click="selectedFormType = type.value"
+										:class="['control-btn', { active: selectedFormType === type.value }]">
+										{{ type.label }}
+									</button>
+					</div>
+				</div>
+
+							<div class="control-group">
+								<label class="control-label">Label Text</label>
+								<input
+									type="text"
+									v-model="formLabelText"
+									class="control-input"
+									placeholder="Label text">
+				</div>
+
+							<div class="control-group">
+								<label class="control-label">Placeholder</label>
+								<input
+									type="text"
+									v-model="formPlaceholder"
+									class="control-input"
+									placeholder="Placeholder text">
+						</div>
+
+							<div class="control-group" v-if="selectedFormType === 'input'">
+								<label class="control-label">Input Type</label>
+								<div class="button-group">
+									<button
+										v-for="type in inputTypes"
+										:key="type.value"
+										@click="selectedInputType = type.value"
+										:class="['control-btn', { active: selectedInputType === type.value }]">
+										{{ type.label }}
+									</button>
+						</div>
+					</div>
+
+							<div class="control-group">
+								<label class="control-label">States</label>
+								<div class="option-group">
+									<label class="option">
+										<input type="checkbox" v-model="formShowDescription">
+										<span>Show description</span>
+									</label>
+
+									<label class="option">
+										<input type="checkbox" v-model="formRequired">
+										<span>Required</span>
+									</label>
+
+									<label class="option">
+										<input type="checkbox" v-model="formHasError">
+										<span>Error state</span>
+									</label>
+
+									<label class="option">
+										<input type="checkbox" v-model="formDisabled">
+										<span>Disabled</span>
+									</label>
+						</div>
+					</div>
+
+							<div class="control-group" v-if="selectedFormType === 'dropdown'">
+								<label class="control-label">Options</label>
+								<div class="option-list">
+									<div v-for="(option, index) in dropdownOptions" :key="index" class="option-item">
+										<input
+											type="text"
+											v-model="dropdownOptions[index]"
+											class="control-input"
+											placeholder="Option text">
+										<button
+											v-if="dropdownOptions.length > 1"
+											@click="removeDropdownOption(index)"
+											class="remove-option-btn"
+											title="Remove option">
+											<IconX />
+										</button>
+						</div>
+									<button
+										@click="addDropdownOption"
+										class="add-option-btn">
+										<IconPlus /> Add Option
+									</button>
+								</div>
+							</div>
+						</div>
 					</template>
 				</div>
 
@@ -168,19 +312,22 @@
 				<h2>Coming Soon</h2>
 				<p>The {{ activeTab }} component is currently in development. Check back later!</p>
 			</div>
-		</div>
+			</div>
 	</div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import ButtonComponent from '../components/ui/ButtonComponent.vue'
+import InputComponent from '../components/ui/InputComponent.vue'
+import DropdownComponent from '../components/ui/DropdownComponent.vue'
 import {
 	IconPlus,
 	IconTrash,
 	IconPencil,
 	IconDownload,
-	IconCheck
+	IconCheck,
+	IconX
 } from '@tabler/icons-vue'
 
 // Tabs
@@ -244,7 +391,7 @@ const copyCodeToClipboard = () => {
 
 // Helper functions for dynamic content
 const hasComponentContent = () => {
-	return ['buttons'].includes(activeTab.value)
+	return ['buttons', 'forms'].includes(activeTab.value)
 }
 
 const getComponentTitle = () => {
@@ -267,6 +414,48 @@ const getComponentDescription = () => {
 		modals: 'Modals display content that temporarily blocks interactions with the main view.'
 	}
 	return descriptions[activeTab.value] || ''
+}
+
+// Form component state
+const selectedFormType = ref('input')
+const formTypes = [
+	{ label: 'Input', value: 'input' },
+	{ label: 'Dropdown', value: 'dropdown' }
+]
+
+const formLabelText = ref('Label')
+const formPlaceholder = ref('Placeholder')
+const formShowDescription = ref(false)
+const formRequired = ref(true)
+const formHasError = ref(false)
+const formDisabled = ref(false)
+const formValue = computed(() => {
+	// Automatisk sæt en værdi når password er valgt for at vise ikoner
+	if (selectedInputType.value === 'password') {
+		return 'password123'
+	}
+	return ''
+})
+const selectedDropdownValue = ref('')
+
+// Input specific props
+const selectedInputType = ref('text')
+const inputTypes = [
+	{ label: 'Text', value: 'text' },
+	{ label: 'Email', value: 'email' },
+	{ label: 'Password', value: 'password' },
+	{ label: 'Search', value: 'search' }
+]
+
+// Dropdown props
+const dropdownOptions = ref(['Body 2 (Regular)', 'Body 2 (Regular)', 'Body 2 (Regular)'])
+
+const addDropdownOption = () => {
+	dropdownOptions.value.push('New Option')
+}
+
+const removeDropdownOption = (index) => {
+	dropdownOptions.value.splice(index, 1)
 }
 
 // Dynamic code example generation based on active component
@@ -296,8 +485,64 @@ const getCodeExample = () => {
 		: ''}
   ${buttonText.value}
 </ButtonComponent>`
+	} else if (activeTab.value === 'forms') {
+		if (selectedFormType.value === 'input') {
+			// Besked om automatiske ikoner
+			let automaticIconNote = ''
+			if (selectedInputType.value === 'search') {
+				automaticIconNote = '<!-- Search input har automatisk søge-ikon til venstre -->\n  '
+			} else if (selectedInputType.value === 'password') {
+				automaticIconNote = '<!-- Password input har automatisk øje-ikon til højre -->\n  '
+			}
+
+			return `${automaticIconNote}<InputComponent
+  v-model="yourValue"
+  ${formLabelText.value ? `label="${formLabelText.value}"` : ''}${formPlaceholder.value && formPlaceholder.value !== 'Placeholder'
+		? `
+  placeholder="${formPlaceholder.value}"`
+		: ''}${formShowDescription.value
+		? `
+  description="Beskrivelse"`
+		: ''}${formRequired.value
+		? `
+  required`
+		: ''}${formDisabled.value
+		? `
+  disabled`
+		: ''}${formHasError.value
+		? `
+  :hasError="true"
+  errorMessage="Error message"`
+		: ''}${selectedInputType.value !== 'text'
+		? `
+  type="${selectedInputType.value}"`
+		: ''}
+</InputComponent>`
+		} else if (selectedFormType.value === 'dropdown') {
+			return `<DropdownComponent
+  v-model="selectedValue"
+  ${formLabelText.value ? `label="${formLabelText.value}"` : ''}${formPlaceholder.value && formPlaceholder.value !== 'Default'
+		? `
+  placeholder="${formPlaceholder.value}"`
+		: ''}${formShowDescription.value
+		? `
+  description="Beskrivelse"`
+		: ''}${formRequired.value
+		? `
+  required`
+		: ''}${formDisabled.value
+		? `
+  disabled`
+		: ''}${formHasError.value
+		? `
+  :hasError="true"
+  errorMessage="Error message"`
+		: ''}
+  :options="${JSON.stringify(dropdownOptions.value).replace(/"/g, '\'')}"
+/>`
+		}
 	}
-	// Add other component examples here
+
 	return 'Code example will be shown here'
 }
 </script>
@@ -330,20 +575,20 @@ const getCodeExample = () => {
 	gap: 0.25rem;
 
 	.nav-btn {
-		background: none;
-		border: none;
+					background: none;
+					border: none;
 		padding: 0.5rem 1rem;
 		font-size: 0.875rem;
 		border-radius: 4px;
 		cursor: pointer;
-		color: $neutral-700;
+					color: $neutral-700;
 		transition: all 0.2s ease;
 
-		&:hover {
+					&:hover {
 			background-color: $neutral-100;
-		}
+					}
 
-		&.active {
+					&.active {
 			background-color: $primary-500;
 			color: white;
 		}
@@ -382,18 +627,18 @@ const getCodeExample = () => {
 	grid-template-rows: auto auto auto;
 }
 
-.component-preview {
+	.component-preview {
     padding: 1.5rem;
-	display: flex;
-	justify-content: center;
-	align-items: center;
+		display: flex;
+		justify-content: center;
+		align-items: center;
 	background-color: $neutral-100;
 	border-bottom: 1px solid $neutral-200;
 }
 
 .preview-container {
-	text-align: center;
 	width: 100%;
+	text-align: left;
 }
 
 .preview-heading {
@@ -401,36 +646,35 @@ const getCodeExample = () => {
 	font-weight: 600;
 	margin-bottom: 1rem;
 	color: $neutral-900;
+	text-align: center;
 }
 
 .preview-hint {
 	font-size: 0.875rem;
 	color: $neutral-600;
 	margin-top: 0.5rem;
-}
+	}
 
-.component-controls {
+	.component-controls {
 	padding: 1.5rem;
 	border-bottom: 1px solid $neutral-200;
-	display: grid;
-	grid-template-columns: 1fr 1fr;
-	gap: 1.5rem;
 }
 
-.control-section {
-	display: flex;
-	flex-direction: column;
-	gap: 1rem;
+.control-grid {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	column-gap: 2rem;
+	row-gap: 1.5rem;
 }
 
 .control-group {
-	margin-bottom: 0.5rem;
+	margin-bottom: 0;
 }
 
 .control-label {
-	display: block;
+		display: block;
 	font-size: 0.75rem;
-	font-weight: 500;
+		font-weight: 500;
 	margin-bottom: 0.5rem;
 	color: $neutral-700;
 	text-transform: uppercase;
@@ -459,25 +703,25 @@ const getCodeExample = () => {
 }
 
 .control-btn {
-	flex: 1;
+		flex: 1;
 	padding: 0.5rem;
 	background: white;
-	border: none;
+		border: none;
 	font-size: 0.875rem;
-	cursor: pointer;
+		cursor: pointer;
 	transition: background 0.2s;
 
-	&:not(:last-child) {
-		border-right: 1px solid $neutral-300;
-	}
+		&:not(:last-child) {
+			border-right: 1px solid $neutral-300;
+		}
 
-	&:hover {
-		background-color: $neutral-100;
-	}
+		&:hover {
+			background-color: $neutral-100;
+		}
 
-	&.active {
-		background-color: $primary-500;
-		color: white;
+		&.active {
+			background-color: $primary-500;
+			color: white;
 	}
 }
 
@@ -505,7 +749,7 @@ const getCodeExample = () => {
 
 .icon-selector {
 	display: flex;
-    flex-wrap: wrap;
+	flex-wrap: wrap;
     gap: 0.5rem;
     background-color: #FFFFFF;
     padding: 0.75rem 0;
@@ -626,8 +870,126 @@ const getCodeExample = () => {
 }
 
 @media (max-width: 768px) {
-	.component-controls {
+	.control-grid {
 		grid-template-columns: 1fr;
 	}
+}
+
+.option-list {
+	display: flex;
+	flex-direction: column;
+	gap: $spacing-xs;
+	margin-top: $spacing-xs;
+}
+
+.option-item {
+	display: flex;
+	align-items: center;
+	gap: $spacing-xs;
+}
+
+.remove-option-btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: none;
+	border: none;
+	color: $neutral-500;
+	width: 24px;
+	height: 24px;
+	padding: 0;
+	cursor: pointer;
+	transition: $transition-base;
+
+	&:hover {
+		color: $error-base;
+	}
+
+	svg {
+		width: 16px;
+		height: 16px;
+	}
+}
+
+.add-option-btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: $spacing-xs;
+	background: none;
+	border: 1px dashed $neutral-300;
+	color: $primary-500;
+	border-radius: $border-radius-sm;
+	padding: $spacing-xs $spacing-small;
+	margin-top: $spacing-xs;
+	cursor: pointer;
+	transition: $transition-base;
+	font-size: $body-3-font-size;
+
+	&:hover {
+		background-color: $neutral-100;
+		color: $primary-700;
+	}
+
+	svg {
+		width: 16px;
+		height: 16px;
+	}
+}
+
+.component-input-preview {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+}
+
+.icon-explanations {
+	display: flex;
+	flex-direction: column;
+	gap: $spacing-xs;
+	width: 100%;
+	max-width: 400px;
+}
+
+.icon-explanation {
+	margin-top: $spacing-xs;
+	text-align: left;
+	background-color: $neutral-200;
+	padding: $spacing-small;
+	border-radius: $border-radius-sm;
+	width: 100%;
+	border-left: 4px solid $primary-500;
+
+	p {
+		margin: 0;
+		font-size: $body-3-font-size;
+		color: $neutral-700;
+	}
+}
+
+.button-preview-container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+}
+
+.dropdown-preview-container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+}
+
+.input-preview-container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
 }
 </style>

@@ -96,7 +96,7 @@ defineEmits(['click'])
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	gap: 8px;
+	gap: 0.5rem;
 	border-radius: $border-radius-sm;
 	font-family: $font-family-base;
 	font-weight: $body-2-font-weight-semibold;
@@ -111,15 +111,15 @@ defineEmits(['click'])
 
 	// Size variants
 	&.size-small {
-		padding: 8px 16px;
+		padding: 0.5rem 1rem;
 		font-size: $body-2-font-size;
-		line-height: 24px;
+		line-height: 1.5rem;
 	}
 
 	&.size-medium {
-		padding: 8px 16px;
+		padding: 0.5rem 1rem;
 		font-size: $body-1-font-size;
-		line-height: 28px;
+		line-height: 1.75rem;
 	}
 
 	// Full width modifier
@@ -150,18 +150,18 @@ defineEmits(['click'])
 		fill: none;
 		stroke-width: 1.5;
 		color: currentColor;
-		width: 20px;
-		height: 20px;
-		min-width: 20px;
-		min-height: 20px;
+		width: 1.25rem;
+		height: 1.25rem;
+		min-width: 1.25rem;
+		min-height: 1.25rem;
 	}
 
 	&.size-small .button-icon svg,
 	&.size-small .button-icon .button-icon-svg {
-		width: 16px;
-		height: 16px;
-		min-width: 16px;
-		min-height: 16px;
+		width: 1rem;
+		height: 1rem;
+		min-width: 1rem;
+		min-height: 1rem;
 	}
 
 	// PRIMARY VARIANT
