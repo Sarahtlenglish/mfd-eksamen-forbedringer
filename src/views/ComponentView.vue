@@ -373,6 +373,7 @@ const activeTab = ref('buttons')
 const tabs = [
 	{ label: 'Logo', value: 'logo' },
 	{ label: 'Buttons', value: 'buttons' },
+	{ label: 'Filter Button', value: 'filter' },
 	{ label: 'Navigation', value: 'navigation' },
 	{ label: 'Forms', value: 'forms' },
 	{ label: 'Tables', value: 'tables' },
@@ -433,15 +434,17 @@ const copyCodeToClipboard = () => {
 
 // Helper functions for dynamic content
 const hasComponentContent = () => {
-	return ['buttons', 'forms'].includes(activeTab.value)
+	return ['buttons', 'forms', 'filter'].includes(activeTab.value)
 }
 
 const getComponentTitle = () => {
 	switch (activeTab.value) {
 		case 'buttons':
 			return 'Button Component'
+		case 'filter':
+			return 'Filter Button Component'
 		case 'forms':
-			return formState.type === 'input'
+			return selectedFormType.value === 'input'
 				? 'Input Component'
 				: 'Dropdown Component'
 		default:
@@ -453,26 +456,14 @@ const getComponentDescription = () => {
 	switch (activeTab.value) {
 		case 'buttons':
 			return 'Buttons are used for actions, like submitting a form or clicking on a link. Buttons should communicate actions users can take.'
+		case 'filter':
+			return 'Filter Buttons are used for selecting options within predefined categories, often used in search interfaces or content filtering.'
 		case 'forms':
-			if (formState.type === 'input') {
+			if (selectedFormType.value === 'input') {
 				return 'Input components are used for collecting user data, with various types for different data formats.'
 			} else {
-				return 'Dropdown components allow users to select a value from a series of options.'
+				return 'Dropdown components are used for selecting from a predefined list of options.'
 			}
-		case 'logo':
-			return 'The logo is a key element of our brand identity, representing our values and visual presence.'
-		case 'navigation':
-			return 'Navigation components help users move between pages and sections of the application.'
-		case 'tables':
-			return 'Tables display data in rows and columns, making it easy to scan and compare information.'
-		case 'modals':
-			return 'Modals & Pop-Ups provide focused interactions without losing context of the underlying page.'
-		case 'banners':
-			return 'Banners & Messaging components communicate important information or status updates to users.'
-		case 'illustrations':
-			return 'Illustrations add visual interest and help communicate concepts in a friendly, approachable way.'
-		case 'calender':
-			return 'Calendar components help users navigate and select dates or view scheduled events.'
 		default:
 			return ''
 	}
@@ -1121,5 +1112,37 @@ const getCodeExample = () => {
 	display: inline-block !important;
 	vertical-align: middle;
 	color: currentColor;
+}
+
+.option-item {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	width: 100%;
+}
+
+.remove-option-btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border: none;
+	background: none;
+	color: $neutral-700;
+	cursor: pointer;
+	padding: 0.25rem;
+	width: 24px;
+	height: 24px;
+	border-radius: 4px;
+
+	&:hover {
+		background-color: $neutral-100;
+		color: $error-base;
+	}
+
+	svg {
+		width: 16px;
+		height: 16px;
+		stroke-width: 2;
+	}
 }
 </style>
