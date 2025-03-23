@@ -96,7 +96,7 @@ defineEmits(['click'])
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	gap: 0.5rem;
+	gap: $spacing-xs;
 	border-radius: $border-radius-sm;
 	font-family: $font-family-base;
 	font-weight: $body-2-font-weight-semibold;
@@ -111,15 +111,15 @@ defineEmits(['click'])
 
 	// Size variants
 	&.size-small {
-		padding: 0.5rem 1rem;
+		padding: $spacing-small $spacing-medium;
 		font-size: $body-2-font-size;
-		line-height: 1.5rem;
+		line-height: $body-2-line-height;
 	}
 
 	&.size-medium {
-		padding: 0.5rem 1rem;
+		padding: $spacing-small $spacing-medium;
 		font-size: $body-1-font-size;
-		line-height: 1.75rem;
+		line-height: $body-1-line-height;
 	}
 
 	// Full width modifier
@@ -148,20 +148,20 @@ defineEmits(['click'])
 	.button-icon svg,
 	.button-icon .button-icon-svg {
 		fill: none;
-		stroke-width: 1.5;
+		stroke-width: $icon-stroke-width;
 		color: currentColor;
-		width: 1.25rem;
-		height: 1.25rem;
-		min-width: 1.25rem;
-		min-height: 1.25rem;
+		width: $icon-small;
+		height: $icon-small;
+		min-width: $icon-small;
+		min-height: $icon-small;
 	}
 
 	&.size-small .button-icon svg,
 	&.size-small .button-icon .button-icon-svg {
-		width: 1rem;
-		height: 1rem;
-		min-width: 1rem;
-		min-height: 1rem;
+		width: $icon-x-small;
+		height: $icon-x-small;
+		min-width: $icon-x-small;
+		min-height: $icon-x-small;
 	}
 
 	// PRIMARY VARIANT
