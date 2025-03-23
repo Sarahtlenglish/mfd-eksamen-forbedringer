@@ -3,7 +3,7 @@
 		class="dropdown"
 		:class="{
 			'has-error': hasError,
-			'disabled': disabled,
+			'disabled': disabled === true,
 			'opened': isOpen
 		}"
 	>
@@ -17,7 +17,7 @@
 				:id="dropdownId"
 				type="button"
 				class="dropdown-toggle"
-				:disabled="disabled"
+				:disabled="disabled === true"
 				@click="toggleDropdown"
 				@blur="handleBlur"
 				@keydown.esc="closeDropdown"

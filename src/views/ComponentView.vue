@@ -461,89 +461,123 @@ const removeDropdownOption = (index) => {
 // Dynamic code example generation based on active component
 const getCodeExample = () => {
 	if (activeTab.value === 'buttons') {
-		return `<ButtonComponent
-  variant="${selectedVariant.value}"${selectedVariant.value === 'primary'
-		? `
-  size="${selectedSize.value}"`
-		: ''}${isFullWidth.value
-		? `
-  :fullWidth="true"`
-		: ''}${isDisabled.value
-		? `
-  disabled`
-		: ''}${noPadding.value && selectedVariant.value === 'tertiary'
-		? `
-  :noPadding="true"`
-		: ''}${isDelete.value && selectedVariant.value === 'tertiary'
-		? `
-  :isDelete="true"`
-		: ''}>${hasIcon.value
-		? `
+		const props = []
+
+		if (selectedVariant.value !== 'primary') {
+			props.push(`variant="${selectedVariant.value}"`)
+		}
+
+		if (selectedSize.value !== 'medium') {
+			props.push(`size="${selectedSize.value}"`)
+		}
+
+		if (isFullWidth.value) {
+			props.push(':full-width="true"')
+		}
+
+		if (isDisabled.value) {
+			props.push(':disabled="true"')
+		}
+
+		if (noPadding.value) {
+			props.push(':no-padding="true"')
+		}
+
+		if (isDelete.value) {
+			props.push(':is-delete="true"')
+		}
+
+		const propsStr = props.length ? props.join('\n  ') : ''
+
+		if (hasIcon.value) {
+			return `<ButtonComponent
+  ${propsStr}
+>
   <template #icon>
-    <${selectedIcon.value.name} class="button-icon-svg" />
-  </template>`
-		: ''}
+    <${selectedIcon.value.name} />
+  </template>
   ${buttonText.value}
 </ButtonComponent>`
-	} else if (activeTab.value === 'forms') {
+		} else {
+			return `<ButtonComponent
+  ${propsStr}
+>
+  ${buttonText.value}
+</ButtonComponent>`
+		}
+	}
+
+	if (activeTab.value === 'forms') {
 		if (selectedFormType.value === 'input') {
-			// Besked om automatiske ikoner
-			let automaticIconNote = ''
-			if (selectedInputType.value === 'search') {
-				automaticIconNote = '<!-- Search input har automatisk søge-ikon til venstre -->\n  '
-			} else if (selectedInputType.value === 'password') {
-				automaticIconNote = '<!-- Password input har automatisk øje-ikon til højre -->\n  '
+			const props = []
+
+			props.push(`label="${formLabelText.value}"`)
+
+			if (formShowDescription.value) {
+				props.push('description="This is a helper text for the input field"')
 			}
 
-			return `${automaticIconNote}<InputComponent
-  v-model="yourValue"
-  ${formLabelText.value ? `label="${formLabelText.value}"` : ''}${formPlaceholder.value && formPlaceholder.value !== 'Placeholder'
-		? `
-  placeholder="${formPlaceholder.value}"`
-		: ''}${formShowDescription.value
-		? `
-  description="Beskrivelse"`
-		: ''}${formRequired.value
-		? `
-  required`
-		: ''}${formDisabled.value
-		? `
-  disabled`
-		: ''}${formHasError.value
-		? `
-  :hasError="true"
-  errorMessage="Error message"`
-		: ''}${selectedInputType.value !== 'text'
-		? `
-  type="${selectedInputType.value}"`
-		: ''}
-</InputComponent>`
+			props.push(`placeholder="${formPlaceholder.value}"`)
+
+			if (formRequired.value) {
+				props.push(':required="true"')
+			}
+
+			if (selectedInputType.value !== 'text') {
+				props.push(`type="${selectedInputType.value}"`)
+			}
+
+			if (formDisabled.value) {
+				props.push(':disabled="true"')
+			}
+
+			if (formHasError.value) {
+				props.push(':has-error="true"')
+				props.push('error-message="Error message"')
+			}
+
+			const propsStr = props.join('\n  ')
+
+			return `<InputComponent
+  ${propsStr}
+  v-model="value"
+/>`
 		} else if (selectedFormType.value === 'dropdown') {
+			const props = []
+
+			props.push(`label="${formLabelText.value}"`)
+
+			if (formShowDescription.value) {
+				props.push('description="This is a helper text for the dropdown field"')
+			}
+
+			props.push(`placeholder="${formPlaceholder.value}"`)
+
+			if (formRequired.value) {
+				props.push(':required="true"')
+			}
+
+			if (formDisabled.value) {
+				props.push(':disabled="true"')
+			}
+
+			if (formHasError.value) {
+				props.push(':has-error="true"')
+				props.push('error-message="Error message"')
+			}
+
+			props.push(':options="[\'Option 1\', \'Option 2\', \'Option 3\', \'Option 4\']"')
+
+			const propsStr = props.join('\n  ')
+
 			return `<DropdownComponent
-  v-model="selectedValue"
-  ${formLabelText.value ? `label="${formLabelText.value}"` : ''}${formPlaceholder.value && formPlaceholder.value !== 'Default'
-		? `
-  placeholder="${formPlaceholder.value}"`
-		: ''}${formShowDescription.value
-		? `
-  description="Beskrivelse"`
-		: ''}${formRequired.value
-		? `
-  required`
-		: ''}${formDisabled.value
-		? `
-  disabled`
-		: ''}${formHasError.value
-		? `
-  :hasError="true"
-  errorMessage="Error message"`
-		: ''}
-  :options="${JSON.stringify(dropdownOptions.value).replace(/"/g, '\'')}"
+  ${propsStr}
+  v-model="value"
 />`
 		}
 	}
 
-	return 'Code example will be shown here'
+	return '// Code example will appear here'
 }
 </script>
 

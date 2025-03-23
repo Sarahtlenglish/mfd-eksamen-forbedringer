@@ -5,7 +5,7 @@
 			'has-error': hasError,
 			'has-icon-left': type === 'search',
 			'has-icon-right': type === 'password',
-			'disabled': disabled
+			'disabled': disabled === true
 		}"
 	>
 		<label v-if="label" :for="inputId" class="input-label">
@@ -24,7 +24,7 @@
 				:type="inputType"
 				:value="modelValue"
 				:placeholder="placeholder"
-				:disabled="disabled"
+				:disabled="disabled === true"
 				:required="required"
 				:autocomplete="autocomplete"
 				class="input-control"
@@ -35,7 +35,7 @@
 			/>
 
 			<!-- Vis password toggle ikon automatisk ved password type -->
-			<div v-if="type === 'password' && !disabled" class="input-icon-right password-toggle" @click="togglePasswordVisibility">
+			<div v-if="type === 'password' && disabled !== true" class="input-icon-right password-toggle" @click="togglePasswordVisibility">
 				<component :is="passwordVisible ? IconEye : IconEyeOff" />
 			</div>
 		</div>

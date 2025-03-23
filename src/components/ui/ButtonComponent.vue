@@ -7,13 +7,13 @@
 			{
 				'has-icon': hasIcon,
 				'icon-after': iconAfter,
-				'disabled': disabled,
+				'disabled': disabled === true,
 				'full-width': fullWidth,
 				'no-padding': noPadding && variant === 'tertiary',
 				'is-delete': isDelete && variant === 'tertiary'
 			}
 		]"
-		:disabled="disabled"
+		:disabled="disabled === true"
 		:type="type"
 		@click="$emit('click')"
 	>
