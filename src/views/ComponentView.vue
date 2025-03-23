@@ -371,12 +371,15 @@ import {
 // Tabs
 const activeTab = ref('buttons')
 const tabs = [
+	{ label: 'Logo', value: 'logo' },
 	{ label: 'Buttons', value: 'buttons' },
-	{ label: 'Filter Button', value: 'filter' },
-	{ label: 'Cards', value: 'cards' },
-	{ label: 'Forms', value: 'forms' },
 	{ label: 'Navigation', value: 'navigation' },
-	{ label: 'Modals', value: 'modals' }
+	{ label: 'Forms', value: 'forms' },
+	{ label: 'Tables', value: 'tables' },
+	{ label: 'Modals & Pop-Ups', value: 'modals' },
+	{ label: 'Banners & Messaging', value: 'banners' },
+	{ label: 'Illustrations', value: 'illustrations' },
+	{ label: 'Calender', value: 'calender' }
 ]
 
 // Button component state
@@ -430,17 +433,15 @@ const copyCodeToClipboard = () => {
 
 // Helper functions for dynamic content
 const hasComponentContent = () => {
-	return ['buttons', 'forms', 'filter'].includes(activeTab.value)
+	return ['buttons', 'forms'].includes(activeTab.value)
 }
 
 const getComponentTitle = () => {
 	switch (activeTab.value) {
 		case 'buttons':
 			return 'Button Component'
-		case 'filter':
-			return 'Filter Button Component'
 		case 'forms':
-			return selectedFormType.value === 'input'
+			return formState.type === 'input'
 				? 'Input Component'
 				: 'Dropdown Component'
 		default:
@@ -452,14 +453,26 @@ const getComponentDescription = () => {
 	switch (activeTab.value) {
 		case 'buttons':
 			return 'Buttons are used for actions, like submitting a form or clicking on a link. Buttons should communicate actions users can take.'
-		case 'filter':
-			return 'Filter Buttons are used for selecting options within predefined categories, often used in search interfaces or content filtering.'
 		case 'forms':
-			if (selectedFormType.value === 'input') {
+			if (formState.type === 'input') {
 				return 'Input components are used for collecting user data, with various types for different data formats.'
 			} else {
-				return 'Dropdown components are used for selecting from a predefined list of options.'
+				return 'Dropdown components allow users to select a value from a series of options.'
 			}
+		case 'logo':
+			return 'The logo is a key element of our brand identity, representing our values and visual presence.'
+		case 'navigation':
+			return 'Navigation components help users move between pages and sections of the application.'
+		case 'tables':
+			return 'Tables display data in rows and columns, making it easy to scan and compare information.'
+		case 'modals':
+			return 'Modals & Pop-Ups provide focused interactions without losing context of the underlying page.'
+		case 'banners':
+			return 'Banners & Messaging components communicate important information or status updates to users.'
+		case 'illustrations':
+			return 'Illustrations add visual interest and help communicate concepts in a friendly, approachable way.'
+		case 'calender':
+			return 'Calendar components help users navigate and select dates or view scheduled events.'
 		default:
 			return ''
 	}
