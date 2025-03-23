@@ -159,6 +159,7 @@ defineExpose({
 <style lang="scss" scoped>
 @use '@/assets/variables' as *;
 @use '@/assets/form-components' as *;
+@use '@/assets/icons' as *;
 
 .input-field {
 	@extend .form-field;
@@ -209,9 +210,9 @@ defineExpose({
 	z-index: 2;
 
 	svg {
-		width: 1.25rem;
-		height: 1.25rem;
-		stroke-width: 1.5;
+		width: $icon-small;
+		height: $icon-small;
+		stroke-width: $icon-stroke-width;
 	}
 
 	&:hover {
@@ -228,11 +229,11 @@ defineExpose({
 }
 
 .has-icon-left .input-control {
-	padding-left: 2.5rem;
+	padding-left: calc($spacing-medium + $icon-small);
 }
 
 .has-icon-right .input-control {
-	padding-right: 2.5rem;
+	padding-right: calc($spacing-medium + $icon-small);
 }
 
 .password-toggle {

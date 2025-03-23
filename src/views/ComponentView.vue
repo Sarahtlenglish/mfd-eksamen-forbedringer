@@ -105,6 +105,18 @@
 							/>
 							<p class="preview-hint">Interact with the filter button to see hover, focus, and pressed states</p>
 						</div>
+
+						<!-- Banner Component Preview -->
+						<div v-if="activeTab === 'banners'" class="banner-preview-container">
+							<BannerComponent
+								:variant="bannerVariant"
+								:text="bannerText"
+								:link="bannerShowLink ? bannerLink : ''"
+								:linkText="bannerLinkText"
+								:linkBreak="bannerLinkBreak"
+							/>
+							<p class="preview-hint">Forskellige varianter bruges til at vise forskellige meddelelses-niveauer: warning, error, success</p>
+						</div>
 					</div>
 					</div>
 
@@ -329,6 +341,56 @@
 							</div>
 						</div>
 					</template>
+
+					<!-- Banner Controls -->
+					<template v-if="activeTab === 'banners'">
+						<div class="control-grid">
+							<div class="control-group">
+								<label class="control-label">Variant</label>
+								<div class="button-group">
+									<button
+										v-for="variant in bannerVariants"
+										:key="variant.value"
+										@click="bannerVariant = variant.value"
+										:class="['control-btn', { active: bannerVariant === variant.value }]">
+										{{ variant.label }}
+									</button>
+								</div>
+							</div>
+
+							<div class="control-group">
+								<label class="control-label">Text</label>
+								<input
+									type="text"
+									v-model="bannerText"
+									class="control-input"
+									placeholder="Banner message">
+							</div>
+
+							<div class="control-group">
+								<label class="control-label">Options</label>
+								<div class="option-group">
+									<label class="option">
+										<input type="checkbox" v-model="bannerShowLink">
+										<span>Show link</span>
+									</label>
+									<label class="option" v-if="bannerShowLink">
+										<input type="checkbox" v-model="bannerLinkBreak">
+										<span>Link on new line</span>
+									</label>
+								</div>
+							</div>
+
+							<div class="control-group" v-if="bannerShowLink">
+								<label class="control-label">Link Text</label>
+								<input
+									type="text"
+									v-model="bannerLinkText"
+									class="control-input"
+									placeholder="Link text">
+							</div>
+						</div>
+					</template>
 				</div>
 
 				<!-- Code Example -->
@@ -359,6 +421,7 @@ import ButtonComponent from '../components/ui/ButtonComponent.vue'
 import InputComponent from '../components/ui/InputComponent.vue'
 import DropdownComponent from '../components/ui/DropdownComponent.vue'
 import FilterButtonComponent from '../components/ui/FilterButtonComponent.vue'
+import BannerComponent from '../components/ui/BannerComponent.vue'
 import {
 	IconPlus,
 	IconTrash,
@@ -371,12 +434,16 @@ import {
 // Tabs
 const activeTab = ref('buttons')
 const tabs = [
+	{ label: 'Logo', value: 'logo' },
 	{ label: 'Buttons', value: 'buttons' },
 	{ label: 'Filter Button', value: 'filter' },
-	{ label: 'Cards', value: 'cards' },
-	{ label: 'Forms', value: 'forms' },
 	{ label: 'Navigation', value: 'navigation' },
-	{ label: 'Modals', value: 'modals' }
+	{ label: 'Forms', value: 'forms' },
+	{ label: 'Tables', value: 'tables' },
+	{ label: 'Modals & Pop-Ups', value: 'modals' },
+	{ label: 'Banners & Messaging', value: 'banners' },
+	{ label: 'Illustrations', value: 'illustrations' },
+	{ label: 'Calender', value: 'calender' }
 ]
 
 // Button component state
@@ -430,7 +497,7 @@ const copyCodeToClipboard = () => {
 
 // Helper functions for dynamic content
 const hasComponentContent = () => {
-	return ['buttons', 'forms', 'filter'].includes(activeTab.value)
+	return ['buttons', 'forms', 'filter', 'banners'].includes(activeTab.value)
 }
 
 const getComponentTitle = () => {
@@ -443,6 +510,8 @@ const getComponentTitle = () => {
 			return selectedFormType.value === 'input'
 				? 'Input Component'
 				: 'Dropdown Component'
+		case 'banners':
+			return 'Banner Component'
 		default:
 			return activeTab.value.charAt(0).toUpperCase() + activeTab.value.slice(1)
 	}
@@ -460,6 +529,8 @@ const getComponentDescription = () => {
 			} else {
 				return 'Dropdown components are used for selecting from a predefined list of options.'
 			}
+		case 'banners':
+			return 'Banners are used to display important messages, alerts or notifications to users. They can include links for additional actions.'
 		default:
 			return ''
 	}
@@ -504,6 +575,21 @@ const filterButtonText = ref('Filter Button')
 const isFilterActive = ref(false)
 const isFilterDisabled = ref(false)
 const isFilterFullWidth = ref(false)
+
+// Banner component props
+const bannerText = ref('Dette skema vil blive oprettet uden en checkliste.')
+const bannerVariant = ref('warning')
+const bannerLink = ref('#')
+const bannerLinkText = ref('Opsæt Checkliste')
+const bannerShowLink = ref(true)
+const bannerLinkBreak = ref(false)
+
+// Banner variants
+const bannerVariants = [
+	{ label: 'Warning', value: 'warning' },
+	{ label: 'Error', value: 'error' },
+	{ label: 'Success', value: 'success' }
+]
 
 // Toggle filter active state
 const toggleFilterActive = () => {
@@ -660,6 +746,25 @@ const getCodeExample = () => {
   ${propsStr}
   v-model="value"
 />`
+	} else if (activeTab.value === 'banners') {
+		const props = []
+		props.push(`variant="${bannerVariant.value}"`)
+		if (bannerText.value !== 'Dette skema vil blive oprettet uden en checkliste.') {
+			props.push(`text="${bannerText.value}"`)
+		}
+		if (bannerShowLink.value) {
+			props.push('link="#"')
+			if (bannerLinkText.value !== 'Opsæt Checkliste') {
+				props.push(`link-text="${bannerLinkText.value}"`)
+			}
+			if (bannerLinkBreak.value) {
+				props.push(':link-break="true"')
+			}
+		}
+		const propsStr = props.join('\n  ')
+		return `<BannerComponent
+  ${propsStr}
+/>`
 	}
 
 	return '// Code example will appear here'
@@ -772,9 +877,9 @@ const getCodeExample = () => {
 	font-size: 0.875rem;
 	color: $neutral-600;
 	margin-top: 0.5rem;
-	}
+}
 
-	.component-controls {
+.component-controls {
 	padding: 1.5rem;
 	border-bottom: 1px solid $neutral-200;
 }
@@ -1104,9 +1209,26 @@ const getCodeExample = () => {
 	padding: 2rem;
 }
 
-.filter-button-icon-svg {
-	display: inline-block !important;
-	vertical-align: middle;
-	color: currentColor;
+.banner-preview-container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
 }
+
+// Component preview containers
+.button-preview-container,
+.dropdown-preview-container,
+.input-preview-container,
+.filter-button-preview-container,
+.banner-preview-container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	padding: 1rem;
+}
+
 </style>
