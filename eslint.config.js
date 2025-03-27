@@ -36,7 +36,7 @@ export default [
 			...stylistic.configs.recommended.rules,
 			'@stylistic/quotes': ['error', 'single'],
 			'@stylistic/comma-dangle': ['error', 'never'],
-			'@stylistic/indent': ['error', 'tab'],
+			'@stylistic/indent': ['error', 2],
 			'@stylistic/semi': ['error', 'never'],
 			'@stylistic/brace-style': 'error',
 			'@stylistic/space-before-blocks': 'error',

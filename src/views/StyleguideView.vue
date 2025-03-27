@@ -81,6 +81,7 @@ const icons = [
 	{ component: IconX, name: 'X' }
 ]
 
+
 const copyVariable = async (variableName, event) => {
 	try {
 		await navigator.clipboard.writeText(variableName)
