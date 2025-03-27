@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { IconCalendarEvent } from '@tabler/icons-vue'
+import { IconCalendarEvent, IconClipboardText, IconListDetails, IconFireExtinguisher, IconUsers } from '@tabler/icons-vue'
 import '@/views/StyleguideView.vue'
 
 const router = useRouter();
@@ -9,11 +9,12 @@ const router = useRouter();
 // Updated menuItems to match your router configuration
 const menuItems = ref([
   { name: 'Kalender', route: '/home', icon: IconCalendarEvent, isComponent: true},
-  { name: 'Egenkontrol', route: '/egenkontrol', icon: new URL('@/assets/images/egenkontrol-icon.svg', import.meta.url).href },
-  { name: 'Checklister', route: '/checklister', icon: new URL('@/assets/images/checklister-icon.svg', import.meta.url).href },
-  { name: 'Enheder', route: '/enheder', icon: new URL('@/assets/images/enheder-icon.svg', import.meta.url).href },
-  { name: 'Brugere', route: '/brugere', icon: new URL('@/assets/images/brugere-icon.svg', import.meta.url).href },
+  { name: 'Egenkontrol', route: '/egenkontrol', icon: IconClipboardText, isComponent: true},
+  { name: 'Tjeklister', route: '/tjeklister', icon: IconListDetails, isComponent: true},
+  { name: 'Enheder', route: '/enheder', icon: IconFireExtinguisher, isComponent: true},
+  { name: 'Brugere', route: '/brugere', icon: IconUsers, isComponent: true},
 ]);
+
 
 // Function to determine if route is active
 const isActive = (route) => {
@@ -23,16 +24,18 @@ const isActive = (route) => {
 
 <template>
   <aside class="side-navigation">
-      <div class="logo">
-        <img src="@/images/DBI-Logo.png" alt="DBI logo">
-      </div>
+    <router-link to="/" class="logo">
+      <img src='@/assets/logo.svg?url' alt="DBI logo">
+    </router-link>
     <nav class="menu">
       <ul>
         <li v-for="item in menuItems" :key="item.name">
           <router-link :to="item.route" class="menu-item" :class="{ active: isActive(item.route) }">
             <div class="menu-item-container">
-              <component v-if="item.isComponent" :is="item.icon" class="menu-icons icon medium" />
-              <span class="menu-text">{{ item.name }}</span>
+              <span v-if="item.isComponent" class="icon medium clear">
+                <component :is="item.icon" class="menu-color" />
+              </span>
+              <span class="subtitle-1">{{ item.name }}</span>
             </div>
           </router-link>
         </li>
@@ -66,10 +69,6 @@ const isActive = (route) => {
   padding: 16px 0;
 }
 
-.menu-icons {
-  color: #4B97C0;
-}
-
 .menu ul {
   list-style: none;
   padding: 0;
@@ -80,6 +79,7 @@ const isActive = (route) => {
   display: flex;
   flex-direction: row;
   gap: 16px;
+  align-items: center;
 }
 
 .menu-item {
@@ -96,14 +96,8 @@ const isActive = (route) => {
   background-color: #EAF1F6;
 }
 
-.menu-item.active,
-.router-link-active {
+.menu-item.active {
   background-color: #DCEBF4;
   font-weight: 500;
-}
-
-
-.menu-text {
-  font-size: 28px;
 }
 </style>
