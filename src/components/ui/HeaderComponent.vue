@@ -1,55 +1,40 @@
 <script setup>
-import { ref, computed } from 'vue';
-import { useRoute } from 'vue-router';
-
-const route = useRoute();
-
-// Compute the page title based on the current route
-const pageTitle = computed(() => {
-  const routeNames = {
-    '/home': 'Kalender',
-    '/egenkontrol': 'Egenkontrol',
-    '/checklister': 'Checklister',
-    '/enheder': 'Enheder',
-    '/brugere': 'Brugere'
-  };
-  
-  return routeNames[route.path] || 'Dashboard';
-});
+import { IconBell, IconPrinter, IconQuestionMark, IconUser, IconLogout } from '@tabler/icons-vue'
+import '@/views/StyleguideView.vue'
 </script>
 
 <template>
   <header class="app-header">
     <div class="header-content">
-      <h1 class="page-title">{{ pageTitle }}</h1>
-      
       <div class="header-actions">
         <!-- Action buttons as before -->
-        <button class="header-button">
-            <img src="./images/notifikation-icon.svg" alt="">
-        </button>
-        
-        <button class="header-button">
-            <img src="./images/notifikation-icon.svg" alt="">
-        </button>
-        
-        <button class="header-button">
-            <img :src="printerIcon" alt="Printer">
-        </button>
-        
-        <button class="header-button">
-            <img :src="sporgsmaalIcon" alt="Hjælp">
-        </button>
-        
-        <button class="header-button">
-            <img :src="logoutIcon" alt="Log ud">
-        </button>
+        <span class="icon medium">
+          <IconBell class="menu-color" />
+        </span>
+
+        <span class="icon medium">
+          <IconUser class="menu-color" />
+        </span>
+
+        <span class="icon medium">
+          <IconPrinter class="menu-color" />
+        </span>
+
+        <span class="icon medium">
+          <IconQuestionMark class="menu-color" />
+        </span>
+
+        <span class="icon medium">
+          <IconLogout class="menu-color" />
+        </span>
       </div>
     </div>
   </header>
 </template>
 
 <style scoped>
+@import '@/assets/_icons.scss';
+
 .app-header {
   position: fixed;
   top: 0;
@@ -63,7 +48,7 @@ const pageTitle = computed(() => {
 
 .header-content {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   padding: 0 24px;
   height: 100%;
@@ -79,31 +64,6 @@ const pageTitle = computed(() => {
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 16px;
-}
-
-.header-button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.2s;
-}
-
-.header-button:hover {
-  background-color: #F0F0F0;
-}
-
-.icon-placeholder {
-  width: 24px;
-  height: 24px;
-  /* Remove this when you add your actual icons */
-  background-color: #DDD;
-  border-radius: 4px;
-  display: block;
+  gap: 24px;
 }
 </style>

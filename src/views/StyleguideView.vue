@@ -437,6 +437,25 @@ const copyVariable = async (variableName, event) => {
             </div>
           </div>
 
+          <!-- Icon Colors -->
+          <div class="icon-section">
+            <h3>ICON Colors</h3>
+            <div class="icon-colors">
+              <div class="state-item">
+                <span class="icon medium ">
+                  <component :is="icons[0].component" class="menu-color" />
+                </span>
+                <p>Menu color</p>
+              </div>
+              <div class="state-item">
+                <span class="icon medium ">
+                  <component :is="icons[0].component" />
+                </span>
+                <p>Standard color</p>
+              </div>
+            </div>
+          </div>
+
           <!-- Icon States -->
           <div class="icon-section">
             <h3>ICON STATES</h3>
@@ -832,6 +851,13 @@ section {
   justify-content: left;
   min-width: 120px;
   min-height: 120px;
+}
+
+.icon-colors {
+  display: flex;
+  align-items: center;
+  gap: $spacing-medium;
+  flex-wrap: wrap;
 }
 
 .icon-states {
