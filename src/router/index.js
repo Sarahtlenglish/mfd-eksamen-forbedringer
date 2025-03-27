@@ -3,7 +3,7 @@ import StyleguideView from '@/views/StyleguideView.vue'
 import ComponentView from '@/views/ComponentView.vue'
 import HomeView from '@/views/HomeView.vue'
 import EgenkontrolView from '@/views/EgenkontrolView.vue'
-import ChecklisterView from '@/views/ChecklisterView.vue'
+import TjeklisterView from '@/views/TjeklisterView.vue'
 import EnhederView from '@/views/EnhederView.vue'
 import BrugereView from '@/views/BrugereView.vue'
 
@@ -32,9 +32,9 @@ const router = createRouter({
       //meta: { requiresAuth: true }
     },
     {
-      path: '/checklister',
-      name: 'checklister',
-      component: () => import('@/views/ChecklisterView.vue'),
+      path: '/tjeklister',
+      name: 'tjeklister',
+      component: () => import('@/views/TjeklisterView.vue'),
       //meta: { requiresAuth: true }
     },
     {

@@ -10,10 +10,11 @@ const router = useRouter();
 const menuItems = ref([
   { name: 'Kalender', route: '/home', icon: IconCalendarEvent, isComponent: true},
   { name: 'Egenkontrol', route: '/egenkontrol', icon: IconClipboardText, isComponent: true},
-  { name: 'Checklister', route: '/checklister', icon: IconListDetails, isComponent: true},
+  { name: 'Tjeklister', route: '/tjeklister', icon: IconListDetails, isComponent: true},
   { name: 'Enheder', route: '/enheder', icon: IconFireExtinguisher, isComponent: true},
   { name: 'Brugere', route: '/brugere', icon: IconUsers, isComponent: true},
 ]);
+
 
 // Function to determine if route is active
 const isActive = (route) => {
@@ -24,7 +25,7 @@ const isActive = (route) => {
 <template>
   <aside class="side-navigation">
     <router-link to="/" class="logo">
-      <img src="@/images/DBI-Logo.png" alt="DBI logo">
+      <img src='@/assets/logo.svg?url' alt="DBI logo">
     </router-link>
     <nav class="menu">
       <ul>
