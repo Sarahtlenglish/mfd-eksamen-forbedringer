@@ -423,27 +423,27 @@ import DropdownComponent from '../components/ui/DropdownComponent.vue'
 import FilterButtonComponent from '../components/ui/FilterButtonComponent.vue'
 import BannerComponent from '../components/ui/BannerComponent.vue'
 import {
-	IconPlus,
-	IconTrash,
-	IconPencil,
-	IconDownload,
-	IconCheck,
-	IconX
+  IconPlus,
+  IconTrash,
+  IconPencil,
+  IconDownload,
+  IconCheck,
+  IconX
 } from '@tabler/icons-vue'
 
 // Tabs
 const activeTab = ref('buttons')
 const tabs = [
-	{ label: 'Logo', value: 'logo' },
-	{ label: 'Buttons', value: 'buttons' },
-	{ label: 'Filter Button', value: 'filter' },
-	{ label: 'Navigation', value: 'navigation' },
-	{ label: 'Forms', value: 'forms' },
-	{ label: 'Tables', value: 'tables' },
-	{ label: 'Modals & Pop-Ups', value: 'modals' },
-	{ label: 'Banners & Messaging', value: 'banners' },
-	{ label: 'Illustrations', value: 'illustrations' },
-	{ label: 'Calender', value: 'calender' }
+  { label: 'Logo', value: 'logo' },
+  { label: 'Buttons', value: 'buttons' },
+  { label: 'Filter Button', value: 'filter' },
+  { label: 'Navigation', value: 'navigation' },
+  { label: 'Forms', value: 'forms' },
+  { label: 'Tables', value: 'tables' },
+  { label: 'Modals & Pop-Ups', value: 'modals' },
+  { label: 'Banners & Messaging', value: 'banners' },
+  { label: 'Illustrations', value: 'illustrations' },
+  { label: 'Calender', value: 'calender' }
 ]
 
 // Button component state
@@ -457,22 +457,22 @@ const noPadding = ref(false)
 const isDelete = ref(false)
 
 const variants = [
-	{ label: 'Primary', value: 'primary' },
-	{ label: 'Secondary', value: 'secondary' },
-	{ label: 'Tertiary', value: 'tertiary' }
+  { label: 'Primary', value: 'primary' },
+  { label: 'Secondary', value: 'secondary' },
+  { label: 'Tertiary', value: 'tertiary' }
 ]
 
 const sizes = [
-	{ label: 'Small', value: 'small' },
-	{ label: 'Medium', value: 'medium' }
+  { label: 'Small', value: 'small' },
+  { label: 'Medium', value: 'medium' }
 ]
 
 const icons = [
-	{ component: IconPlus, name: 'IconPlus' },
-	{ component: IconTrash, name: 'IconTrash' },
-	{ component: IconPencil, name: 'IconPencil' },
-	{ component: IconDownload, name: 'IconDownload' },
-	{ component: IconCheck, name: 'IconCheck' }
+  { component: IconPlus, name: 'IconPlus' },
+  { component: IconTrash, name: 'IconTrash' },
+  { component: IconPencil, name: 'IconPencil' },
+  { component: IconDownload, name: 'IconDownload' },
+  { component: IconCheck, name: 'IconCheck' }
 ]
 
 const selectedIcon = ref(icons[0])
@@ -482,65 +482,65 @@ const codeBlock = ref(null)
 const hasCopied = ref(false)
 
 const copyCodeToClipboard = () => {
-	if (codeBlock.value) {
-		const text = codeBlock.value.textContent
-		if (text) {
-			navigator.clipboard.writeText(text)
-			hasCopied.value = true
-			// Reset copied state after 2 seconds
-			setTimeout(() => {
-				hasCopied.value = false
-			}, 2000)
-		}
-	}
+  if (codeBlock.value) {
+    const text = codeBlock.value.textContent
+    if (text) {
+      navigator.clipboard.writeText(text)
+      hasCopied.value = true
+      // Reset copied state after 2 seconds
+      setTimeout(() => {
+        hasCopied.value = false
+      }, 2000)
+    }
+  }
 }
 
 // Helper functions for dynamic content
 const hasComponentContent = () => {
-	return ['buttons', 'forms', 'filter', 'banners'].includes(activeTab.value)
+  return ['buttons', 'forms', 'filter', 'banners'].includes(activeTab.value)
 }
 
 const getComponentTitle = () => {
-	switch (activeTab.value) {
-		case 'buttons':
-			return 'Button Component'
-		case 'filter':
-			return 'Filter Button Component'
-		case 'forms':
-			return selectedFormType.value === 'input'
-				? 'Input Component'
-				: 'Dropdown Component'
-		case 'banners':
-			return 'Banner Component'
-		default:
-			return activeTab.value.charAt(0).toUpperCase() + activeTab.value.slice(1)
-	}
+  switch (activeTab.value) {
+    case 'buttons':
+      return 'Button Component'
+    case 'filter':
+      return 'Filter Button Component'
+    case 'forms':
+      return selectedFormType.value === 'input'
+        ? 'Input Component'
+        : 'Dropdown Component'
+    case 'banners':
+      return 'Banner Component'
+    default:
+      return activeTab.value.charAt(0).toUpperCase() + activeTab.value.slice(1)
+  }
 }
 
 const getComponentDescription = () => {
-	switch (activeTab.value) {
-		case 'buttons':
-			return 'Buttons are used for actions, like submitting a form or clicking on a link. Buttons should communicate actions users can take.'
-		case 'filter':
-			return 'Filter Buttons are used for selecting options within predefined categories, often used in search interfaces or content filtering.'
-		case 'forms':
-			if (selectedFormType.value === 'input') {
-				return 'Input components are used for collecting user data, with various types for different data formats.'
-			} else {
-				return 'Dropdown components are used for selecting from a predefined list of options.'
-			}
-		case 'banners':
-			return 'Banners are used to display important messages, alerts or notifications to users. They can include links for additional actions.'
-		default:
-			return ''
-	}
+  switch (activeTab.value) {
+    case 'buttons':
+      return 'Buttons are used for actions, like submitting a form or clicking on a link. Buttons should communicate actions users can take.'
+    case 'filter':
+      return 'Filter Buttons are used for selecting options within predefined categories, often used in search interfaces or content filtering.'
+    case 'forms':
+      if (selectedFormType.value === 'input') {
+        return 'Input components are used for collecting user data, with various types for different data formats.'
+      } else {
+        return 'Dropdown components are used for selecting from a predefined list of options.'
+      }
+    case 'banners':
+      return 'Banners are used to display important messages, alerts or notifications to users. They can include links for additional actions.'
+    default:
+      return ''
+  }
 }
 
 // Form component state
 const selectedFormType = ref('input')
 const formTypes = [
-	{ label: 'Input', value: 'input' },
-	{ label: 'Dropdown', value: 'dropdown' }
+  { label: 'Input', value: 'input' },
+  { label: 'Dropdown', value: 'dropdown' }
 ]
 
 const formLabelText = ref('Label')
@@ -550,21 +550,21 @@ const formRequired = ref(true)
 const formHasError = ref(false)
 const formDisabled = ref(false)
 const formValue = computed(() => {
-	// Automatisk sæt en værdi når password er valgt for at vise ikoner
-	if (selectedInputType.value === 'password') {
-		return 'password123'
-	}
-	return ''
+  // Automatisk sæt en værdi når password er valgt for at vise ikoner
+  if (selectedInputType.value === 'password') {
+    return 'password123'
+  }
+  return ''
 })
 const selectedDropdownValue = ref('')
 
 // Input specific props
 const selectedInputType = ref('text')
 const inputTypes = [
-	{ label: 'Text', value: 'text' },
-	{ label: 'Email', value: 'email' },
-	{ label: 'Password', value: 'password' },
-	{ label: 'Search', value: 'search' }
+  { label: 'Text', value: 'text' },
+  { label: 'Email', value: 'email' },
+  { label: 'Password', value: 'password' },
+  { label: 'Search', value: 'search' }
 ]
 
 // Dropdown props
@@ -586,59 +586,59 @@ const bannerLinkBreak = ref(false)
 
 // Banner variants
 const bannerVariants = [
-	{ label: 'Warning', value: 'warning' },
-	{ label: 'Error', value: 'error' },
-	{ label: 'Success', value: 'success' }
+  { label: 'Warning', value: 'warning' },
+  { label: 'Error', value: 'error' },
+  { label: 'Success', value: 'success' }
 ]
 
 // Toggle filter active state
 const toggleFilterActive = () => {
-	if (!isFilterDisabled.value) {
-		isFilterActive.value = !isFilterActive.value
-	}
+  if (!isFilterDisabled.value) {
+    isFilterActive.value = !isFilterActive.value
+  }
 }
 
 const addDropdownOption = () => {
-	dropdownOptions.value.push('New Option')
+  dropdownOptions.value.push('New Option')
 }
 
 const removeDropdownOption = (index) => {
-	dropdownOptions.value.splice(index, 1)
+  dropdownOptions.value.splice(index, 1)
 }
 
 // Dynamic code example generation based on active component
 const getCodeExample = () => {
-	if (activeTab.value === 'buttons') {
-		const props = []
+  if (activeTab.value === 'buttons') {
+    const props = []
 
-		if (selectedVariant.value !== 'primary') {
-			props.push(`variant="${selectedVariant.value}"`)
-		}
+    if (selectedVariant.value !== 'primary') {
+      props.push(`variant="${selectedVariant.value}"`)
+    }
 
-		if (selectedSize.value !== 'medium') {
-			props.push(`size="${selectedSize.value}"`)
-		}
+    if (selectedSize.value !== 'medium') {
+      props.push(`size="${selectedSize.value}"`)
+    }
 
-		if (isFullWidth.value) {
-			props.push(':full-width="true"')
-		}
+    if (isFullWidth.value) {
+      props.push(':full-width="true"')
+    }
 
-		if (isDisabled.value) {
-			props.push(':disabled="true"')
-		}
+    if (isDisabled.value) {
+      props.push(':disabled="true"')
+    }
 
-		if (noPadding.value) {
-			props.push(':no-padding="true"')
-		}
+    if (noPadding.value) {
+      props.push(':no-padding="true"')
+    }
 
-		if (isDelete.value) {
-			props.push(':is-delete="true"')
-		}
+    if (isDelete.value) {
+      props.push(':is-delete="true"')
+    }
 
-		const propsStr = props.length ? props.join('\n  ') : ''
+    const propsStr = props.length ? props.join('\n  ') : ''
 
-		if (hasIcon.value) {
-			return `<ButtonComponent
+    if (hasIcon.value) {
+      return `<ButtonComponent
   ${propsStr}
 >
   <template #icon>
@@ -646,128 +646,128 @@ const getCodeExample = () => {
   </template>
   ${buttonText.value}
 </ButtonComponent>`
-		} else {
-			return `<ButtonComponent
+    } else {
+      return `<ButtonComponent
   ${propsStr}
 >
   ${buttonText.value}
 </ButtonComponent>`
-		}
-	} else if (activeTab.value === 'filter') {
-		const props = []
+    }
+  } else if (activeTab.value === 'filter') {
+    const props = []
 
-		if (filterButtonText.value) {
-			props.push(`text="${filterButtonText.value}"`)
-		}
+    if (filterButtonText.value) {
+      props.push(`text="${filterButtonText.value}"`)
+    }
 
-		if (isFilterActive.value) {
-			props.push(':active="true"')
-		}
+    if (isFilterActive.value) {
+      props.push(':active="true"')
+    }
 
-		if (isFilterDisabled.value) {
-			props.push(':disabled="true"')
-		}
+    if (isFilterDisabled.value) {
+      props.push(':disabled="true"')
+    }
 
-		if (isFilterFullWidth.value) {
-			props.push(':full-width="true"')
-		}
+    if (isFilterFullWidth.value) {
+      props.push(':full-width="true"')
+    }
 
-		const propsStr = props.length ? props.join('\n  ') : ''
+    const propsStr = props.length ? props.join('\n  ') : ''
 
-		return `<FilterButtonComponent
+    return `<FilterButtonComponent
   ${propsStr}
   @click="handleFilterClick"
 />`
-	} else if (activeTab.value === 'forms' && selectedFormType.value === 'input') {
-		// Input component code example generation
-		const props = []
+  } else if (activeTab.value === 'forms' && selectedFormType.value === 'input') {
+    // Input component code example generation
+    const props = []
 
-		props.push(`label="${formLabelText.value}"`)
+    props.push(`label="${formLabelText.value}"`)
 
-		if (formShowDescription.value) {
-			props.push('description="This is a helper text for the input field"')
-		}
+    if (formShowDescription.value) {
+      props.push('description="This is a helper text for the input field"')
+    }
 
-		props.push(`placeholder="${formPlaceholder.value}"`)
+    props.push(`placeholder="${formPlaceholder.value}"`)
 
-		if (formRequired.value) {
-			props.push(':required="true"')
-		}
+    if (formRequired.value) {
+      props.push(':required="true"')
+    }
 
-		if (selectedInputType.value !== 'text') {
-			props.push(`type="${selectedInputType.value}"`)
-		}
+    if (selectedInputType.value !== 'text') {
+      props.push(`type="${selectedInputType.value}"`)
+    }
 
-		if (formDisabled.value) {
-			props.push(':disabled="true"')
-		}
+    if (formDisabled.value) {
+      props.push(':disabled="true"')
+    }
 
-		if (formHasError.value) {
-			props.push(':has-error="true"')
-			props.push('error-message="Error message"')
-		}
+    if (formHasError.value) {
+      props.push(':has-error="true"')
+      props.push('error-message="Error message"')
+    }
 
-		const propsStr = props.join('\n  ')
+    const propsStr = props.join('\n  ')
 
-		return `<InputComponent
+    return `<InputComponent
   ${propsStr}
   v-model="value"
 />`
-	} else if (activeTab.value === 'forms' && selectedFormType.value === 'dropdown') {
-		// Dropdown component code example generation
-		const props = []
+  } else if (activeTab.value === 'forms' && selectedFormType.value === 'dropdown') {
+    // Dropdown component code example generation
+    const props = []
 
-		props.push(`label="${formLabelText.value}"`)
+    props.push(`label="${formLabelText.value}"`)
 
-		if (formShowDescription.value) {
-			props.push('description="This is a helper text for the dropdown field"')
-		}
+    if (formShowDescription.value) {
+      props.push('description="This is a helper text for the dropdown field"')
+    }
 
-		props.push(`placeholder="${formPlaceholder.value}"`)
+    props.push(`placeholder="${formPlaceholder.value}"`)
 
-		if (formRequired.value) {
-			props.push(':required="true"')
-		}
+    if (formRequired.value) {
+      props.push(':required="true"')
+    }
 
-		if (formDisabled.value) {
-			props.push(':disabled="true"')
-		}
+    if (formDisabled.value) {
+      props.push(':disabled="true"')
+    }
 
-		if (formHasError.value) {
-			props.push(':has-error="true"')
-			props.push('error-message="Error message"')
-		}
+    if (formHasError.value) {
+      props.push(':has-error="true"')
+      props.push('error-message="Error message"')
+    }
 
-		props.push(':options="[\'Option 1\', \'Option 2\', \'Option 3\', \'Option 4\']"')
+    props.push(':options="[\'Option 1\', \'Option 2\', \'Option 3\', \'Option 4\']"')
 
-		const propsStr = props.join('\n  ')
+    const propsStr = props.join('\n  ')
 
-		return `<DropdownComponent
+    return `<DropdownComponent
   ${propsStr}
   v-model="value"
 />`
-	} else if (activeTab.value === 'banners') {
-		const props = []
-		props.push(`variant="${bannerVariant.value}"`)
-		if (bannerText.value !== 'Dette skema vil blive oprettet uden en checkliste.') {
-			props.push(`text="${bannerText.value}"`)
-		}
-		if (bannerShowLink.value) {
-			props.push('link="#"')
-			if (bannerLinkText.value !== 'Opsæt Checkliste') {
-				props.push(`link-text="${bannerLinkText.value}"`)
-			}
-			if (bannerLinkBreak.value) {
-				props.push(':link-break="true"')
-			}
-		}
-		const propsStr = props.join('\n  ')
-		return `<BannerComponent
+  } else if (activeTab.value === 'banners') {
+    const props = []
+    props.push(`variant="${bannerVariant.value}"`)
+    if (bannerText.value !== 'Dette skema vil blive oprettet uden en checkliste.') {
+      props.push(`text="${bannerText.value}"`)
+    }
+    if (bannerShowLink.value) {
+      props.push('link="#"')
+      if (bannerLinkText.value !== 'Opsæt Checkliste') {
+        props.push(`link-text="${bannerLinkText.value}"`)
+      }
+      if (bannerLinkBreak.value) {
+        props.push(':link-break="true"')
+      }
+    }
+    const propsStr = props.join('\n  ')
+    return `<BannerComponent
   ${propsStr}
 />`
-	}
+  }
 
-	return '// Code example will appear here'
+  return '// Code example will appear here'
 }
 </script>
 

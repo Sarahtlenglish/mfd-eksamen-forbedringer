@@ -21,25 +21,25 @@
 import { IconPencil } from '@tabler/icons-vue'
 
 defineProps({
-	// Button text
-	text: {
-		type: String,
-		default: 'Default'
-	},
-	// Button state
-	active: {
-		type: Boolean,
-		default: false
-	},
-	disabled: {
-		type: Boolean,
-		default: false
-	},
-	// Full width button
-	fullWidth: {
-		type: Boolean,
-		default: false
-	}
+  // Button text
+  text: {
+    type: String,
+    default: 'Default'
+  },
+  // Button state
+  active: {
+    type: Boolean,
+    default: false
+  },
+  disabled: {
+    type: Boolean,
+    default: false
+  },
+  // Full width button
+  fullWidth: {
+    type: Boolean,
+    default: false
+  }
 })
 
 defineEmits(['click'])

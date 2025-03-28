@@ -1,37 +1,37 @@
 <script setup>
 import { ref } from 'vue'
 import {
-	IconAlertCircle,
-	IconAlertTriangle,
-	IconArrowBack,
-	IconBell,
-	IconCalendarEvent,
-	IconCheck,
-	IconChevronDown,
-	IconChevronLeft,
-	IconChevronLeftPipe,
-	IconChevronRight,
-	IconChevronRightPipe,
-	IconChevronUp,
-	IconClipboardCheck,
-	IconClipboardList,
-	IconClipboardText,
-	IconDownload,
-	IconFileText,
-	IconFireExtinguisher,
-	IconListDetails,
-	IconLogout,
-	IconMessage,
-	IconPencil,
-	IconPlus,
-	IconPrinter,
-	IconQuestionMark,
-	IconSubtask,
-	IconTool,
-	IconTrash,
-	IconUser,
-	IconUsers,
-	IconX
+  IconAlertCircle,
+  IconAlertTriangle,
+  IconArrowBack,
+  IconBell,
+  IconCalendarEvent,
+  IconCheck,
+  IconChevronDown,
+  IconChevronLeft,
+  IconChevronLeftPipe,
+  IconChevronRight,
+  IconChevronRightPipe,
+  IconChevronUp,
+  IconClipboardCheck,
+  IconClipboardList,
+  IconClipboardText,
+  IconDownload,
+  IconFileText,
+  IconFireExtinguisher,
+  IconListDetails,
+  IconLogout,
+  IconMessage,
+  IconPencil,
+  IconPlus,
+  IconPrinter,
+  IconQuestionMark,
+  IconSubtask,
+  IconTool,
+  IconTrash,
+  IconUser,
+  IconUsers,
+  IconX
 } from '@tabler/icons-vue'
 
 const activeTab = ref('layout')
@@ -40,66 +40,65 @@ const toastMessage = ref('')
 const toastPosition = ref({ x: 0, y: 0 })
 
 const tabs = [
-	{ id: 'layout', label: 'Layout' },
-	{ id: 'typography', label: 'Typography' },
-	{ id: 'colors', label: 'Colors' },
-	{ id: 'iconography', label: 'Iconography' },
-	{ id: 'effects', label: 'Effects' }
+  { id: 'layout', label: 'Layout' },
+  { id: 'typography', label: 'Typography' },
+  { id: 'colors', label: 'Colors' },
+  { id: 'iconography', label: 'Iconography' },
+  { id: 'effects', label: 'Effects' }
 ]
 
 const icons = [
-	{ component: IconAlertCircle, name: 'AlertCircle' },
-	{ component: IconAlertTriangle, name: 'AlertTriangle' },
-	{ component: IconArrowBack, name: 'ArrowBack' },
-	{ component: IconBell, name: 'Bell' },
-	{ component: IconCalendarEvent, name: 'CalendarEvent' },
-	{ component: IconCheck, name: 'Check' },
-	{ component: IconChevronDown, name: 'ChevronDown' },
-	{ component: IconChevronLeft, name: 'ChevronLeft' },
-	{ component: IconChevronLeftPipe, name: 'ChevronLeftPipe' },
-	{ component: IconChevronRight, name: 'ChevronRight' },
-	{ component: IconChevronRightPipe, name: 'ChevronRightPipe' },
-	{ component: IconChevronUp, name: 'ChevronUp' },
-	{ component: IconClipboardCheck, name: 'ClipboardCheck' },
-	{ component: IconClipboardList, name: 'ClipboardList' },
-	{ component: IconClipboardText, name: 'ClipboardText' },
-	{ component: IconDownload, name: 'Download' },
-	{ component: IconFileText, name: 'FileText' },
-	{ component: IconFireExtinguisher, name: 'FireExtinguisher' },
-	{ component: IconListDetails, name: 'ListDetails' },
-	{ component: IconLogout, name: 'Logout' },
-	{ component: IconMessage, name: 'Message' },
-	{ component: IconPencil, name: 'Pencil' },
-	{ component: IconPlus, name: 'Plus' },
-	{ component: IconPrinter, name: 'Printer' },
-	{ component: IconQuestionMark, name: 'QuestionMark' },
-	{ component: IconSubtask, name: 'Subtask' },
-	{ component: IconTool, name: 'Tool' },
-	{ component: IconTrash, name: 'Trash' },
-	{ component: IconUser, name: 'User' },
-	{ component: IconUsers, name: 'Users' },
-	{ component: IconX, name: 'X' }
+  { component: IconAlertCircle, name: 'AlertCircle' },
+  { component: IconAlertTriangle, name: 'AlertTriangle' },
+  { component: IconArrowBack, name: 'ArrowBack' },
+  { component: IconBell, name: 'Bell' },
+  { component: IconCalendarEvent, name: 'CalendarEvent' },
+  { component: IconCheck, name: 'Check' },
+  { component: IconChevronDown, name: 'ChevronDown' },
+  { component: IconChevronLeft, name: 'ChevronLeft' },
+  { component: IconChevronLeftPipe, name: 'ChevronLeftPipe' },
+  { component: IconChevronRight, name: 'ChevronRight' },
+  { component: IconChevronRightPipe, name: 'ChevronRightPipe' },
+  { component: IconChevronUp, name: 'ChevronUp' },
+  { component: IconClipboardCheck, name: 'ClipboardCheck' },
+  { component: IconClipboardList, name: 'ClipboardList' },
+  { component: IconClipboardText, name: 'ClipboardText' },
+  { component: IconDownload, name: 'Download' },
+  { component: IconFileText, name: 'FileText' },
+  { component: IconFireExtinguisher, name: 'FireExtinguisher' },
+  { component: IconListDetails, name: 'ListDetails' },
+  { component: IconLogout, name: 'Logout' },
+  { component: IconMessage, name: 'Message' },
+  { component: IconPencil, name: 'Pencil' },
+  { component: IconPlus, name: 'Plus' },
+  { component: IconPrinter, name: 'Printer' },
+  { component: IconQuestionMark, name: 'QuestionMark' },
+  { component: IconSubtask, name: 'Subtask' },
+  { component: IconTool, name: 'Tool' },
+  { component: IconTrash, name: 'Trash' },
+  { component: IconUser, name: 'User' },
+  { component: IconUsers, name: 'Users' },
+  { component: IconX, name: 'X' }
 ]
 
-
 const copyVariable = async (variableName, event) => {
-	try {
-		await navigator.clipboard.writeText(variableName)
-		toastMessage.value = `Kopieret: ${variableName}`
-		toastPosition.value = { x: event.clientX, y: event.clientY }
-		showToast.value = true
-		setTimeout(() => {
-			showToast.value = false
-		}, 2000)
-	} catch (err) {
-		console.error('Failed to copy text: ', err)
-		toastMessage.value = 'Kunne ikke kopiere variabel'
-		toastPosition.value = { x: event.clientX, y: event.clientY }
-		showToast.value = true
-		setTimeout(() => {
-			showToast.value = false
-		}, 2000)
-	}
+  try {
+    await navigator.clipboard.writeText(variableName)
+    toastMessage.value = `Kopieret: ${variableName}`
+    toastPosition.value = { x: event.clientX, y: event.clientY }
+    showToast.value = true
+    setTimeout(() => {
+      showToast.value = false
+    }, 2000)
+  } catch (err) {
+    console.error('Failed to copy text: ', err)
+    toastMessage.value = 'Kunne ikke kopiere variabel'
+    toastPosition.value = { x: event.clientX, y: event.clientY }
+    showToast.value = true
+    setTimeout(() => {
+      showToast.value = false
+    }, 2000)
+  }
 }
 </script>
 

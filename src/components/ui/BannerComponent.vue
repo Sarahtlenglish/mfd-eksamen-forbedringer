@@ -28,46 +28,46 @@ import { computed } from 'vue'
 import { IconAlertCircle, IconAlertTriangle, IconCircleCheck } from '@tabler/icons-vue'
 
 const props = defineProps({
-	// Banner variant
-	variant: {
-		type: String,
-		default: 'warning',
-		validator: value => ['warning', 'error', 'success'].includes(value)
-	},
-	// Banner text
-	text: {
-		type: String,
-		default: 'Dette skema vil blive oprettet uden en checkliste.'
-	},
-	// Optional link
-	link: {
-		type: String,
-		default: ''
-	},
-	// Optional link text
-	linkText: {
-		type: String,
-		default: ''
-	},
-	// Whether to show the link on a new line
-	linkBreak: {
-		type: Boolean,
-		default: false
-	}
+  // Banner variant
+  variant: {
+    type: String,
+    default: 'warning',
+    validator: value => ['warning', 'error', 'success'].includes(value)
+  },
+  // Banner text
+  text: {
+    type: String,
+    default: 'Dette skema vil blive oprettet uden en checkliste.'
+  },
+  // Optional link
+  link: {
+    type: String,
+    default: ''
+  },
+  // Optional link text
+  linkText: {
+    type: String,
+    default: ''
+  },
+  // Whether to show the link on a new line
+  linkBreak: {
+    type: Boolean,
+    default: false
+  }
 })
 
 // Compute the icon component based on variant
 const getIconComponent = computed(() => {
-	switch (props.variant) {
-		case 'warning':
-			return IconAlertCircle
-		case 'error':
-			return IconAlertTriangle
-		case 'success':
-			return IconCircleCheck
-		default:
-			return IconAlertCircle
-	}
+  switch (props.variant) {
+    case 'warning':
+      return IconAlertCircle
+    case 'error':
+      return IconAlertTriangle
+    case 'success':
+      return IconCircleCheck
+    default:
+      return IconAlertCircle
+  }
 })
 </script>
 

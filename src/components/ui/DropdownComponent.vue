@@ -59,51 +59,51 @@ import { ref, computed, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import { IconChevronDown, IconChevronUp } from '@tabler/icons-vue'
 
 const props = defineProps({
-	// Input Value
-	modelValue: {
-		type: [String, Number],
-		default: ''
-	},
-	label: {
-		type: String,
-		default: ''
-	},
-	placeholder: {
-		type: String,
-		default: 'Default'
-	},
-	description: {
-		type: String,
-		default: ''
-	},
-	errorMessage: {
-		type: String,
-		default: 'Error message'
-	},
-	options: {
-		type: Array,
-		default: () => []
-	},
+  // Input Value
+  modelValue: {
+    type: [String, Number],
+    default: ''
+  },
+  label: {
+    type: String,
+    default: ''
+  },
+  placeholder: {
+    type: String,
+    default: 'Default'
+  },
+  description: {
+    type: String,
+    default: ''
+  },
+  errorMessage: {
+    type: String,
+    default: 'Error message'
+  },
+  options: {
+    type: Array,
+    default: () => []
+  },
 
-	// States
-	hasError: {
-		type: Boolean,
-		default: false
-	},
-	disabled: {
-		type: Boolean,
-		default: false
-	},
-	required: {
-		type: Boolean,
-		default: false
-	},
+  // States
+  hasError: {
+    type: Boolean,
+    default: false
+  },
+  disabled: {
+    type: Boolean,
+    default: false
+  },
+  required: {
+    type: Boolean,
+    default: false
+  },
 
-	// ID
-	dropdownId: {
-		type: String,
-		default: () => `dropdown-${Math.random().toString(36).substr(2, 9)}`
-	}
+  // ID
+  dropdownId: {
+    type: String,
+    default: () => `dropdown-${Math.random().toString(36).substr(2, 9)}`
+  }
 })
 
 const emit = defineEmits(['update:modelValue', 'change', 'focus', 'blur'])
@@ -116,115 +116,115 @@ const activeOptionIndex = ref(-1)
 
 // Handle display value (selected option or placeholder)
 const displayValue = computed(() => {
-	return props.modelValue || props.placeholder
+  return props.modelValue || props.placeholder
 })
 
 // Toggle dropdown visibility
 const toggleDropdown = () => {
-	if (props.disabled) return
-	isOpen.value = !isOpen.value
+  if (props.disabled) return
+  isOpen.value = !isOpen.value
 
-	if (isOpen.value) {
-		emit('focus')
+  if (isOpen.value) {
+    emit('focus')
 
-		// Find and activate the currently selected option
-		const selectedIndex = props.options.findIndex(option => option === props.modelValue)
-		activeOptionIndex.value = selectedIndex >= 0 ? selectedIndex : 0
+    // Find and activate the currently selected option
+    const selectedIndex = props.options.findIndex(option => option === props.modelValue)
+    activeOptionIndex.value = selectedIndex >= 0 ? selectedIndex : 0
 
-		// Focus on the active option when dropdown opens
-		nextTick(() => {
-			if (optionElements.value[activeOptionIndex.value]) {
-				optionElements.value[activeOptionIndex.value].focus()
-			}
-		})
-	} else {
-		// When dropdown is closed via toggle, explicitly remove focus
-		nextTick(() => {
-			document.activeElement.blur()
-		})
-	}
+    // Focus on the active option when dropdown opens
+    nextTick(() => {
+      if (optionElements.value[activeOptionIndex.value]) {
+        optionElements.value[activeOptionIndex.value].focus()
+      }
+    })
+  } else {
+    // When dropdown is closed via toggle, explicitly remove focus
+    nextTick(() => {
+      document.activeElement.blur()
+    })
+  }
 }
 
 // Handle option selection
 const selectOption = (option) => {
-	if (props.disabled) return
-	emit('update:modelValue', option)
-	emit('change', option)
-	closeDropdown()
+  if (props.disabled) return
+  emit('update:modelValue', option)
+  emit('change', option)
+  closeDropdown()
 }
 
 // Close the dropdown
 const closeDropdown = () => {
-	isOpen.value = false
-	activeOptionIndex.value = -1
-	// Reset UI state
-	nextTick(() => {
-		document.activeElement.blur()
-	})
+  isOpen.value = false
+  activeOptionIndex.value = -1
+  // Reset UI state
+  nextTick(() => {
+    document.activeElement.blur()
+  })
 }
 
 // Open the dropdown
 const openDropdown = () => {
-	if (props.disabled || isOpen.value) return
-	isOpen.value = true
-	emit('focus')
+  if (props.disabled || isOpen.value) return
+  isOpen.value = true
+  emit('focus')
 
-	// Focus on first option when opening with keyboard
-	nextTick(() => {
-		if (optionElements.value[0]) {
-			activeOptionIndex.value = 0
-			optionElements.value[0].focus()
-		}
-	})
+  // Focus on first option when opening with keyboard
+  nextTick(() => {
+    if (optionElements.value[0]) {
+      activeOptionIndex.value = 0
+      optionElements.value[0].focus()
+    }
+  })
 }
 
 // Keyboard navigation between options
 const navigateOptions = (direction) => {
-	if (!isOpen.value || props.options.length === 0) return
+  if (!isOpen.value || props.options.length === 0) return
 
-	let newIndex
-	if (direction === 'down') {
-		newIndex = activeOptionIndex.value < props.options.length - 1 ? activeOptionIndex.value + 1 : 0
-	} else {
-		newIndex = activeOptionIndex.value > 0 ? activeOptionIndex.value - 1 : props.options.length - 1
-	}
+  let newIndex
+  if (direction === 'down') {
+    newIndex = activeOptionIndex.value < props.options.length - 1 ? activeOptionIndex.value + 1 : 0
+  } else {
+    newIndex = activeOptionIndex.value > 0 ? activeOptionIndex.value - 1 : props.options.length - 1
+  }
 
-	activeOptionIndex.value = newIndex
+  activeOptionIndex.value = newIndex
 
-	nextTick(() => {
-		if (optionElements.value[newIndex]) {
-			optionElements.value[newIndex].focus()
-		}
-	})
+  nextTick(() => {
+    if (optionElements.value[newIndex]) {
+      optionElements.value[newIndex].focus()
+    }
+  })
 }
 
 // Close dropdown when clicking outside
 const handleOutsideClick = (event) => {
-	if (isOpen.value) {
-		const dropdownElement = toggleButton.value?.closest('.dropdown')
-		if (!dropdownElement || !dropdownElement.contains(event.target)) {
-			closeDropdown()
-		}
-	}
+  if (isOpen.value) {
+    const dropdownElement = toggleButton.value?.closest('.dropdown')
+    if (!dropdownElement || !dropdownElement.contains(event.target)) {
+      closeDropdown()
+    }
+  }
 }
 
 // Handle blur events
 const handleBlur = (event) => {
-	// Only emit blur if focus is moving outside the dropdown
-	const dropdownElement = toggleButton.value?.closest('.dropdown')
-	if (dropdownElement && !dropdownElement.contains(event.relatedTarget)) {
-		emit('blur')
-	}
+  // Only emit blur if focus is moving outside the dropdown
+  const dropdownElement = toggleButton.value?.closest('.dropdown')
+  if (dropdownElement && !dropdownElement.contains(event.relatedTarget)) {
+    emit('blur')
+  }
 }
 
 // Add click outside listener
 onMounted(() => {
-	document.addEventListener('click', handleOutsideClick)
+  document.addEventListener('click', handleOutsideClick)
 })
 
 // Clean up event listener
 onBeforeUnmount(() => {
-	document.removeEventListener('click', handleOutsideClick)
+  document.removeEventListener('click', handleOutsideClick)
 })
 </script>
 

@@ -51,58 +51,58 @@ import { ref, computed, onMounted } from 'vue'
 import { IconEye, IconEyeOff, IconSearch } from '@tabler/icons-vue'
 
 const props = defineProps({
-	// Content
-	modelValue: {
-		type: [String, Number],
-		default: ''
-	},
-	label: {
-		type: String,
-		default: ''
-	},
-	placeholder: {
-		type: String,
-		default: 'Placeholder'
-	},
-	description: {
-		type: String,
-		default: ''
-	},
-	errorMessage: {
-		type: String,
-		default: 'Error message'
-	},
+  // Content
+  modelValue: {
+    type: [String, Number],
+    default: ''
+  },
+  label: {
+    type: String,
+    default: ''
+  },
+  placeholder: {
+    type: String,
+    default: 'Placeholder'
+  },
+  description: {
+    type: String,
+    default: ''
+  },
+  errorMessage: {
+    type: String,
+    default: 'Error message'
+  },
 
-	// State
-	hasError: {
-		type: Boolean,
-		default: false
-	},
-	disabled: {
-		type: Boolean,
-		default: false
-	},
-	required: {
-		type: Boolean,
-		default: false
-	},
+  // State
+  hasError: {
+    type: Boolean,
+    default: false
+  },
+  disabled: {
+    type: Boolean,
+    default: false
+  },
+  required: {
+    type: Boolean,
+    default: false
+  },
 
-	// Type
-	type: {
-		type: String,
-		default: 'text',
-		validator: value => ['text', 'email', 'password', 'number', 'tel', 'search'].includes(value)
-	},
-	autocomplete: {
-		type: String,
-		default: 'off'
-	},
+  // Type
+  type: {
+    type: String,
+    default: 'text',
+    validator: value => ['text', 'email', 'password', 'number', 'tel', 'search'].includes(value)
+  },
+  autocomplete: {
+    type: String,
+    default: 'off'
+  },
 
-	// ID (for label association)
-	inputId: {
-		type: String,
-		default: () => `input-${Math.random().toString(36).substr(2, 9)}`
-	}
+  // ID (for label association)
+  inputId: {
+    type: String,
+    default: () => `input-${Math.random().toString(36).substr(2, 9)}`
+  }
 })
 
 const emit = defineEmits(['update:modelValue', 'focus', 'blur', 'input'])
@@ -115,44 +115,44 @@ const typing = ref(false) // Track typing state
 
 // Computed property for input type (for password visibility)
 const inputType = computed(() => {
-	if (props.type === 'password') {
-		return passwordVisible.value ? 'text' : 'password'
-	}
-	return props.type
+  if (props.type === 'password') {
+    return passwordVisible.value ? 'text' : 'password'
+  }
+  return props.type
 })
 
 // Methods
 const updateValue = (event) => {
-	emit('update:modelValue', event.target.value)
-	emit('input', event)
-	typing.value = event.target.value.length > 0
+  emit('update:modelValue', event.target.value)
+  emit('input', event)
+  typing.value = event.target.value.length > 0
 }
 
 const handleBlur = (event) => {
-	focused.value = false
-	emit('blur', event)
+  focused.value = false
+  emit('blur', event)
 }
 
 const togglePasswordVisibility = () => {
-	passwordVisible.value = !passwordVisible.value
+  passwordVisible.value = !passwordVisible.value
 }
 
 onMounted(() => {
-	if (inputRef.value && props.autofocus) {
-		inputRef.value.focus()
-	}
+  if (inputRef.value && props.autofocus) {
+    inputRef.value.focus()
+  }
 })
 
 // Expose methods to parent component
 defineExpose({
-	focus: () => {
-		inputRef.value?.focus()
-		focused.value = true
-	},
-	blur: () => {
-		inputRef.value?.blur()
-		focused.value = false
-	}
+  focus: () => {
+    inputRef.value?.focus()
+    focused.value = true
+  },
+  blur: () => {
+    inputRef.value?.blur()
+    focused.value = false
+  }
 })
 </script>
 

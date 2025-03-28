@@ -1,25 +1,24 @@
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { IconCalendarEvent, IconClipboardText, IconListDetails, IconFireExtinguisher, IconUsers } from '@tabler/icons-vue'
 import '@/views/StyleguideView.vue'
 
-const router = useRouter();
+const router = useRouter()
 
 // Updated menuItems to match your router configuration
 const menuItems = ref([
-  { name: 'Kalender', route: '/home', icon: IconCalendarEvent, isComponent: true},
-  { name: 'Egenkontrol', route: '/egenkontrol', icon: IconClipboardText, isComponent: true},
-  { name: 'Tjeklister', route: '/tjeklister', icon: IconListDetails, isComponent: true},
-  { name: 'Enheder', route: '/enheder', icon: IconFireExtinguisher, isComponent: true},
-  { name: 'Brugere', route: '/brugere', icon: IconUsers, isComponent: true},
-]);
-
+  { name: 'Kalender', route: '/home', icon: IconCalendarEvent, isComponent: true },
+  { name: 'Egenkontrol', route: '/egenkontrol', icon: IconClipboardText, isComponent: true },
+  { name: 'Tjeklister', route: '/tjeklister', icon: IconListDetails, isComponent: true },
+  { name: 'Enheder', route: '/enheder', icon: IconFireExtinguisher, isComponent: true },
+  { name: 'Brugere', route: '/brugere', icon: IconUsers, isComponent: true }
+])
 
 // Function to determine if route is active
 const isActive = (route) => {
-  return router.currentRoute.value.path === route;
-};
+  return router.currentRoute.value.path === route
+}
 </script>
 
 <template>
