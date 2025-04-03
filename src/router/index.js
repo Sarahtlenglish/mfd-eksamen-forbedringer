@@ -12,6 +12,11 @@ const router = createRouter({
   routes: [
     {
       path: '/',
+      name: 'root',
+      component: HomeView
+    },
+    {
+      path: '/styleguide',
       name: 'styleguide',
       component: StyleguideView
     },
@@ -28,25 +33,25 @@ const router = createRouter({
     {
       path: '/egenkontrol',
       name: 'egenkontrol',
-      component: () => import('@/views/EgenkontrolView.vue'),
+      component: EgenkontrolView,
       //meta: { requiresAuth: true }
     },
     {
       path: '/tjeklister',
       name: 'tjeklister',
-      component: () => import('@/views/TjeklisterView.vue'),
+      component: TjeklisterView,
       //meta: { requiresAuth: true }
     },
     {
       path: '/enheder',
       name: 'enheder',
-      component: () => import('@/views/EnhederView.vue'),
+      component: EnhederView,
       //meta: { requiresAuth: true }
     },
     {
       path: '/brugere',
       name: 'brugere',
-      component: () => import('@/views/BrugereView.vue'),
+      component: BrugereView,
       //meta: { requiresAuth: true }
     }
   ]

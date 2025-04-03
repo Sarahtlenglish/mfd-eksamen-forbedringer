@@ -14,7 +14,7 @@
 		</header>
 
 		<!-- Component Container -->
-		<div class="component-container">
+		<div class="component-container" :class="{ 'full-width-container': isFullWidthContainer }">
 			<!-- Component Info Section -->
 			<div class="component-info">
 				<h2>{{ getComponentTitle() }}</h2>
@@ -116,6 +116,82 @@
 								:linkBreak="bannerLinkBreak"
 							/>
 							<p class="preview-hint">Forskellige varianter bruges til at vise forskellige meddelelses-niveauer: warning, error, success</p>
+						</div>
+
+						<!-- Calendar Component Preview -->
+						<div v-if="activeTab === 'calendar'" class="calendar-preview-container">
+							<div class="calendar-subtabs">
+								<button
+									v-for="subtab in calendarSubtabs"
+									:key="subtab.value"
+									@click="activeCalendarSubtab = subtab.value"
+									:class="['control-btn', { active: activeCalendarSubtab === subtab.value }]"
+								>
+									{{ subtab.label }}
+								</button>
+							</div>
+
+							<!-- Full Calendar Subtab -->
+							<div v-if="activeCalendarSubtab === 'fullCalendar'" class="full-calendar-container">
+								<div class="calendar-interactive-controls">
+									<div class="control-group">
+										<label class="control-label">Tilføj task til kalenderen</label>
+										<div class="calendar-add-task-controls">
+											<div class="task-input-group">
+												<input
+													type="text"
+													v-model="calendarTaskTitle"
+													class="control-input"
+													placeholder="Task titel"
+												>
+											</div>
+											<div class="task-input-group">
+												<div class="button-group">
+													<button
+														v-for="variant in taskVariants"
+														:key="variant.value"
+														@click="selectedCalendarTaskVariant = variant.value"
+														:class="['control-btn', { active: selectedCalendarTaskVariant === variant.value }]"
+													>
+														{{ variant.label }}
+													</button>
+												</div>
+											</div>
+										</div>
+										<p class="calendar-instructions">Klik på en dato i kalenderen for at tilføje tasken. Herunder kan du se hvordan kalenderen vil blive vist i din applikation.</p>
+									</div>
+								</div>
+								<CalendarComponent
+									@date-click="addTaskToCalendar"
+									:customTasks="calendarTasks"
+								/>
+							</div>
+
+							<!-- Task Examples Subtab -->
+							<div v-else-if="activeCalendarSubtab === 'calendarTasks'" class="task-examples">
+								<h4>Task Eksempel</h4>
+								<p class="task-instruction">Interager med task komponenten for at se hover og active states</p>
+								<!-- Status variant showcase -->
+								<div class="variants-showcase">
+									<div class="variant-section">
+										<h5>{{ getStatusLabel(selectedTaskVariant) }}</h5>
+										<div class="single-task-preview">
+											<CalendarDayTask
+												:title="taskTitle"
+												:details="showTaskDetails ? taskDetails : ''"
+												:status="selectedTaskVariant"
+											/>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<p class="info-text">
+								{{ activeCalendarSubtab === 'fullCalendar'
+									? 'Interaktiv kalender til visning og navigation mellem måneder.'
+									: 'Calendar task komponenter til visning af opgaver med forskellige status.'
+								}}
+							</p>
 						</div>
 					</div>
 					</div>
@@ -391,6 +467,67 @@
 							</div>
 						</div>
 					</template>
+
+					<!-- Calendar Controls -->
+					<template v-if="activeTab === 'calendar'">
+						<div class="control-grid">
+							<div class="control-group">
+								<p class="info-text">
+									{{ activeCalendarSubtab === 'fullCalendar'
+										? 'Interaktiv kalender til visning og navigation mellem måneder.'
+										: 'Calendar task komponenter til visning af opgaver med forskellige status.'
+									}}
+								</p>
+							</div>
+
+							<!-- Show controls only for calendar tasks -->
+							<template v-if="activeCalendarSubtab === 'calendarTasks'">
+								<div class="control-group">
+									<label class="control-label">Task Variant</label>
+									<div class="button-group">
+										<button
+											v-for="variant in taskVariants"
+											:key="variant.value"
+											@click="selectedTaskVariant = variant.value"
+											:class="['control-btn', { active: selectedTaskVariant === variant.value }]"
+										>
+											{{ variant.label }}
+										</button>
+									</div>
+								</div>
+
+								<div class="control-group">
+									<label class="control-label">Task Title</label>
+									<input
+										type="text"
+										v-model="taskTitle"
+										class="control-input"
+										placeholder="Task title"
+									>
+								</div>
+
+								<div class="control-group">
+									<label class="control-label">Options</label>
+									<div class="option-group">
+										<label class="option">
+											<input type="checkbox" v-model="showTaskDetails">
+											<span>Show details</span>
+										</label>
+									</div>
+								</div>
+
+								<div class="control-group" v-if="showTaskDetails">
+									<label class="control-label">Task Details</label>
+									<input
+										type="text"
+										v-model="taskDetails"
+										class="control-input"
+										placeholder="Location or details"
+									>
+								</div>
+							</template>
+						</div>
+					</template>
 				</div>
 
 				<!-- Code Example -->
@@ -422,6 +559,8 @@ import InputComponent from '../components/ui/InputComponent.vue'
 import DropdownComponent from '../components/ui/DropdownComponent.vue'
 import FilterButtonComponent from '../components/ui/FilterButtonComponent.vue'
 import BannerComponent from '../components/ui/BannerComponent.vue'
+import CalendarComponent from '../components/calendar/CalendarComponent.vue'
+import CalendarDayTask from '../components/calendar/CalendarDayTask.vue'
 import {
   IconPlus,
   IconTrash,
@@ -443,7 +582,7 @@ const tabs = [
   { label: 'Modals & Pop-Ups', value: 'modals' },
   { label: 'Banners & Messaging', value: 'banners' },
   { label: 'Illustrations', value: 'illustrations' },
-  { label: 'Calender', value: 'calender' }
+  { label: 'Calendar', value: 'calendar' }
 ]
 
 // Button component state
@@ -497,7 +636,7 @@ const copyCodeToClipboard = () => {
 
 // Helper functions for dynamic content
 const hasComponentContent = () => {
-  return ['buttons', 'forms', 'filter', 'banners'].includes(activeTab.value)
+  return ['buttons', 'forms', 'filter', 'banners', 'calendar'].includes(activeTab.value)
 }
 
 const getComponentTitle = () => {
@@ -512,6 +651,8 @@ const getComponentTitle = () => {
         : 'Dropdown Component'
     case 'banners':
       return 'Banner Component'
+    case 'calendar':
+      return 'Calendar Component'
     default:
       return activeTab.value.charAt(0).toUpperCase() + activeTab.value.slice(1)
   }
@@ -531,6 +672,8 @@ const getComponentDescription = () => {
       }
     case 'banners':
       return 'Banners are used to display important messages, alerts or notifications to users. They can include links for additional actions.'
+    case 'calendar':
+      return 'Calendar component used for displaying and managing tasks, inspections, and other scheduled items with different status indicators.'
     default:
       return ''
   }
@@ -604,6 +747,55 @@ const addDropdownOption = () => {
 
 const removeDropdownOption = (index) => {
   dropdownOptions.value.splice(index, 1)
+}
+
+// Calendar component state
+// Add state for calendar task demo
+const taskVariants = [
+  { label: 'Normal', value: 'normal' },
+  { label: 'Warning', value: 'warning' },
+  { label: 'Error', value: 'error' },
+  { label: 'Success', value: 'success' },
+  { label: 'Past', value: 'past' }
+]
+
+const selectedTaskVariant = ref('normal')
+const taskTitle = ref('Egenkontrol')
+const taskDetails = ref('Details/lokation')
+const showTaskDetails = ref(false)
+
+// Add calendar subtabs
+const calendarSubtabs = [
+  { label: 'Full Calendar', value: 'fullCalendar' },
+  { label: 'Calendar Task', value: 'calendarTasks' }
+]
+const activeCalendarSubtab = ref('fullCalendar')
+
+// Interactive calendar vars
+const calendarTaskTitle = ref('Egenkontrol')
+const calendarTaskDetails = ref('Bygning A, 1. sal')
+const calendarShowTaskDetails = ref(true)
+const selectedCalendarTaskVariant = ref('normal')
+const calendarTasks = ref({}) // Object with date strings as keys and arrays of tasks as values
+
+// Function to add a task to the calendar when a date is clicked
+const addTaskToCalendar = (date) => {
+  if (!calendarTaskTitle.value.trim()) {
+    return // Don't add empty tasks
+  }
+  const dateStr = date.toISOString().split('T')[0]
+  const newTask = {
+    id: Date.now(), // Generate a unique ID based on timestamp
+    title: calendarTaskTitle.value,
+    details: '', // No details needed
+    status: selectedCalendarTaskVariant.value
+  }
+  if (!calendarTasks.value[dateStr]) {
+    calendarTasks.value[dateStr] = []
+  }
+  calendarTasks.value[dateStr].push(newTask)
+  // Use spread operator to trigger reactivity
+  calendarTasks.value = { ...calendarTasks.value }
 }
 
 // Dynamic code example generation based on active component
@@ -765,9 +957,44 @@ const getCodeExample = () => {
     return `<BannerComponent
   ${propsStr}
 />`
+  } else if (activeTab.value === 'calendar') {
+    // Calendar component code example generation
+    if (activeCalendarSubtab.value === 'fullCalendar') {
+      return '<CalendarComponent />'
+    } else {
+      const props = []
+      props.push(`title="${taskTitle.value}"`)
+      if (showTaskDetails.value) {
+        props.push(`details="${taskDetails.value}"`)
+      }
+      if (selectedTaskVariant.value !== 'normal') {
+        props.push(`status="${selectedTaskVariant.value}"`)
+      }
+      const propsStr = props.length ? props.join('\n  ') : ''
+      return `<CalendarDayTask
+  ${propsStr}
+/>`
+    }
   }
 
   return '// Code example will appear here'
+}
+
+// Tilføj en computed property der bestemmer om container skal have fuld bredde
+const isFullWidthContainer = computed(() => {
+  return false // No component should have full width now
+})
+
+// Add function to get status label in Danish
+const getStatusLabel = (status) => {
+  switch (status) {
+    case 'normal': return 'Normal'
+    case 'warning': return 'Advarsel'
+    case 'error': return 'Fejl'
+    case 'success': return 'Success'
+    case 'past': return 'Forældet'
+    default: return status
+  }
 }
 </script>
 
@@ -799,21 +1026,21 @@ const getCodeExample = () => {
 	gap: 0.25rem;
 
 	.nav-btn {
-					background: none;
-					border: none;
+		background: none;
+		border: none;
 		padding: 0.5rem 1rem;
 		font-size: 0.875rem;
 		border-radius: 4px;
 		cursor: pointer;
-					color: $neutral-700;
+		color: $neutral-700;
 		transition: all 0.2s ease;
 
-					&:hover {
+		&:hover {
 			background-color: $neutral-100;
-					}
+		}
 
-					&.active {
-			background-color: $primary-500;
+		&.active {
+			background-color: $secondary-500;
 			color: white;
 		}
 	}
@@ -823,6 +1050,11 @@ const getCodeExample = () => {
 	max-width: 1000px;
 	margin: 2rem auto;
 	padding: 0 1.5rem;
+
+  &.full-width-container {
+    max-width: 1000px; // Same as parent
+    padding: 0 1.5rem; // Same as parent
+  }
 }
 
 .component-info {
@@ -849,20 +1081,28 @@ const getCodeExample = () => {
 	overflow: hidden;
 	display: grid;
 	grid-template-rows: auto auto auto;
+	max-width: 100%;
+	box-sizing: border-box;
 }
 
-	.component-preview {
-    padding: 1.5rem;
-		display: flex;
-		justify-content: center;
-		align-items: center;
+.component-preview {
+  padding: 1.5rem;
+	display: flex;
+	justify-content: center;
+	align-items: center;
 	background-color: $neutral-100;
 	border-bottom: 1px solid $neutral-200;
+	max-width: 100%;
+	box-sizing: border-box;
+	overflow: hidden;
 }
 
 .preview-container {
 	width: 100%;
 	text-align: left;
+	max-width: 100%;
+	box-sizing: border-box;
+	overflow: hidden;
 }
 
 .preview-heading {
@@ -896,9 +1136,9 @@ const getCodeExample = () => {
 }
 
 .control-label {
-		display: block;
+	display: block;
 	font-size: 0.75rem;
-		font-weight: 500;
+	font-weight: 500;
 	margin-bottom: 0.5rem;
 	color: $neutral-700;
 	text-transform: uppercase;
@@ -914,7 +1154,7 @@ const getCodeExample = () => {
 
 	&:focus {
 		outline: none;
-		border-color: $primary-400;
+		border-color: $secondary-400;
 	}
 }
 
@@ -927,25 +1167,25 @@ const getCodeExample = () => {
 }
 
 .control-btn {
-		flex: 1;
+	flex: 1;
 	padding: 0.5rem;
 	background: white;
-		border: none;
+	border: none;
 	font-size: 0.875rem;
-		cursor: pointer;
+	cursor: pointer;
 	transition: background 0.2s;
 
-		&:not(:last-child) {
-			border-right: 1px solid $neutral-300;
-		}
+	&:not(:last-child) {
+		border-right: 1px solid $neutral-300;
+	}
 
-		&:hover {
-			background-color: $neutral-100;
-		}
+	&:hover {
+		background-color: $neutral-100;
+	}
 
-		&.active {
-			background-color: $primary-500;
-			color: white;
+	&.active {
+		background-color: $secondary-500;
+		color: white;
 	}
 }
 
@@ -962,7 +1202,7 @@ const getCodeExample = () => {
 
 	input {
 		margin-right: 0.5rem;
-		accent-color: $primary-500;
+		accent-color: $secondary-500;
 	}
 
 	span {
@@ -974,10 +1214,10 @@ const getCodeExample = () => {
 .icon-selector {
 	display: flex;
 	flex-wrap: wrap;
-    gap: 0.5rem;
-    background-color: #FFFFFF;
-    padding: 0.75rem 0;
-    border-radius: 4px;
+  gap: 0.5rem;
+  background-color: #FFFFFF;
+  padding: 0.75rem 0;
+  border-radius: 4px;
 }
 
 .icon-btn {
@@ -996,9 +1236,9 @@ const getCodeExample = () => {
 	}
 
 	&.active {
-		background-color: $primary-500;
+		background-color: $secondary-500;
 		color: white;
-		border-color: $primary-500;
+		border-color: $secondary-500;
 	}
 }
 
@@ -1093,7 +1333,7 @@ const getCodeExample = () => {
 	}
 }
 
-@media (max-width: 768px) {
+@media (max-width: $tablet) {
 	.control-grid {
 		grid-template-columns: 1fr;
 	}
@@ -1149,7 +1389,7 @@ const getCodeExample = () => {
 	gap: $spacing-xs;
 	background: none;
 	border: 1px dashed $neutral-300;
-	color: $primary-500;
+	color: $secondary-500;
 	border-radius: $border-radius-sm;
 	padding: $spacing-xs $spacing-small;
 	margin-top: $spacing-xs;
@@ -1159,7 +1399,7 @@ const getCodeExample = () => {
 
 	&:hover {
 		background-color: $neutral-100;
-		color: $primary-700;
+		color: $secondary-700;
 	}
 
 	svg {
@@ -1206,7 +1446,6 @@ const getCodeExample = () => {
 	align-items: center;
 	justify-content: center;
 	width: 100%;
-	padding: 2rem;
 }
 
 .banner-preview-container {
@@ -1217,35 +1456,180 @@ const getCodeExample = () => {
 	width: 100%;
 }
 
-.option-item {
+.calendar-preview-container {
 	display: flex;
+	flex-direction: column;
 	align-items: center;
-	gap: 0.5rem;
 	width: 100%;
+	overflow: hidden;
+	box-sizing: border-box;
 }
 
-.remove-option-btn {
+.calendar-subtabs {
 	display: flex;
-	align-items: center;
-	justify-content: center;
+	gap: $spacing-xs;
+	margin-bottom: $spacing-medium;
+	width: 100%;
 	border: none;
-	background: none;
-	color: $neutral-700;
+	background: transparent;
+
+	.control-btn {
+		flex-grow: 1;
+		text-align: center;
+		padding: $spacing-xs $spacing-small;
+		background: white;
+		border: 1px solid $neutral-300;
+		border-radius: $border-radius-sm;
+		font-size: $body-3-font-size;
+		cursor: pointer;
+		transition: $transition-base;
+
+		&:hover {
+			background-color: $neutral-100;
+		}
+
+		&.active {
+			background-color: $secondary-500;
+			color: white;
+			border-color: $secondary-500;
+		}
+	}
+}
+
+.full-calendar-container {
+	width: 100%;
+	max-width: 900px; // Standard max-width like other components
+	padding: 0;
+	background: transparent;
+	box-shadow: none;
+	margin-bottom: $spacing-medium;
+	box-sizing: border-box;
+
+	@media (max-width: $tablet) {
+		max-width: 100%;
+		margin-bottom: $spacing-small;
+	}
+}
+
+.info-text {
+	font-size: 0.875rem;
+	line-height: 1.5;
+	color: $neutral-600;
+	margin: 0;
+}
+
+.component-preview-wrapper {
+	padding: 1.5rem;
+	background-color: $neutral-100;
+	border-radius: 8px;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+	margin-bottom: $spacing-medium;
+
+	@media (max-width: $tablet) {
+		padding: $spacing-small;
+		margin-bottom: $spacing-small;
+	}
+
+	@media (max-width: $mobile) {
+		padding: $spacing-xs;
+		border-radius: 6px;
+	}
+
+	&.full-calendar {
+		max-width: none;
+		width: 100%;
+	}
+}
+
+.button-group.wrap {
+	flex-wrap: wrap;
+	max-width: 100%;
+}
+
+.month-btn {
+	padding: 0.5rem 0.75rem;
+	border-radius: $border-radius-sm;
+	font-size: $body-3-font-size;
 	cursor: pointer;
-	padding: 0.25rem;
-	width: 24px;
-	height: 24px;
-	border-radius: 4px;
+	transition: $transition-base;
+}
 
-	&:hover {
-		background-color: $neutral-100;
-		color: $error-base;
-	}
+.task-examples {
+	width: 100%;
+	max-width: 900px;
+	margin-top: $spacing-medium;
+	margin-bottom: $spacing-medium;
 
-	svg {
-		width: 16px;
-		height: 16px;
-		stroke-width: 2;
+	h4 {
+		margin-top: $spacing-medium;
+		margin-bottom: $spacing-small;
+		font-size: $subtitle-2-font-size;
+		font-weight: $subtitle-2-font-weight;
 	}
+}
+
+.task-instruction {
+	font-size: 0.875rem;
+	color: $neutral-600;
+	margin-bottom: $spacing-small;
+}
+
+.variants-showcase {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: $spacing-medium;
+}
+
+.variant-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: $spacing-small;
+
+  h5 {
+    font-size: $body-2-font-size;
+    font-weight: $body-2-font-weight-semibold;
+    margin-bottom: $spacing-small;
+    color: $neutral-800;
+  }
+}
+
+.single-task-preview {
+  width: 100%;
+  max-width: 300px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  background-color: white;
+  border-radius: $border-radius-sm;
+  padding: $spacing-small;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.calendar-interactive-controls {
+  margin-bottom: $spacing-medium;
+  padding: $spacing-medium;
+  background-color: white;
+  border-radius: $border-radius-md;
+  box-shadow: $shadow-sm;
+}
+
+.calendar-add-task-controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: $spacing-small;
+  margin-bottom: $spacing-small;
+}
+
+.task-input-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.calendar-instructions {
+  margin-top: $spacing-small;
+  font-size: 0.875rem;
+  color: $neutral-600;
 }
 </style>
