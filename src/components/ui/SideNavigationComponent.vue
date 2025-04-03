@@ -43,14 +43,14 @@ const isActive = (route) => {
   </aside>
 </template>
 
-<style scoped>
-@import '@/assets/_icons.scss';
+<style lang="scss" scoped>
+@use '@/assets/variables' as *;
 
 .side-navigation {
   width: 250px;
   height: 100vh;
-  background-color: #F7F7F7;
-  border-right: 1px solid #D1D3D4;
+  background-color: $neutral-200;
+  border-right: 1px solid $neutral-300;
   position: fixed;
   left: 0;
   top: 0;
@@ -85,10 +85,10 @@ const isActive = (route) => {
   display: flex;
   align-items: center;
   padding: 16px 24px;
-  color: #0d1c24;
+  color: $secondary-900;
   text-decoration: none;
   transition: background-color 0.3s;
-  border-bottom: 1px solid #D1D3D4;
+  border-bottom: 1px solid $neutral-300;
 }
 
 .menu-item:hover {
