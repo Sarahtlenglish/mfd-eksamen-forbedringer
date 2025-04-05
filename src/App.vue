@@ -1,6 +1,6 @@
 <script setup>
-import SideNavigation from '@/components/ui/SideNavigationComponent.vue'
-import Header from '@/components/ui/HeaderComponent.vue'
+import SideNavigation from '@/components/navigation/SideNavigationComponent.vue'
+import Header from '@/components/navigation/HeaderComponent.vue'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
