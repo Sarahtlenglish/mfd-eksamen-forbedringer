@@ -1,27 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { IconCalendarEvent, IconClipboardText, IconListDetails, IconFireExtinguisher, IconUsers } from '@tabler/icons-vue'
-import StyleguideView from '@/views/StyleguideView.vue'
-import ComponentView from '@/views/ComponentView.vue'
 import HomeView from '@/views/HomeView.vue'
-import EgenkontrolView from '@/views/EgenkontrolView.vue'
-import TjeklisterView from '@/views/TjeklisterView.vue'
-import EnhederView from '@/views/EnhederView.vue'
-import BrugereView from '@/views/BrugereView.vue'
 
 // Define routes with additional metadata
 export const routes = [
   {
-    path: '/',
-    name: 'root',
-    component: HomeView,
-    meta: { 
-      showInNav: false 
-    }
-  },
-  {
     path: '/styleguide',
     name: 'styleguide',
-    component: StyleguideView,
+    component: () => import('@/views/StyleguideView.vue'),
     meta: { 
       showInNav: false 
     }
@@ -29,13 +15,13 @@ export const routes = [
   {
     path: '/components',
     name: 'components',
-    component: ComponentView,
+    component: () => import('@/views/ComponentView.vue'),
     meta: { 
       showInNav: false 
     }
   },
   {
-    path: '/home',
+    path: '/',
     name: 'home',
     component: HomeView,
     meta: { 
@@ -47,7 +33,7 @@ export const routes = [
   {
     path: '/egenkontrol',
     name: 'egenkontrol',
-    component: EgenkontrolView,
+    component: () => import('@/views/EgenkontrolView.vue'),
     meta: { 
       showInNav: true,
       navName: 'Egenkontrol',
@@ -58,7 +44,7 @@ export const routes = [
   {
     path: '/tjeklister',
     name: 'tjeklister',
-    component: TjeklisterView,
+    component: () => import('@/views/TjeklisterView.vue'),
     meta: { 
       showInNav: true,
       navName: 'Tjeklister',
@@ -69,7 +55,7 @@ export const routes = [
   {
     path: '/enheder',
     name: 'enheder',
-    component: EnhederView,
+    component: () => import('@/views/EnhederView.vue'),
     meta: { 
       showInNav: true,
       navName: 'Enheder',
@@ -80,7 +66,7 @@ export const routes = [
   {
     path: '/brugere',
     name: 'brugere',
-    component: BrugereView,
+    component: () => import('@/views/BrugereView.vue'),
     meta: { 
       showInNav: true,
       navName: 'Brugere',

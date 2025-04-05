@@ -9,7 +9,7 @@ const route = useRoute()
 
 const pageTitle = computed(() => {
   const routeNames = {
-    '/home': 'Kalender',
+    '/': 'Kalender',
     '/egenkontrol': 'Egenkontrol',
     '/tjeklister': 'Tjeklister',
     '/enheder': 'Enheder',
