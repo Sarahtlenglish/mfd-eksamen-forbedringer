@@ -32,8 +32,9 @@ import '@/views/StyleguideView.vue'
   </header>
 </template>
 
-<style scoped>
-@import '@/assets/_icons.scss';
+<style lang="scss" scoped>
+@use '@/assets/variables' as *;
+@use '@/assets/_icons.scss';
 
 .app-header {
   position: fixed;
@@ -41,8 +42,8 @@ import '@/views/StyleguideView.vue'
   left: 250px; /* Match the width of the side navigation */
   right: 0;
   height: 72px;
-  background-color: #f7f7f7;
-  border-bottom: 1px solid #d1d3d4;
+  background-color: $neutral-200;
+  border-bottom: 1px solid $neutral-300;
   z-index: 10;
 }
 
@@ -52,13 +53,6 @@ import '@/views/StyleguideView.vue'
   align-items: center;
   padding: 0 24px;
   height: 100%;
-}
-
-.page-title {
-  font-size: 24px;
-  font-weight: 500;
-  color: #333;
-  margin: 0;
 }
 
 .header-actions {
