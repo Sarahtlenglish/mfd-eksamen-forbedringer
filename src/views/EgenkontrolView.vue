@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
+import TableComponent from '@/components/ui/TableComponent.vue'
 
 const route = useRoute()
 
@@ -20,4 +21,5 @@ const pageTitle = computed(() => {
   <div>
     <h1 class="heading-1">{{ pageTitle }}</h1>
   </div>
+  <TableComponent />
 </template>
