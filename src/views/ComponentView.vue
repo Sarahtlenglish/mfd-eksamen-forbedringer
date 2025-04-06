@@ -614,7 +614,7 @@ import DropdownComponent from '../components/ui/DropdownComponent.vue'
 import FilterButtonComponent from '../components/ui/FilterButtonComponent.vue'
 import BannerComponent from '../components/ui/BannerComponent.vue'
 import HeaderComponent from '../components/navigation/HeaderComponent.vue'
-import SideNavigationComponent from '../components/ui/SideNavigationComponent.vue'
+import SideNavigationComponent from '../components/navigation/SideNavigationComponent.vue'
 import CalendarComponent from '../components/calendar/CalendarComponent.vue'
 import CalendarDayTask from '../components/calendar/CalendarDayTask.vue'
 import {

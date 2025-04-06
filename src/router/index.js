@@ -27,6 +27,7 @@ export const routes = [
     meta: { 
       showInNav: true,
       navName: 'Kalender',
+      title: 'Kalender',
       icon: IconCalendarEvent
     }
   },
@@ -37,6 +38,7 @@ export const routes = [
     meta: { 
       showInNav: true,
       navName: 'Egenkontrol',
+      title: 'Egenkontrol',
       icon: IconClipboardText,
       //requiresAuth: true 
     }
@@ -48,6 +50,7 @@ export const routes = [
     meta: { 
       showInNav: true,
       navName: 'Tjeklister',
+      title: 'Tjeklister',
       icon: IconListDetails,
       //requiresAuth: true 
     }
@@ -59,6 +62,7 @@ export const routes = [
     meta: { 
       showInNav: true,
       navName: 'Enheder',
+      title: 'Enheder',
       icon: IconFireExtinguisher,
       //requiresAuth: true 
     }
@@ -70,6 +74,7 @@ export const routes = [
     meta: { 
       showInNav: true,
       navName: 'Brugere',
+      title: 'Brugere',
       icon: IconUsers,
       //requiresAuth: true 
     }

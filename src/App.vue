@@ -48,7 +48,7 @@ body, html {
 }
 
 .content-area {
-  padding: 24px;
+  padding: 24px 48px;
   margin-top: 70px; /* Match the height of the header */
 }
 

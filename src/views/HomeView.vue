@@ -1,22 +1,8 @@
 <script setup>
-import { computed, ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref } from 'vue'
 import CalendarComponent from '../components/calendar/CalendarComponent.vue'
 import ButtonComponent from '../components/ui/ButtonComponent.vue'
 import { IconPlus } from '@tabler/icons-vue'
-
-const route = useRoute()
-
-const pageTitle = computed(() => {
-  const routeNames = {
-    '/': 'Kalender',
-    '/egenkontrol': 'Egenkontrol',
-    '/tjeklister': 'Tjeklister',
-    '/enheder': 'Enheder',
-    '/brugere': 'Brugere'
-  }
-  return routeNames[route.path] || 'Dashboard'
-})
 
 // Calendar state management
 const calendarTasks = ref({})
@@ -38,7 +24,7 @@ const createEgenkontrol = () => {
 <template>
   <div class="calendar-view">
     <div class="calendar-header">
-      <h1 class="heading-1">{{ pageTitle }}</h1>
+      <h1 class="heading-1">{{ $route.meta.title }}</h1>
       <ButtonComponent
         variant="primary"
         @click="createEgenkontrol"
