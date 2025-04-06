@@ -1,22 +1,3 @@
-<template>
-	<button
-		class="filter-button"
-		:class="{
-			'active': active,
-			'disabled': disabled,
-			'full-width': fullWidth
-		}"
-		:disabled="disabled"
-		@click="$emit('click')"
-	>
-		<span class="filter-button-text">{{ text }}</span>
-		<span class="filter-button-edit-icon">
-			<IconPencil v-if="!disabled" />
-			<IconPencil v-else class="disabled-icon" />
-		</span>
-	</button>
-</template>
-
 <script setup>
 import { IconPencil } from '@tabler/icons-vue'
 
@@ -44,6 +25,25 @@ defineProps({
 
 defineEmits(['click'])
 </script>
+
+<template>
+	<button
+		class="filter-button"
+		:class="{
+			'active': active,
+			'disabled': disabled,
+			'full-width': fullWidth
+		}"
+		:disabled="disabled"
+		@click="$emit('click')"
+	>
+		<span class="filter-button-text">{{ text }}</span>
+		<span class="filter-button-edit-icon">
+			<IconPencil v-if="!disabled" />
+			<IconPencil v-else class="disabled-icon" />
+		</span>
+	</button>
+</template>
 
 <style lang="scss" scoped>
 @use '@/assets/variables' as *;

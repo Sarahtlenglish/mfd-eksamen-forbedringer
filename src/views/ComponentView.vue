@@ -468,6 +468,60 @@
 						</div>
 					</template>
 
+          <!-- Navigation tab -->
+					<template v-if="activeTab === 'navigation'">
+            <div class="control-group">
+              <label class="control-label">View</label>
+              <div class="calendar-subtabs">
+                <button
+                  v-for="subtab in navigationSubtabs"
+                  :key="subtab.value"
+                  @click="activeNavigationSubtab = subtab.value"
+                  :class="['control-btn', { active: activeNavigationSubtab === subtab.value }]"
+                >
+                  {{ subtab.label }}
+                </button>
+              </div>
+            </div>
+            <div class="">
+              <!-- Side Navigation Display -->
+              <template v-if="activeNavigationSubtab === 'sideNavigation'">
+                <div class="control-group">
+                  <label class="control-label">Component Preview</label>
+                  <div class="preview-container navigation-preview-wrapper">
+                    <div class="side-navigation-container">
+                      <SideNavigationComponent class="static-nav" />
+                    </div>
+                  </div>
+                </div>
+              </template>
+
+              <!-- Header Display -->
+              <template v-else-if="activeNavigationSubtab === 'header'">
+                <div class="control-group">
+                  <label class="control-label">Component Preview</label>
+                  <div class="preview-container">
+                    <div class="header-container">
+                      <HeaderComponent class="static-header" />
+                    </div>
+                  </div>
+                </div>
+              </template>
+
+              <!-- Styling Display -->
+              <template v-else-if="activeNavigationSubtab === 'styling'">
+                <div class="control-group">
+                  <label class="control-label">Navigation States</label>
+                  <div class="style-samples">
+                    <div class="menu-item">Normal State</div>
+                    <div class="menu-item">Hover State</div>
+                    <div class="menu-item active">Active State</div>
+                  </div>
+                </div>
+              </template>
+            </div>
+          </template>
+
 					<!-- Calendar Controls -->
 					<template v-if="activeTab === 'calendar'">
 						<div class="control-grid">
@@ -559,6 +613,8 @@ import InputComponent from '../components/ui/InputComponent.vue'
 import DropdownComponent from '../components/ui/DropdownComponent.vue'
 import FilterButtonComponent from '../components/ui/FilterButtonComponent.vue'
 import BannerComponent from '../components/ui/BannerComponent.vue'
+import HeaderComponent from '../components/navigation/HeaderComponent.vue'
+import SideNavigationComponent from '../components/navigation/SideNavigationComponent.vue'
 import CalendarComponent from '../components/calendar/CalendarComponent.vue'
 import CalendarDayTask from '../components/calendar/CalendarDayTask.vue'
 import {
@@ -636,7 +692,7 @@ const copyCodeToClipboard = () => {
 
 // Helper functions for dynamic content
 const hasComponentContent = () => {
-  return ['buttons', 'forms', 'filter', 'banners', 'calendar'].includes(activeTab.value)
+  return ['buttons', 'forms', 'filter', 'banners', 'navigation', 'calendar'].includes(activeTab.value)
 }
 
 const getComponentTitle = () => {
@@ -653,6 +709,14 @@ const getComponentTitle = () => {
       return 'Banner Component'
     case 'calendar':
       return 'Calendar Component'
+    case 'navigation':
+      if (activeNavigationSubtab.value === 'sideNavigation') {
+        return 'Side Navigation Component'
+      } else if (activeNavigationSubtab.value === 'header') {
+        return 'Header Component'
+      } else {
+        return 'Navigation Styling'
+      }
     default:
       return activeTab.value.charAt(0).toUpperCase() + activeTab.value.slice(1)
   }
@@ -674,6 +738,14 @@ const getComponentDescription = () => {
       return 'Banners are used to display important messages, alerts or notifications to users. They can include links for additional actions.'
     case 'calendar':
       return 'Calendar component used for displaying and managing tasks, inspections, and other scheduled items with different status indicators.'
+    case 'navigation':
+      if (activeNavigationSubtab.value === 'sideNavigation') {
+        return 'Side navigation component provides the main application navigation menu. It allows users to navigate between different sections of the application.'
+      } else if (activeNavigationSubtab.value === 'header') {
+        return 'Header component displays action buttons and user controls in the top bar of the application.'
+      } else {
+        return 'Styling options and states for navigation elements including hover and active states.'
+      }
     default:
       return ''
   }
@@ -748,6 +820,14 @@ const addDropdownOption = () => {
 const removeDropdownOption = (index) => {
   dropdownOptions.value.splice(index, 1)
 }
+
+//navigation & header
+const navigationSubtabs = [
+  { label: 'Side Navigation', value: 'sideNavigation' },
+  { label: 'Header', value: 'header' },
+  { label: 'Styling', value: 'styling' }
+]
+const activeNavigationSubtab = ref('sideNavigation')
 
 // Calendar component state
 // Add state for calendar task demo
@@ -1495,6 +1575,69 @@ const getStatusLabel = (status) => {
 		}
 	}
 }
+
+/* navigation */
+.navigation-subtabs {
+  display: flex;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.navigation-subtabs button {
+  padding: 0.75rem 1.5rem;
+  background-color: #60a5fa;
+  color: white;
+  border: none;
+  border-top-left-radius: 0.25rem;
+  border-top-right-radius: 0.25rem;
+  cursor: pointer;
+}
+
+.navigation-subtabs button:not(.active) {
+  background-color: #f0f9ff;
+  color: #3b82f6;
+}
+
+.navigation-preview-wrapper {
+  margin-bottom: 1rem;
+  border-radius: 0.25rem;
+  overflow: hidden;
+  height: 100%;
+}
+
+.side-navigation-container {
+  width: 250px;
+  overflow: hidden;
+}
+
+.header-container {
+  width: 100%;
+  overflow: hidden;
+}
+
+.style-samples {
+  width: 250px;
+}
+
+.preview-hint {
+  font-size: 0.875rem;
+  color: #6b7280;
+  padding: 0.5rem;
+}
+
+.static-nav {
+  position: static;
+  width: 100%;
+  height: auto;
+}
+
+.static-header {
+  position: static;
+  left: 0;
+  width: 100%;
+}
+
+/* calender */
 
 .full-calendar-container {
 	width: 100%;

@@ -1,60 +1,89 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import StyleguideView from '@/views/StyleguideView.vue'
-import ComponentView from '@/views/ComponentView.vue'
+import { IconCalendarEvent, IconClipboardText, IconListDetails, IconFireExtinguisher, IconUsers } from '@tabler/icons-vue'
 import HomeView from '@/views/HomeView.vue'
-import EgenkontrolView from '@/views/EgenkontrolView.vue'
-import TjeklisterView from '@/views/TjeklisterView.vue'
-import EnhederView from '@/views/EnhederView.vue'
-import BrugereView from '@/views/BrugereView.vue'
+
+// Define routes with additional metadata
+export const routes = [
+  {
+    path: '/styleguide',
+    name: 'styleguide',
+    component: () => import('@/views/StyleguideView.vue'),
+    meta: { 
+      showInNav: false 
+    }
+  },
+  {
+    path: '/components',
+    name: 'components',
+    component: () => import('@/views/ComponentView.vue'),
+    meta: { 
+      showInNav: false 
+    }
+  },
+  {
+    path: '/',
+    name: 'home',
+    component: HomeView,
+    meta: { 
+      showInNav: true,
+      navName: 'Kalender',
+      title: 'Kalender',
+      icon: IconCalendarEvent
+    }
+  },
+  {
+    path: '/egenkontrol',
+    name: 'egenkontrol',
+    component: () => import('@/views/EgenkontrolView.vue'),
+    meta: { 
+      showInNav: true,
+      navName: 'Egenkontrol',
+      title: 'Egenkontrol',
+      icon: IconClipboardText,
+      //requiresAuth: true 
+    }
+  },
+  {
+    path: '/tjeklister',
+    name: 'tjeklister',
+    component: () => import('@/views/TjeklisterView.vue'),
+    meta: { 
+      showInNav: true,
+      navName: 'Tjeklister',
+      title: 'Tjeklister',
+      icon: IconListDetails,
+      //requiresAuth: true 
+    }
+  },
+  {
+    path: '/enheder',
+    name: 'enheder',
+    component: () => import('@/views/EnhederView.vue'),
+    meta: { 
+      showInNav: true,
+      navName: 'Enheder',
+      title: 'Enheder',
+      icon: IconFireExtinguisher,
+      //requiresAuth: true 
+    }
+  },
+  {
+    path: '/brugere',
+    name: 'brugere',
+    component: () => import('@/views/BrugereView.vue'),
+    meta: { 
+      showInNav: true,
+      navName: 'Brugere',
+      title: 'Brugere',
+      icon: IconUsers,
+      //requiresAuth: true 
+    }
+  }
+]
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
-  routes: [
-    {
-      path: '/',
-      name: 'root',
-      component: HomeView
-    },
-    {
-      path: '/styleguide',
-      name: 'styleguide',
-      component: StyleguideView
-    },
-    {
-      path: '/components',
-      name: 'components',
-      component: ComponentView
-    },
-    {
-      path: '/home',
-      name: 'home',
-      component: HomeView
-    },
-    {
-      path: '/egenkontrol',
-      name: 'egenkontrol',
-      component: EgenkontrolView,
-      //meta: { requiresAuth: true }
-    },
-    {
-      path: '/tjeklister',
-      name: 'tjeklister',
-      component: TjeklisterView,
-      //meta: { requiresAuth: true }
-    },
-    {
-      path: '/enheder',
-      name: 'enheder',
-      component: EnhederView,
-      //meta: { requiresAuth: true }
-    },
-    {
-      path: '/brugere',
-      name: 'brugere',
-      component: BrugereView,
-      //meta: { requiresAuth: true }
-    }
-  ]
+  routes
 })
 
 export default router

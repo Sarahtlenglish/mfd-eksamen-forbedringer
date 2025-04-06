@@ -1,19 +1,14 @@
 <script setup>
-import { ref } from 'vue'
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { IconCalendarEvent, IconClipboardText, IconListDetails, IconFireExtinguisher, IconUsers } from '@tabler/icons-vue'
-import '@/views/StyleguideView.vue'
+import { routes } from '@/router'
 
 const router = useRouter()
 
-// Updated menuItems to match your router configuration
-const menuItems = ref([
-  { name: 'Kalender', route: '/home', icon: IconCalendarEvent, isComponent: true },
-  { name: 'Egenkontrol', route: '/egenkontrol', icon: IconClipboardText, isComponent: true },
-  { name: 'Tjeklister', route: '/tjeklister', icon: IconListDetails, isComponent: true },
-  { name: 'Enheder', route: '/enheder', icon: IconFireExtinguisher, isComponent: true },
-  { name: 'Brugere', route: '/brugere', icon: IconUsers, isComponent: true }
-])
+// Filter routes that should appear in navigation
+const menuItems = computed(() => {
+  return routes.filter(route => route.meta?.showInNav)
+})
 
 // Function to determine if route is active
 const isActive = (route) => {
@@ -29,12 +24,12 @@ const isActive = (route) => {
     <nav class="menu">
       <ul>
         <li v-for="item in menuItems" :key="item.name">
-          <router-link :to="item.route" class="menu-item" :class="{ active: isActive(item.route) }">
+          <router-link :to="item.path" class="menu-item" :class="{ active: isActive(item.path) }">
             <div class="menu-item-container">
-              <span v-if="item.isComponent" class="icon medium clear">
-                <component :is="item.icon" class="menu-color" />
+              <span v-if="item.meta.icon" class="icon medium clear">
+                <component :is="item.meta.icon" class="menu-color" />
               </span>
-              <span class="subtitle-1">{{ item.name }}</span>
+              <span class="subtitle-1">{{ item.meta.navName }}</span>
             </div>
           </router-link>
         </li>
@@ -92,11 +87,11 @@ const isActive = (route) => {
 }
 
 .menu-item:hover {
-  background-color: #EAF1F6;
+  background-color: $nav-hover;
 }
 
 .menu-item.active {
-  background-color: #DCEBF4;
+  background-color: $nav-active;
   font-weight: 500;
 }
 </style>
