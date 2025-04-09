@@ -48,9 +48,7 @@ const createEgenkontrol = () => {
 @use '@/assets/variables' as *;
 
 .calendar-view {
-  padding: $spacing-medium;
-  max-width: 1200px;
-  margin: 0 auto;
+
 }
 
 .calendar-header {
@@ -58,6 +56,7 @@ const createEgenkontrol = () => {
   justify-content: space-between;
   align-items: center;
   margin-bottom: $spacing-large;
+  width: 100%;
 }
 
 .heading-1 {
@@ -67,5 +66,6 @@ const createEgenkontrol = () => {
 
 .calendar-container {
   margin-top: $spacing-medium;
+  max-width: 1200px
 }
 </style>

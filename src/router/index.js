@@ -38,7 +38,7 @@ export const routes = [
     meta: { 
       showInNav: true,
       navName: 'Egenkontrol',
-      title: 'Egenkontrol',
+      title: 'Egenkontroller',
       icon: IconClipboardText,
       //requiresAuth: true 
     }

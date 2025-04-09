@@ -44,20 +44,37 @@ const handleRowClick = (item) => {
       Opret Tjekliste
     </ButtonComponent>
   </div>
-  <TablesComponent
+  <div class="content-layout">
+    <div class="table-section">
+      <TablesComponent
       :items="TjeklistData"
       :columns="columns"
       :columnWidths="['33%', '33%', '33%']"
       :selectedItemId="selectedItem?.id"
       @row-click="handleRowClick"
-  />
+      />
+    </div>
+  </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
+@use '@/assets/variables' as *;
+
   .page-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin: 0 0 24px 0;
   }
+
+  .content-layout {
+    display: flex;
+    flex: 1;
+    gap: $spacing-large;
+    overflow: hidden;
+
+  .table-section {
+    min-width: 66%;
+  }
+}
 </style>
