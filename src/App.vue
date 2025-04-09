@@ -23,11 +23,14 @@ const shouldHideNavigation = () => {
   </div>
 </template>
 
-<style>
+<style lang="scss" scoped>
+@use '@/assets/variables' as *;
+
 body, html {
   margin: 0;
   padding: 0;
-  font-family: Arial, sans-serif;
+  font-family: $font-family-base;
+  color: $neutral-700;
 }
 
 .app-container {
@@ -48,7 +51,7 @@ body, html {
 }
 
 .content-area {
-  padding: 24px 48px;
+  padding: $main-padding;
   margin-top: 70px; /* Match the height of the header */
 }
 

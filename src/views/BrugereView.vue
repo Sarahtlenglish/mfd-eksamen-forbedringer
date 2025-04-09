@@ -43,20 +43,36 @@ const handleRowClick = (item) => {
       Opret Bruger
     </ButtonComponent>
   </div>
-  <TablesComponent
-    :items="brugerData"
-    :columns="columns"
-    :columnWidths="['50%', '50%']"
-    :selectedItemId="selectedItem?.id"
-    @row-click="handleRowClick"
-  />
+  <div class="content-layout">
+    <div class="table-section">
+      <TablesComponent
+        :items="brugerData"
+        :columns="columns"
+        :columnWidths="['50%', '50%']"
+        :selectedItemId="selectedItem?.id"
+        @row-click="handleRowClick"
+      />
+    </div>
+  </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
+@use '@/assets/variables' as *;
   .page-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin: 0 0 24px 0;
   }
+
+  .content-layout {
+    display: flex;
+    flex: 1;
+    gap: $spacing-large;
+    overflow: hidden;
+
+  .table-section {
+    min-width: 66%;
+  }
+}
 </style>

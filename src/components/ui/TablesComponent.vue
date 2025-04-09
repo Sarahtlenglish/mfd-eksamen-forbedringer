@@ -105,7 +105,7 @@ const handleRowClick = (item) => {
   overflow: hidden;
   background-color: white;
   border: 1px solid $neutral-300;
-  max-width: 1039px;
+  width: 100%;
 }
 
 .data-table {
