@@ -55,10 +55,10 @@ const selectDate = (date) => {
       >
         <template #counter="{ date }">
           <div
-            v-if="customTasks[date.toISOString().split('T')[0]] && customTasks[date.toISOString().split('T')[0]].length > 2"
+            v-if="customTasks[date.toISOString().split('T')[0]]?.length"
             class="task-counter"
           >
-            +{{ customTasks[date.toISOString().split('T')[0]].length - 2 }}
+            +{{ customTasks[date.toISOString().split('T')[0]].length }}
           </div>
         </template>
         <template #day="{ date }">
@@ -113,14 +113,14 @@ const selectDate = (date) => {
 .day-tasks {
   display: flex;
   flex-direction: column;
-  gap: $spacing-2xs;
+  gap: 4px;
   width: 100%;
   overflow: hidden;
 }
 
 .task-counter {
-  font-size: 10px;
-  color: $neutral-600;
+  font-size: 13px;
+  color: $secondary-500;
   padding: 0;
   text-align: right;
   font-weight: 600;

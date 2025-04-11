@@ -834,9 +834,7 @@ const activeNavigationSubtab = ref('sideNavigation')
 const taskVariants = [
   { label: 'Normal', value: 'normal' },
   { label: 'Warning', value: 'warning' },
-  { label: 'Error', value: 'error' },
-  { label: 'Success', value: 'success' },
-  { label: 'Past', value: 'past' }
+  { label: 'Error', value: 'error' }
 ]
 
 const selectedTaskVariant = ref('normal')
@@ -1071,8 +1069,6 @@ const getStatusLabel = (status) => {
     case 'normal': return 'Normal'
     case 'warning': return 'Advarsel'
     case 'error': return 'Fejl'
-    case 'success': return 'Success'
-    case 'past': return 'Forældet'
     default: return status
   }
 }
@@ -1641,7 +1637,7 @@ const getStatusLabel = (status) => {
 
 .full-calendar-container {
 	width: 100%;
-	max-width: 900px; // Standard max-width like other components
+	max-width: 900px;
 	padding: 0;
 	background: transparent;
 	box-shadow: none;

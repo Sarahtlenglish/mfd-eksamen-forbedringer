@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from 'vue'
-import { IconAlertCircle, IconInfoCircle, IconCircleCheck, IconAlertTriangle, IconCircleDashed } from '@tabler/icons-vue'
+import { IconAlertCircle, IconInfoCircle, IconAlertTriangle } from '@tabler/icons-vue'
 
 const props = defineProps({
   title: {
@@ -15,7 +15,7 @@ const props = defineProps({
   status: {
     type: String,
     default: 'normal',
-    validator: value => ['normal', 'success', 'warning', 'error', 'past'].includes(value)
+    validator: value => ['normal', 'warning', 'error'].includes(value)
   }
 })
 
@@ -29,10 +29,6 @@ const getStatusIcon = computed(() => {
       return IconAlertTriangle
     case 'error':
       return IconAlertCircle
-    case 'success':
-      return IconCircleCheck
-    case 'past':
-      return IconCircleDashed
     default:
       return null
   }
@@ -55,7 +51,7 @@ const getStatusIconClass = computed(() => {
       <div class="task-title">{{ title }}</div>
       <div class="task-details" v-if="hasDetails">{{ details }}</div>
     </div>
-    <div class="task-icon-container" v-if="getStatusIcon">
+    <div class="task-icon-container">
       <component :is="getStatusIcon" class="task-icon" :class="getStatusIconClass" />
     </div>
   </div>
@@ -69,47 +65,27 @@ const getStatusIconClass = computed(() => {
   display: flex;
   width: 100%;
   border-radius: $border-radius-sm;
-  padding: 2px 5px;
+  padding: 4px 8px;
   box-sizing: border-box;
   min-width: 0;
   cursor: pointer;
-  font-size: 11px;
+  font-size: $body-3-font-size;
   line-height: 1.3;
-  margin-bottom: 2px;
+  justify-content: space-between;
+  align-items: center;
+  color: $neutral-800;
 
   // Status variants
   &.status-normal {
     background-color: $secondary-100;
-    color: $neutral-800;
-  }
-
-  &.status-success {
-    background-color: $success-100;
-    color: $neutral-800;
   }
 
   &.status-warning {
-    position: relative;
     background-color: $warning-100;
-    color: $neutral-800;
-    &::before {
-      content: "⚠";
-      font-size: 10px;
-      position: absolute;
-      right: 5px;
-      top: 2px;
-      color: darken($warning-base, 10%);
-    }
   }
 
   &.status-error {
     background-color: $error-100;
-    color: $error-base;
-  }
-
-  &.status-past {
-    background-color: $neutral-200;
-    color: $neutral-600;
   }
 }
 
@@ -118,37 +94,41 @@ const getStatusIconClass = computed(() => {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: $spacing-2xs;
-  margin-right: $spacing-xs;
+  gap: 4px;
+  margin-right: 8px;
+  width: calc(100% - 24px);
 }
 
 .task-title {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-weight: $body-3-font-weight;
-  max-width: calc(100% - 15px);
+  font-weight: $body-2-font-weight-regular;
+  font-size: 14px;
+  width: 100%;
 }
 
 .task-details {
-  font-size: $body-3-font-size;
+  font-size: 12px;
   opacity: 0.8;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   font-weight: $body-2-font-weight-regular;
+  width: 100%;
 }
 
 .task-icon-container {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+  width: 16px;
 }
 
 .task-icon {
-  flex-shrink: 0;
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
 
   &.status-icon-normal {
     color: $secondary-500;
@@ -160,14 +140,6 @@ const getStatusIconClass = computed(() => {
 
   &.status-icon-error {
     color: $error-base;
-  }
-
-  &.status-icon-success {
-    color: $success-base;
-  }
-
-  &.status-icon-past {
-    color: $neutral-600;
   }
 }
 </style>

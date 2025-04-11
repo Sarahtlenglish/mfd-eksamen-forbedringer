@@ -84,8 +84,15 @@ const dayNumber = computed(() => props.date.getDate())
 
   &.today {
     .day-number {
-      color: $secondary-500;
+      color: $neutral-100;
       font-weight: $body-2-font-weight-semibold;
+      background-color: $secondary-500;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
   }
 }
@@ -94,8 +101,9 @@ const dayNumber = computed(() => props.date.getDate())
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  padding: 4px 8px 2px;
-  height: 22px;
+  padding: $spacing-small;
+  height: $spacing-large;
+  min-height: $spacing-large;
 }
 
 .day-number {
@@ -103,14 +111,19 @@ const dayNumber = computed(() => props.date.getDate())
   font-weight: $body-2-font-weight-regular;
   color: $neutral-800;
   text-align: left;
+  min-width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
 }
 
 .day-content {
-  padding: 1px 8px 6px;
-  height: calc(100% - 22px);
-  max-height: calc(100% - 22px);
+  padding: 0 $spacing-small $spacing-small;
+  height: calc(100% - #{$spacing-large});
+  max-height: calc(100% - #{$spacing-large});
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  gap: $spacing-xs;
 }
 </style>
