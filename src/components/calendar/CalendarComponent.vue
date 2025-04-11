@@ -26,6 +26,18 @@ const navigateMonth = (direction) => {
   currentDate.value = newDate
 }
 
+const selectMonth = (monthIndex) => {
+  const newDate = new Date(currentDate.value)
+  newDate.setMonth(monthIndex)
+  currentDate.value = newDate
+}
+
+const selectYear = (year) => {
+  const newDate = new Date(currentDate.value)
+  newDate.setFullYear(year)
+  currentDate.value = newDate
+}
+
 const selectDate = (date) => {
   selectedDate.value = date
   emit('date-click', date)
@@ -33,45 +45,60 @@ const selectDate = (date) => {
 </script>
 
 <template>
-  <div class="calendar">
-    <CalendarHeader
-      :current-month="currentMonth"
-      :current-year="currentYear"
-      @navigate="navigateMonth"
-    />
-    <WeekDaysHeader />
-    <CalendarGrid
-      :current-date="currentDate"
-      :selected-date="selectedDate"
-      @select-date="selectDate"
-    >
-      <template #counter="{ date }">
-        <div
-          v-if="customTasks[date.toISOString().split('T')[0]] && customTasks[date.toISOString().split('T')[0]].length > 2"
-          class="task-counter"
-        >
-          +{{ customTasks[date.toISOString().split('T')[0]].length - 2 }}
-        </div>
-      </template>
-      <template #day="{ date }">
-        <div class="day-tasks">
-          <template v-if="customTasks[date.toISOString().split('T')[0]]">
-            <CalendarDayTask
-              v-for="task in customTasks[date.toISOString().split('T')[0]].slice(0, 2)"
-              :key="task.id"
-              :title="task.title"
-              :details="task.details"
-              :status="task.status"
-            />
-          </template>
-        </div>
-      </template>
-    </CalendarGrid>
+  <div class="calendar-container">
+    <div class="calendar">
+      <CalendarHeader
+        :current-month="currentMonth"
+        :current-year="currentYear"
+        @navigate="navigateMonth"
+        @select-month="selectMonth"
+        @select-year="selectYear"
+      />
+      <WeekDaysHeader />
+      <CalendarGrid
+        :current-date="currentDate"
+        :selected-date="selectedDate"
+        @select-date="selectDate"
+      >
+        <template #counter="{ date }">
+          <div
+            v-if="customTasks[date.toISOString().split('T')[0]] && customTasks[date.toISOString().split('T')[0]].length > 2"
+            class="task-counter"
+          >
+            +{{ customTasks[date.toISOString().split('T')[0]].length - 2 }}
+          </div>
+        </template>
+        <template #day="{ date }">
+          <div class="day-tasks">
+            <template v-if="customTasks[date.toISOString().split('T')[0]]">
+              <CalendarDayTask
+                v-for="task in customTasks[date.toISOString().split('T')[0]].slice(0, 2)"
+                :key="task.id"
+                :title="task.title"
+                :details="task.details"
+                :status="task.status"
+              />
+            </template>
+          </div>
+        </template>
+      </CalendarGrid>
+    </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
 @use '@/assets/variables' as *;
+
+.calendar-container {
+  width: 100%;
+}
+
+.calendar-title {
+  font-size: 48px;
+  font-weight: 700;
+  color: $neutral-900;
+  margin-bottom: 24px;
+}
 
 .calendar {
   background: white;
