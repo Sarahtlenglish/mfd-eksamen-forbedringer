@@ -20,12 +20,6 @@ const selectedDate = ref(new Date())
 const currentMonth = computed(() => currentDate.value.getMonth())
 const currentYear = computed(() => currentDate.value.getFullYear())
 
-const navigateMonth = (direction) => {
-  const newDate = new Date(currentDate.value)
-  newDate.setMonth(newDate.getMonth() + direction)
-  currentDate.value = newDate
-}
-
 const selectMonth = (monthIndex) => {
   const newDate = new Date(currentDate.value)
   newDate.setMonth(monthIndex)
@@ -50,7 +44,6 @@ const selectDate = (date) => {
       <CalendarHeader
         :current-month="currentMonth"
         :current-year="currentYear"
-        @navigate="navigateMonth"
         @select-month="selectMonth"
         @select-year="selectYear"
       />
@@ -91,13 +84,6 @@ const selectDate = (date) => {
 
 .calendar-container {
   width: 100%;
-}
-
-.calendar-title {
-  font-size: 48px;
-  font-weight: 700;
-  color: $neutral-900;
-  margin-bottom: 24px;
 }
 
 .calendar {

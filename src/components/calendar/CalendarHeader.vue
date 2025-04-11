@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { IconChevronDown } from '@tabler/icons-vue'
 
 const props = defineProps({
@@ -13,7 +13,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['navigate', 'select-month', 'select-year'])
+const emit = defineEmits(['select-month', 'select-year'])
 
 const isDropdownOpen = ref(false)
 
@@ -26,10 +26,6 @@ const monthsShort = [
   'Jan', 'Feb', 'Mar', 'Apr', 'Maj', 'Jun',
   'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dec'
 ]
-
-const displayMonth = computed(() => {
-  return `${months[props.currentMonth]} ${props.currentYear}`
-})
 
 const toggleDropdown = () => {
   isDropdownOpen.value = !isDropdownOpen.value
@@ -63,8 +59,8 @@ const changeYear = (direction) => {
         </div>
       </div>
       <div class="months-grid">
-        <div 
-          v-for="(month, index) in monthsShort" 
+        <div
+          v-for="(month, index) in monthsShort"
           :key="month"
           class="month-option"
           :class="{ 'selected': index === currentMonth }"
@@ -94,7 +90,6 @@ const changeYear = (direction) => {
   align-items: center;
   gap: 12px;
   cursor: pointer;
-  
   &:hover .dropdown-icon {
     color: $neutral-900;
   }
@@ -104,13 +99,11 @@ const changeYear = (direction) => {
   display: flex;
   align-items: baseline;
   gap: 8px;
-  
   .month {
     font-size: 20px;
     font-weight: 600;
     color: $neutral-900;
   }
-  
   .year {
     font-size: 20px;
     color: $neutral-900;
