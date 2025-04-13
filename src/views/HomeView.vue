@@ -66,6 +66,6 @@ const createEgenkontrol = () => {
 
 .calendar-container {
   margin-top: $spacing-medium;
-  max-width: 1200px
+  max-width: 66%
 }
 </style>

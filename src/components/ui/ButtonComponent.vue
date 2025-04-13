@@ -3,7 +3,7 @@
 		class="button"
 		:class="[
 			`variant-${variant}`,
-			variant === 'primary' ? `size-${size}` : 'size-medium',
+			(variant === 'primary' || variant === 'secondary') ? `size-${size}` : 'size-medium',
 			{
 				'has-icon': hasIcon,
 				'icon-after': iconAfter,
