@@ -88,6 +88,14 @@ const createEgenkontrol = () => {
   align-items: center;
   margin: 0 0 16px 0;
 
+.heading-1 {
+  color: $neutral-900;
+  margin: 0;
+}
+
+.calendar-container {
+  margin-top: $spacing-medium;
+  max-width: 66%
   .heading-1 {
     color: $neutral-900;
     margin: 0;
