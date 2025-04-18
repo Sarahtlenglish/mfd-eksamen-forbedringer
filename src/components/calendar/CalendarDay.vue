@@ -61,7 +61,6 @@ const dayNumber = computed(() => props.date.getDate())
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
   transition: $transition-base;
   border: 1px solid $neutral-250;
 
@@ -100,10 +99,12 @@ const dayNumber = computed(() => props.date.getDate())
 .day-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   padding: $spacing-small;
   height: $spacing-large;
   min-height: $spacing-large;
+  position: relative;
+  z-index: 1;
 }
 
 .day-number {
@@ -118,12 +119,14 @@ const dayNumber = computed(() => props.date.getDate())
 }
 
 .day-content {
-  padding: 0 $spacing-small $spacing-small;
-  height: calc(100% - #{$spacing-large});
-  max-height: calc(100% - #{$spacing-large});
+  position: absolute;
+  top: $spacing-large;
+  left: $spacing-small;
+  right: $spacing-small;
+  bottom: $spacing-small;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
   gap: $spacing-xs;
+  overflow: hidden;
 }
 </style>

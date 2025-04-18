@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import { IconChevronDown } from '@tabler/icons-vue'
+import { IconChevronDown, IconChevronUp } from '@tabler/icons-vue'
 
 const props = defineProps({
   currentMonth: {
@@ -54,8 +54,12 @@ const changeYear = (direction) => {
       <div class="year-selector">
         <div class="year">{{ currentYear }}</div>
         <div class="year-nav">
-          <button @click.stop="changeYear(-1)">↑</button>
-          <button @click.stop="changeYear(1)">↓</button>
+          <button @click.stop="changeYear(-1)" class="year-btn">
+            <IconChevronUp class="year-icon" />
+          </button>
+          <button @click.stop="changeYear(1)" class="year-btn">
+            <IconChevronDown class="year-icon" />
+          </button>
         </div>
       </div>
       <div class="months-grid">
@@ -151,19 +155,29 @@ const changeYear = (direction) => {
   .year-nav {
     display: flex;
     flex-direction: row;
-    gap: 2px;
+    gap: 4px;
 
-    button {
+    .year-btn {
       border: none;
       background: none;
-      padding: 2px 8px;
+      padding: 4px;
       cursor: pointer;
       color: $neutral-600;
       border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
 
       &:hover {
         background: $neutral-100;
+        color: $neutral-900;
       }
+    }
+
+    .year-icon {
+      width: 16px;
+      height: 16px;
+      stroke-width: 2;
     }
   }
 }

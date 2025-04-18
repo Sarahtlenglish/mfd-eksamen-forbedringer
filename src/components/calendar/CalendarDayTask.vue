@@ -68,24 +68,49 @@ const getStatusIconClass = computed(() => {
   padding: 4px 8px;
   box-sizing: border-box;
   min-width: 0;
+  max-width: 100%;
   cursor: pointer;
-  font-size: $body-3-font-size;
-  line-height: 1.3;
+  line-height: 1.2;
   justify-content: space-between;
   align-items: center;
   color: $neutral-800;
+  transition: $transition-base;
 
   // Status variants
   &.status-normal {
     background-color: $secondary-100;
+
+    &:hover {
+      background-color: $secondary-200;
+    }
+
+    &:active {
+      background-color: $secondary-300;
+    }
   }
 
   &.status-warning {
     background-color: $warning-100;
+
+    &:hover {
+      background-color: $warning-200;
+    }
+
+    &:active {
+      background-color: $warning-300;
+    }
   }
 
   &.status-error {
     background-color: $error-100;
+
+    &:hover {
+      background-color: $error-200;
+    }
+
+    &:active {
+      background-color: $error-300;
+    }
   }
 }
 
@@ -95,8 +120,9 @@ const getStatusIconClass = computed(() => {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  margin-right: 8px;
-  width: calc(100% - 24px);
+  margin-right: 4px;
+  max-width: calc(100% - 20px);
+  overflow: hidden;
 }
 
 .task-title {
@@ -104,12 +130,12 @@ const getStatusIconClass = computed(() => {
   text-overflow: ellipsis;
   white-space: nowrap;
   font-weight: $body-2-font-weight-regular;
-  font-size: 14px;
+  font-size: $body-2-font-size;
   width: 100%;
 }
 
 .task-details {
-  font-size: 12px;
+  font-size: $body-3-font-size;
   opacity: 0.8;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -123,12 +149,11 @@ const getStatusIconClass = computed(() => {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 16px;
 }
 
 .task-icon {
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
 
   &.status-icon-normal {
     color: $secondary-500;

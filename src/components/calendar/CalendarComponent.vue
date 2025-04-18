@@ -84,45 +84,36 @@ const selectDate = (date) => {
 
 .calendar-container {
   width: 100%;
+  background-color: $neutral-200;
+  border-radius: 8px;
+  border: 1px solid $neutral-300;
+  display: flex;
+  flex-direction: column;
+  height: 823px;
 }
 
 .calendar {
-  background: white;
-  border-radius: $border-radius-md;
+  background: $neutral-200;
   width: 100%;
-  max-width: 100%;
-  min-width: 0;
-  margin: 0 auto;
-  border: 1px solid $neutral-300;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
-
-  @media (max-width: $tablet) {
-    border-radius: $border-radius-lg;
-    box-shadow: $shadow-sm;
-  }
-
-  @media (max-width: $mobile) {
-    border-radius: $border-radius-md;
-    border-width: 0.5px;
-  }
+  height: 100%;
 }
 
 .day-tasks {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: $spacing-xs;
   width: 100%;
-  overflow: hidden;
+  min-height: 0;
 }
 
 .task-counter {
-  font-size: 13px;
+  font-size: 12px;
   color: $secondary-500;
   padding: 0;
   text-align: right;
-  font-weight: 600;
+  font-weight: $body-2-font-weight-semibold;
 }
 </style>
