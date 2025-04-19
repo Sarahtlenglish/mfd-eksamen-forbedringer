@@ -821,7 +821,7 @@ const removeDropdownOption = (index) => {
   dropdownOptions.value.splice(index, 1)
 }
 
-//navigation & header
+// navigation & header
 const navigationSubtabs = [
   { label: 'Side Navigation', value: 'sideNavigation' },
   { label: 'Header', value: 'header' },

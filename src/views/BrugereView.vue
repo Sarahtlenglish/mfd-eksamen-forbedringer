@@ -28,6 +28,12 @@ onMounted(async () => {
 const handleRowClick = (item) => {
   selectedItem.value = item
 }
+
+const createBruger = () => {
+  console.log('Opret item:')
+  // Here you would typically open an edit form or dialog
+  alert('Oprettelse af bruger - denne funktionalitet er ikke implementeret endnu')
+}
 </script>
 
 <template>
@@ -72,7 +78,7 @@ const handleRowClick = (item) => {
     overflow: hidden;
 
   .table-section {
-    min-width: 66%;
+    min-width: 50%;
   }
 }
 </style>

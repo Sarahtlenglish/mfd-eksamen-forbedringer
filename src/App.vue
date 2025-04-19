@@ -53,6 +53,7 @@ body, html {
 .content-area {
   padding: $main-padding;
   margin-top: 70px; /* Match the height of the header */
+  height: 90vh;
 }
 
 .content-area.no-margin {

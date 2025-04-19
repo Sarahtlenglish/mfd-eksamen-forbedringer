@@ -1,10 +1,10 @@
-<!-- DetailPanelComponent.vue -->
 <script setup>
 import { ref, computed } from 'vue'
 import { IconChevronLeft, IconX, IconPencil, IconTrash } from '@tabler/icons-vue'
 import EgenkontrolDetailContent from '@/components/detailpanel/EgenkontrolDetailContent.vue'
 import EnhederDetailContent from '@/components/detailpanel/EnhederDetailContent.vue'
 import EnhederHistoryContent from '@/components/detailpanel/EnhederHistoryContent.vue'
+import TjeklisteDetailContent from '@/components/detailpanel/TjeklisteDetailContent.vue'
 
 const props = defineProps({
   context: {
@@ -19,10 +19,28 @@ const props = defineProps({
   historyItems: {
     type: Array,
     default: () => []
+  },
+  // New props for controlling variants
+  showBackButton: {
+    type: Boolean,
+    default: true
+  },
+  showDeleteButton: {
+    type: Boolean,
+    default: true
+  },
+  showEditButton: {
+    type: Boolean,
+    default: null // Will use canEdit computed property if null
+  },
+  // New prop for custom title
+  customTitle: {
+    type: String,
+    default: null
   }
 })
 
-const emit = defineEmits(['close', 'edit', 'delete', 'back'])
+const emit = defineEmits(['close', 'edit', 'delete', 'back', 'history-toggle'])
 
 // State
 const isHistoryMode = ref(false)
@@ -32,22 +50,57 @@ const previousItems = ref([])
 const panelTitle = computed(() => {
   if (!props.item) return ''
 
+  // Handle history mode title format
   if (isHistoryMode.value && props.context === 'enheder') {
-    return `${props.item.name} - ${props.item.location}`
+    return `${props.item.name} - ${props.item.location || ''}`
   }
 
-  return props.item.name
+  // Context-specific title properties
+  if (props.context === 'tjeklister' && props.item.tjekliste) {
+    return props.item.tjekliste + ' - Tjekliste'
+  }
+
+  if (props.context === 'egenkontroller' && props.item.title) {
+    return props.item.title
+  }
+
+  // Default to name property
+  return props.item.name || ''
 })
 
 const canEdit = computed(() => {
   // Determine if the current item can be edited based on context
-  return ['egenkontroller', 'enheder', 'brugere'].includes(props.context)
+  // Don't allow editing in history mode
+  return ['egenkontroller', 'enheder', 'brugere'].includes(props.context) && !isHistoryMode.value
+})
+
+const shouldShowEditButton = computed(() => {
+  // Use the showEditButton prop if provided, otherwise fall back to canEdit
+  return props.showEditButton !== null ? props.showEditButton : canEdit.value
+})
+
+// Determine when to show back button
+const shouldShowBackButton = computed(() => {
+  // If we're in history mode, show the back button regardless of prop
+  // Otherwise, use the prop value
+  return isHistoryMode.value || props.showBackButton
 })
 
 // Methods
 const toggleHistoryMode = () => {
   isHistoryMode.value = !isHistoryMode.value
+  // Emit an event so parent components can react if needed
+  emit('history-toggle', isHistoryMode.value)
 }
+
+function resetHistoryMode() {
+  isHistoryMode.value = false
+}
+
+// Make sure to expose it
+defineExpose({
+  resetHistoryMode
+})
 
 function handleBackClick() {
   // First check if we're in history mode
@@ -84,21 +137,21 @@ const handleDelete = () => {
   <div class="detail-panel" v-if="item">
     <!-- Header - Directly in the main component -->
     <div class="detail-panel-header">
-      <div class="back-button-container">
-        <span @click="handleBackClick" class="back-button">
+      <div v-if="shouldShowBackButton" class="back-button-container">
+        <button @click="handleBackClick" class="back-button">
           <IconChevronLeft/>
-        </span>
+        </button>
       </div>
-      <div class="detail-title-container">
+      <div class="detail-title-container" :class="{ 'no-back-button': !shouldShowBackButton }">
         <h2 class="detail-title">{{ panelTitle }}</h2>
       </div>
       <div class="detail-actions">
-        <span v-if="canEdit" @click="handleEdit" class="edit-button">
+        <button v-if="shouldShowEditButton" @click="handleEdit" class="edit-button">
           <IconPencil/>
-        </span>
-        <span @click="close" class="close-button">
+        </button>
+        <button @click="close" class="close-button">
           <IconX/>
-        </span>
+        </button>
       </div>
     </div>
 
@@ -110,42 +163,38 @@ const handleDelete = () => {
         :item="item"
       />
 
-      <!-- Enheder - Normal Mode -->
-      <EnhederDetailContent
-        v-else-if="context === 'enheder' && !isHistoryMode"
-        :item="item"
-        @toggle-history="toggleHistoryMode"
-      />
-
-      <!-- Enheder - History Mode -->
-      <EnhederHistoryContent
-        v-else-if="context === 'enheder' && isHistoryMode"
-        :item="item"
-        :history-items="historyItems"
-      />
+      <!-- Enheder - Content (Detail or History based on isHistoryMode) -->
+      <template v-else-if="context === 'enheder'">
+        <EnhederDetailContent
+          v-if="!isHistoryMode"
+          :item="item"
+          @toggle-history="toggleHistoryMode"
+        />
+        <EnhederHistoryContent
+          v-else
+          :item="item"
+          :history-items="historyItems"
+        />
+      </template>
 
       <!-- Tjeklister Detail -->
-      <!-- <TjeklisterDetailContent
+      <TjeklisteDetailContent
         v-else-if="context === 'tjeklister'"
+        :context="context"
         :item="item"
-      /> -->
-
-      <!-- Brugere Detail -->
-      <!-- <BrugereDetailContent
-        v-else-if="context === 'brugere'"
-        :item="item"
-      /> -->
+      />
 
       <!-- Additional contexts can be added here -->
+
+      <!-- Default slot for custom content -->
+      <slot name="content"></slot>
     </div>
 
     <!-- Footer - Directly in the main component -->
-    <div class="detail-bottom">
+    <div v-if="showDeleteButton" class="detail-bottom">
       <div class="detail-actions-bottom">
         <span class="delete-button" @click="handleDelete">
-          <span>
-            <IconTrash class="trash-icon"/>
-          </span>
+          <IconTrash class="trash-icon"/>
           <span>Slet</span>
         </span>
       </div>
@@ -166,13 +215,18 @@ const handleDelete = () => {
   flex-direction: column;
   padding: $detail-panel-padding;
   height: 823px;
-  width: 33%;
+  width: 100%;
 
   .detail-panel-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     background-color: $neutral-200;
+
+    .back-button-container {
+      display: flex;
+      align-items: center;
+    }
 
     .back-button {
       background: none;
@@ -185,8 +239,16 @@ const handleDelete = () => {
       justify-content: center;
     }
 
-    .detail-title {
+    .detail-title-container {
       flex: 1;
+      text-align: center;
+
+      &.no-back-button {
+        text-align: left;
+      }
+    }
+
+    .detail-title {
       margin: 0;
       line-height: $subtitle-1-line-height;
       font-size: $subtitle-1-font-size;
@@ -205,6 +267,9 @@ const handleDelete = () => {
         font-size: $icon-medium;
         color: $secondary-500;
         cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
     }
   }
@@ -217,6 +282,7 @@ const handleDelete = () => {
     height: 100%;
     font-size: $body-1-font-size;
     color: $neutral-800;
+    overflow-y: auto;
   }
 
   .detail-bottom {

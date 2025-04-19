@@ -108,6 +108,12 @@ const handleRowClick = (item) => {
   selectedItem.value = item
 }
 
+const createEgenkontrol = () => {
+  console.log('Opret item:')
+  // Here you would typically open an edit form or dialog
+  alert('Oprettelse af egenkontrol - denne funktionalitet er ikke implementeret endnu')
+}
+
 const closeDetailPanel = () => {
   selectedItem.value = null
 }
@@ -165,6 +171,9 @@ onMounted(async () => {
         v-if="selectedItem"
         context="egenkontroller"
         :item="selectedItem"
+        :showBackButton="true"
+        :showDeleteButton="true"
+        :showEditButton="true"
         @close="closeDetailPanel"
         @edit="handleEdit"
         @delete="handleDelete"

@@ -15,12 +15,12 @@ const props = defineProps({
 // Helper function to get the appropriate icon class for history events
 const getEventIconClass = (eventType) => {
   const iconClasses = {
-    'nextInspection': 'IconClipboardList',
-    'dokumenter': 'IconFileText',
-    'opgave': 'IconTool',
-    'kommentar': 'IconMessage',
-    'udført': 'IconClipboardCheck'
-  };
+    nextInspection: 'IconClipboardList',
+    dokumenter: 'IconFileText',
+    opgave: 'IconTool',
+    kommentar: 'IconMessage',
+    udført: 'IconClipboardCheck'
+  }
 
   return iconClasses[eventType] || 'default-icon'
 }
