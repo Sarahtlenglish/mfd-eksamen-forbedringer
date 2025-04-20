@@ -22,7 +22,7 @@ export const egenkontrollerData = [
     id: 2,
     name: 'Håndtryksknap inspektion',
     type: 'Egenkontrol',
-    status: 'afvigelse',
+    status: 'error',
     location: 'Udendørs A5.05',
     standard: 'BR18',
     standardTitle: 'Brand Håndtrykskammer',
@@ -106,7 +106,7 @@ export const egenkontrollerData = [
     id: 6,
     name: 'Varslingssystem Inspektion',
     type: 'Egenkontrol',
-    status: 'afvigelse',
+    status: 'error',
     location: 'Hele bygningen',
     standard: 'BR18',
     standardTitle: 'Brandtekniske installationer',
@@ -283,8 +283,6 @@ export const defaultReminders = [
 export const mapStatusForCalendar = (status) => {
   if (!status) return 'normal'
   switch (status) {
-    case 'afvigelse':
-      return 'warning'
     case 'error':
       return 'error'
     case 'warning':

@@ -151,7 +151,7 @@ const handleDelete = () => {
       <div class="back-button-container" v-if="context !== 'calendar'">
         <span @click="handleBackClick" class="back-button">
           <IconChevronLeft/>
-        </button>
+        </span>
       </div>
       <div class="detail-title-container">
         <h2 :class="titleClasses">{{ panelTitle }}</h2>
@@ -162,7 +162,7 @@ const handleDelete = () => {
         </span>
         <span @click="close" class="close-button" :class="{ 'calendar-close': context === 'calendar' }">
           <IconX/>
-        </button>
+        </span>
       </div>
     </div>
 
@@ -234,8 +234,8 @@ const handleDelete = () => {
   display: flex;
   flex-direction: column;
   padding: $detail-panel-padding;
-  height: 823px;
   width: 100%;
+  overflow: scroll;
 
   &.calendar-panel {
     padding: 18px;

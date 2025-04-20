@@ -46,11 +46,6 @@ const handleDelete = (item) => {
   selectedItem.value = null
 }
 
-// Create egenkontrol function
-const createEgenkontrol = () => {
-  // Here you would typically open a modal or navigate to a creation form
-  alert('Opret egenkontrol funktionalitet er ikke implementeret endnu')
-}
 </script>
 
 <template>

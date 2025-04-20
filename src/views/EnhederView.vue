@@ -56,11 +56,6 @@ const handleDelete = (item) => {
   selectedItem.value = null
 }
 
-// Opret en ny enhed (dummy funktion)
-const createEnhed = () => {
-  alert('Opret enhed funktionalitet er ikke implementeret endnu')
-}
-
 // Fetch data on component mount - in a real application
 onMounted(async () => {
   // In a real app, you would fetch data from an API
