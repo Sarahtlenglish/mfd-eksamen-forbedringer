@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import TablesComponent from '@/components/ui/TablesComponent.vue'
-import DetailPanel from '@/components/ui/DetailPanelComponent.vue'
+import DetailPanel from '@/components/ui/panels/DetailPanelComponent.vue'
 import ButtonComponent from '@/components/ui/ButtonComponent.vue'
 import { IconPlus } from '@tabler/icons-vue'
 
@@ -80,6 +80,7 @@ const createTjekliste = () => {
       @row-click="handleRowClick"
       />
     </div>
+    <div class="detail-panel-section">
     <DetailPanel
       v-if="selectedItem"
       context="tjeklister"
@@ -92,6 +93,7 @@ const createTjekliste = () => {
       @delete="handleDelete"
       @microcopy="handleMicrocopy"
     />
+    </div>
   </div>
 </template>
 
@@ -113,6 +115,12 @@ const createTjekliste = () => {
 
   .table-section {
     min-width: 66%;
+  }
+
+  .detail-panel-section {
+      min-width: 32%;
+      height: 100%;
+      max-height: 900px;
   }
 }
 </style>

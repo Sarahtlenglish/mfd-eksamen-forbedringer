@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import TablesComponent from '@/components/ui/TablesComponent.vue'
 import ButtonComponent from '@/components/ui/ButtonComponent.vue'
-import DetailPanel from '@/components/ui/DetailPanelComponent.vue'
+import DetailPanel from '@/components/ui/panels/DetailPanelComponent.vue'
 import { IconPlus } from '@tabler/icons-vue'
 
 // Define columns for this view
@@ -167,6 +167,7 @@ onMounted(async () => {
         @row-click="handleRowClick"
       />
     </div>
+    <div class="detail-panel-section">
     <DetailPanel
         v-if="selectedItem"
         context="egenkontroller"
@@ -178,6 +179,7 @@ onMounted(async () => {
         @edit="handleEdit"
         @delete="handleDelete"
       />
+    </div>
   </div>
 </template>
 
@@ -199,6 +201,10 @@ onMounted(async () => {
 
   .table-section {
     min-width: 66%;
+  }
+
+  .detail-panel-section {
+      min-width: 32%;
   }
 }
 </style>

@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import TablesComponent from '@/components/ui/TablesComponent.vue'
-import DetailPanel from '@/components/ui/DetailPanelComponent.vue'
+import DetailPanel from '@/components/ui/panels/DetailPanelComponent.vue'
 import ButtonComponent from '@/components/ui/ButtonComponent.vue'
 import { IconPlus } from '@tabler/icons-vue'
 
@@ -153,7 +153,7 @@ onMounted(async () => {
       @row-click="handleRowClick"
     />
     </div>
-    <div class="detail-panel-container">
+    <div class="detail-panel-section">
     <DetailPanel
       v-if="selectedItem"
       ref="detailPanelRef"
@@ -165,7 +165,7 @@ onMounted(async () => {
       @edit="handleEdit"
       @delete="handleDelete"
     />
-    </div>
+  </div>
   </div>
 </template>
 
@@ -183,6 +183,7 @@ onMounted(async () => {
     flex: 1;
     gap: $spacing-large;
     overflow: hidden;
+    width: 100%;
 
     .table-section {
       min-width: 66%;
@@ -190,8 +191,9 @@ onMounted(async () => {
       max-height: 900px;
     }
 
-    .detail-panel-container {
-      min-width: 33%;
+    .detail-panel-section {
+      min-width: 32%;
+      height: 100%;
       max-height: 900px;
     }
   }
