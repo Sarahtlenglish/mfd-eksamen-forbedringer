@@ -7,6 +7,7 @@ import EnhederDetailContent from '@/components/detailpanel/EnhederDetailContent.
 import EnhederHistoryContent from '@/components/detailpanel/EnhederHistoryContent.vue'
 import TjeklisteDetailContent from '@/components/detailpanel/TjeklisteDetailContent.vue'
 import CalendarDetailContent from '@/components/detailpanel/CalendarDetailContent.vue'
+import BrugerDetailContent from '@/components/detailpanel/BrugerDetailContent.vue'
 
 const props = defineProps({
   context: {
@@ -168,7 +169,11 @@ const handleDelete = () => {
   <BasePanel v-if="item" :class="{ 'calendar-panel': context === 'calendar' }">
     <!-- Header - Explicitly in the DetailPanel -->
     <template #header>
-      <div class="detail-panel-header" :class="{ 'calendar-header': context === 'calendar' }">
+      <div class="detail-panel-header"
+        :class="{
+          'calendar-header': context === 'calendar',
+          'bruger-header': context === 'brugere'
+         }">
         <div v-if="shouldShowBackButton" class="back-button-container">
           <button @click="handleBackClick" class="back-button">
             <IconChevronLeft/>
@@ -190,7 +195,6 @@ const handleDelete = () => {
 
     <!-- Main content -->
     <template #default>
-      <!-- Dynamic content based on context and mode -->
       <!-- Calendar Detail -->
       <CalendarDetailContent
         v-if="context === 'calendar'"
@@ -224,9 +228,12 @@ const handleDelete = () => {
         :item="item"
       />
 
-      <!-- Additional contexts can be added here -->
-      <!-- Default slot for custom content -->
-      <slot name="content"></slot>
+      <!-- Brugere Detail -->
+      <BrugerDetailContent
+        v-else-if="context === 'brugere'"
+        :item="item"
+      />
+
     </template>
 
     <!-- Footer -->
@@ -260,6 +267,10 @@ const handleDelete = () => {
   &.calendar-header {
     margin-bottom: $spacing-medium;
     border-bottom: 1px solid $neutral-300;
+  }
+
+  &.bruger-header {
+    margin-bottom: $spacing-small;
   }
 
   .back-button-container {
