@@ -1,16 +1,16 @@
 <script setup>
 import { ref, computed } from 'vue'
-import { IconChevronLeft, IconX, IconPencil, IconTrash } from '@tabler/icons-vue'
+import { IconX, IconTrash, IconChevronLeft, IconPencil } from '@tabler/icons-vue'
 import EgenkontrolDetailContent from '@/components/detailpanel/EgenkontrolDetailContent.vue'
 import EnhederDetailContent from '@/components/detailpanel/EnhederDetailContent.vue'
 import EnhederHistoryContent from '@/components/detailpanel/EnhederHistoryContent.vue'
-import TjeklisteDetailContent from '@/components/detailpanel/TjeklisteDetailContent.vue'
+import CalendarDetailContent from '@/components/detailpanel/CalendarDetailContent.vue'
 
 const props = defineProps({
   context: {
     type: String,
     required: true,
-    validator: (value) => ['calendar', 'egenkontroller', 'enheder', 'tjeklister', 'brugere'].includes(value)
+    validator: value => ['calendar', 'egenkontroller', 'enheder', 'tjeklister', 'brugere'].includes(value)
   },
   item: {
     type: Object,
@@ -50,40 +50,51 @@ const previousItems = ref([])
 const panelTitle = computed(() => {
   if (!props.item) return ''
 
+  // For calender context, brug en anden titling (dato)
+  if (props.context === 'calendar') {
+    if (props.item.date) {
+      // Format dato som "2. marts 2025" eller "3. marts 2025"
+      return props.item.date.toLocaleDateString('da-DK', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      })
+    }
+    return 'Kalender'
+  }
+
+  // For calender context, brug en anden titling (dato)
+  if (props.context === 'calendar') {
+    if (props.item.date) {
+      // Format dato som "2. marts 2025" eller "3. marts 2025"
+      return props.item.date.toLocaleDateString('da-DK', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      })
+    }
+    return 'Kalender'
+  }
+
   // Handle history mode title format
   if (isHistoryMode.value && props.context === 'enheder') {
     return `${props.item.name} - ${props.item.location || ''}`
   }
 
-  // Context-specific title properties
-  if (props.context === 'tjeklister' && props.item.tjekliste) {
-    return props.item.tjekliste + ' - Tjekliste'
-  }
-
-  if (props.context === 'egenkontroller' && props.item.title) {
-    return props.item.title
-  }
-
-  // Default to name property
-  return props.item.name || ''
+  return props.item.name
 })
 
+// Computed property for styling classes
+const titleClasses = computed(() => {
+  if (props.context === 'calendar') {
+    return 'detail-title calendar-title'
+  }
+  return 'detail-title'
+})
+
+// Determined if the item can be edited
 const canEdit = computed(() => {
-  // Determine if the current item can be edited based on context
-  // Don't allow editing in history mode
-  return ['egenkontroller', 'enheder', 'brugere'].includes(props.context) && !isHistoryMode.value
-})
-
-const shouldShowEditButton = computed(() => {
-  // Use the showEditButton prop if provided, otherwise fall back to canEdit
-  return props.showEditButton !== null ? props.showEditButton : canEdit.value
-})
-
-// Determine when to show back button
-const shouldShowBackButton = computed(() => {
-  // If we're in history mode, show the back button regardless of prop
-  // Otherwise, use the prop value
-  return isHistoryMode.value || props.showBackButton
+  return ['egenkontroller', 'enheder', 'brugere'].includes(props.context)
 })
 
 // Methods
@@ -134,22 +145,22 @@ const handleDelete = () => {
 </script>
 
 <template>
-  <div class="detail-panel" v-if="item">
+  <div class="detail-panel" :class="{ 'calendar-panel': context === 'calendar' }" v-if="item">
     <!-- Header - Directly in the main component -->
-    <div class="detail-panel-header">
-      <div v-if="shouldShowBackButton" class="back-button-container">
-        <button @click="handleBackClick" class="back-button">
+    <div class="detail-panel-header" :class="{ 'calendar-header': context === 'calendar' }">
+      <div class="back-button-container" v-if="context !== 'calendar'">
+        <span @click="handleBackClick" class="back-button">
           <IconChevronLeft/>
         </button>
       </div>
-      <div class="detail-title-container" :class="{ 'no-back-button': !shouldShowBackButton }">
-        <h2 class="detail-title">{{ panelTitle }}</h2>
+      <div class="detail-title-container">
+        <h2 :class="titleClasses">{{ panelTitle }}</h2>
       </div>
       <div class="detail-actions">
-        <button v-if="shouldShowEditButton" @click="handleEdit" class="edit-button">
+        <span v-if="canEdit && context !== 'calendar'" @click="handleEdit" class="edit-button">
           <IconPencil/>
-        </button>
-        <button @click="close" class="close-button">
+        </span>
+        <span @click="close" class="close-button" :class="{ 'calendar-close': context === 'calendar' }">
           <IconX/>
         </button>
       </div>
@@ -157,9 +168,15 @@ const handleDelete = () => {
 
     <!-- Dynamic content based on context and mode -->
     <div class="detail-content">
+      <!-- Calendar Detail -->
+      <CalendarDetailContent
+        v-if="context === 'calendar'"
+        :item="item"
+      />
+
       <!-- Egenkontrol Detail -->
       <EgenkontrolDetailContent
-        v-if="context === 'egenkontroller'"
+        v-else-if="context === 'egenkontroller'"
         :item="item"
       />
 
@@ -220,11 +237,24 @@ const handleDelete = () => {
   height: 823px;
   width: 100%;
 
+  &.calendar-panel {
+    padding: 18px;
+  }
+
   .detail-panel-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     background-color: $neutral-200;
+
+    &.calendar-header {
+      margin-bottom: $spacing-medium;
+      border-bottom: 1px solid $neutral-300;
+    }
+
+    .back-button-container {
+      min-width: 24px;
+    }
 
     .back-button {
       background: none;
@@ -246,13 +276,20 @@ const handleDelete = () => {
       }
     }
 
-    .detail-title {
+    .detail-title-container {
       flex: 1;
+    }
+
+    .detail-title {
       margin: 0;
       line-height: $subtitle-1-line-height;
       font-size: $subtitle-1-font-size;
       color: $secondary-900;
       font-weight: $subtitle-1-font-weight;
+    }
+
+    .calendar-title {
+      font-size: 18px !important;
     }
 
     .detail-actions {
@@ -266,6 +303,10 @@ const handleDelete = () => {
         font-size: $icon-medium;
         color: $secondary-500;
         cursor: pointer;
+      }
+
+      .calendar-close {
+        font-size: 20px;
       }
     }
   }
@@ -308,5 +349,10 @@ const handleDelete = () => {
       }
     }
   }
+}
+
+/* Specifik styling for kalendervisningen */
+.detail-panel.calendar-panel .detail-content {
+  padding-top: 0 !important;
 }
 </style>

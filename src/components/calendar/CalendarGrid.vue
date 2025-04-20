@@ -90,18 +90,17 @@ const calendarDays = computed(() => {
 .calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 0;
-  background: white;
+  background-color: white;
+  min-height: 0;
   width: 100%;
-  max-width: 100%;
-  min-width: 0;
-  overflow-x: auto;
-  box-sizing: border-box;
-  border-left: 1px solid $neutral-300;
-  border-right: 1px solid $neutral-300;
-  border-bottom: 1px solid $neutral-300;
+}
 
-  @media (max-width: $mobile) {
+.calendar-row {
+  display: contents;
+}
+
+@media (max-width: $mobile) {
+  .calendar-grid {
     gap: 0.5px;
     padding: 0.5px;
   }
