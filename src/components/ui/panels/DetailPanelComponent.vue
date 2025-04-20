@@ -183,9 +183,6 @@ const handleDelete = () => {
       />
 
       <!-- Additional contexts can be added here -->
-
-      <!-- Default slot for custom content -->
-      <slot name="content"></slot>
     </template>
 
     <!-- Footer -->

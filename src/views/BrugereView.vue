@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import TablesComponent from '@/components/ui/TablesComponent.vue'
 import ButtonComponent from '@/components/ui/ButtonComponent.vue'
+import GruppePanelComponent from '@/components/ui/panels/GruppePanelComponent.vue'
 import { IconPlus } from '@tabler/icons-vue'
 
 // Define columns for this view
@@ -50,6 +51,11 @@ const createBruger = () => {
     </ButtonComponent>
   </div>
   <div class="content-layout">
+    <div>
+      <div class="gruppe-panel-section">
+        <GruppePanelComponent />
+      </div>
+    </div>
     <div class="table-section">
       <TablesComponent
         :items="brugerData"
@@ -76,9 +82,14 @@ const createBruger = () => {
     flex: 1;
     gap: $spacing-large;
     overflow: hidden;
+    width: 100%;
 
-  .table-section {
-    min-width: 50%;
+    .table-section {
+      min-width: 50%;
+    }
+
+    .gruppe-panel-section {
+      min-width: 25%;
+    }
   }
-}
 </style>

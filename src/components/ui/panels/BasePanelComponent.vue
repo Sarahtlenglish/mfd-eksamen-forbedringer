@@ -1,15 +1,9 @@
 <script setup>
-const props = defineProps({
-  // Truly minimal props - just basic panel appearance controls
-  height: {
-    type: String,
-    default: '823px'
-  }
-})
+
 </script>
 
 <template>
-  <div class="panel" :style="{ height }">
+  <div class="panel">
     <!-- Header slot -->
     <slot name="header"></slot>
 
@@ -36,7 +30,8 @@ const props = defineProps({
   width: 100%;
   box-sizing: border-box;
   overflow: hidden;
-  
+  height: 823px;
+
   .panel-content {
     flex: 1;
     overflow-y: auto;

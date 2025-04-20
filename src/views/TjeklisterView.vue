@@ -20,12 +20,10 @@ const TjeklistData = ref([
 
 const selectedItem = ref(null)
 // Add this missing variable
-const selectedItemKey = ref(0)
 
 // Handle row click
 const handleRowClick = (item) => {
   selectedItem.value = item
-  selectedItemKey.value++ // Increment to force re-render
 }
 
 // Add these missing functions
@@ -42,11 +40,6 @@ const handleDelete = (item) => {
   console.log('Delete item:', item)
   TjeklistData.value = TjeklistData.value.filter(i => i.id !== item.id)
   selectedItem.value = null
-}
-
-const handleMicrocopy = (item) => {
-  console.log('Microcopy for item:', item)
-  // Implement microcopy functionality
 }
 
 const createTjekliste = () => {
@@ -85,13 +78,11 @@ const createTjekliste = () => {
       v-if="selectedItem"
       context="tjeklister"
       :item="selectedItem"
-      :key="selectedItemKey"
       :showEditButton="true"
       :showBackButton="false"
       @close="closeDetailPanel"
       @edit="handleEdit"
       @delete="handleDelete"
-      @microcopy="handleMicrocopy"
     />
     </div>
   </div>
