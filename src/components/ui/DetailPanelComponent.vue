@@ -1,16 +1,17 @@
 <!-- DetailPanelComponent.vue -->
 <script setup>
 import { ref, computed } from 'vue'
-import { IconChevronLeft, IconX, IconPencil, IconTrash } from '@tabler/icons-vue'
+import { IconX, IconTrash, IconChevronLeft, IconPencil } from '@tabler/icons-vue'
 import EgenkontrolDetailContent from '@/components/detailpanel/EgenkontrolDetailContent.vue'
 import EnhederDetailContent from '@/components/detailpanel/EnhederDetailContent.vue'
 import EnhederHistoryContent from '@/components/detailpanel/EnhederHistoryContent.vue'
+import CalendarDetailContent from '@/components/detailpanel/CalendarDetailContent.vue'
 
 const props = defineProps({
   context: {
     type: String,
     required: true,
-    validator: (value) => ['calendar', 'egenkontroller', 'enheder', 'tjeklister', 'brugere'].includes(value)
+    validator: value => ['calendar', 'egenkontroller', 'enheder', 'tjeklister', 'brugere'].includes(value)
   },
   item: {
     type: Object,
@@ -22,7 +23,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['close', 'edit', 'delete', 'back'])
+const emit = defineEmits(['close', 'delete', 'back', 'edit'])
 
 // State
 const isHistoryMode = ref(false)
@@ -32,6 +33,19 @@ const previousItems = ref([])
 const panelTitle = computed(() => {
   if (!props.item) return ''
 
+  // For calender context, brug en anden titling (dato)
+  if (props.context === 'calendar') {
+    if (props.item.date) {
+      // Format dato som "2. marts 2025" eller "3. marts 2025"
+      return props.item.date.toLocaleDateString('da-DK', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      })
+    }
+    return 'Kalender'
+  }
+
   if (isHistoryMode.value && props.context === 'enheder') {
     return `${props.item.name} - ${props.item.location}`
   }
@@ -39,8 +53,16 @@ const panelTitle = computed(() => {
   return props.item.name
 })
 
+// Computed property for styling classes
+const titleClasses = computed(() => {
+  if (props.context === 'calendar') {
+    return 'detail-title calendar-title'
+  }
+  return 'detail-title'
+})
+
+// Determined if the item can be edited
 const canEdit = computed(() => {
-  // Determine if the current item can be edited based on context
   return ['egenkontroller', 'enheder', 'brugere'].includes(props.context)
 })
 
@@ -81,22 +103,22 @@ const handleDelete = () => {
 </script>
 
 <template>
-  <div class="detail-panel" v-if="item">
+  <div class="detail-panel" :class="{ 'calendar-panel': context === 'calendar' }" v-if="item">
     <!-- Header - Directly in the main component -->
-    <div class="detail-panel-header">
-      <div class="back-button-container">
+    <div class="detail-panel-header" :class="{ 'calendar-header': context === 'calendar' }">
+      <div class="back-button-container" v-if="context !== 'calendar'">
         <span @click="handleBackClick" class="back-button">
           <IconChevronLeft/>
         </span>
       </div>
       <div class="detail-title-container">
-        <h2 class="detail-title">{{ panelTitle }}</h2>
+        <h2 :class="titleClasses">{{ panelTitle }}</h2>
       </div>
       <div class="detail-actions">
-        <span v-if="canEdit" @click="handleEdit" class="edit-button">
+        <span v-if="canEdit && context !== 'calendar'" @click="handleEdit" class="edit-button">
           <IconPencil/>
         </span>
-        <span @click="close" class="close-button">
+        <span @click="close" class="close-button" :class="{ 'calendar-close': context === 'calendar' }">
           <IconX/>
         </span>
       </div>
@@ -104,9 +126,15 @@ const handleDelete = () => {
 
     <!-- Dynamic content based on context and mode -->
     <div class="detail-content">
+      <!-- Calendar Detail -->
+      <CalendarDetailContent
+        v-if="context === 'calendar'"
+        :item="item"
+      />
+
       <!-- Egenkontrol Detail -->
       <EgenkontrolDetailContent
-        v-if="context === 'egenkontroller'"
+        v-else-if="context === 'egenkontroller'"
         :item="item"
       />
 
@@ -168,11 +196,24 @@ const handleDelete = () => {
   height: 823px;
   width: 33%;
 
+  &.calendar-panel {
+    padding: 18px;
+  }
+
   .detail-panel-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     background-color: $neutral-200;
+
+    &.calendar-header {
+      margin-bottom: $spacing-medium;
+      border-bottom: 1px solid $neutral-300;
+    }
+
+    .back-button-container {
+      min-width: 24px;
+    }
 
     .back-button {
       background: none;
@@ -185,13 +226,20 @@ const handleDelete = () => {
       justify-content: center;
     }
 
-    .detail-title {
+    .detail-title-container {
       flex: 1;
+    }
+
+    .detail-title {
       margin: 0;
       line-height: $subtitle-1-line-height;
       font-size: $subtitle-1-font-size;
       color: $secondary-900;
       font-weight: $subtitle-1-font-weight;
+    }
+
+    .calendar-title {
+      font-size: 18px !important;
     }
 
     .detail-actions {
@@ -205,6 +253,10 @@ const handleDelete = () => {
         font-size: $icon-medium;
         color: $secondary-500;
         cursor: pointer;
+      }
+
+      .calendar-close {
+        font-size: 20px;
       }
     }
   }
@@ -247,5 +299,10 @@ const handleDelete = () => {
       }
     }
   }
+}
+
+/* Specifik styling for kalendervisningen */
+.detail-panel.calendar-panel .detail-content {
+  padding-top: 0 !important;
 }
 </style>

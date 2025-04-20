@@ -1,14 +1,18 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import CalendarHeader from './CalendarHeader.vue'
 import WeekDaysHeader from './WeekDaysHeader.vue'
 import CalendarGrid from './CalendarGrid.vue'
 import CalendarDayTask from './CalendarDayTask.vue'
 
-defineProps({
+const props = defineProps({
   customTasks: {
     type: Object,
     default: () => ({})
+  },
+  initialDate: {
+    type: Date,
+    default: () => new Date()
   }
 })
 
@@ -16,6 +20,12 @@ const emit = defineEmits(['date-click'])
 
 const currentDate = ref(new Date())
 const selectedDate = ref(new Date())
+
+// Sæt initialDate når komponenten monteres
+onMounted(() => {
+  currentDate.value = new Date(props.initialDate)
+  selectedDate.value = new Date(props.initialDate)
+})
 
 const currentMonth = computed(() => currentDate.value.getMonth())
 const currentYear = computed(() => currentDate.value.getFullYear())
@@ -68,7 +78,6 @@ const selectDate = (date) => {
                 v-for="task in customTasks[date.toISOString().split('T')[0]].slice(0, 2)"
                 :key="task.id"
                 :title="task.title"
-                :details="task.details"
                 :status="task.status"
               />
             </template>

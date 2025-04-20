@@ -7,7 +7,7 @@ const props = defineProps({
   context: {
     type: String,
     required: true,
-    validator: (value) => ['calendar', 'egenkontroller', 'enheder', 'tjeklister', 'brugere'].includes(value)
+    validator: value => ['calendar', 'egenkontroller', 'enheder', 'tjeklister', 'brugere'].includes(value)
   },
   item: {
     type: Object,
@@ -22,7 +22,7 @@ const props = defineProps({
 const emit = defineEmits(['close', 'edit', 'delete', 'back'])
 
 // State
-const isHistoryMode = ref(false);
+const isHistoryMode = ref(false)
 const previousItems = ref([])
 
 // Default values
@@ -34,34 +34,34 @@ const defaultReminders = [
 // Computed properties
 const panelTitle = computed(() => {
   if (!props.item) return ''
-  
+
   if (isHistoryMode.value && props.context === 'enheder') {
     return `${props.item.name} - ${props.item.location}`
   }
-  
+
   return props.item.name
 })
 
 const toggleHistoryMode = () => {
-  isHistoryMode.value = !isHistoryMode.value;
-  console.log('History mode toggled to:', isHistoryMode.value);
-};
+  isHistoryMode.value = !isHistoryMode.value
+  console.log('History mode toggled to:', isHistoryMode.value)
+}
 
 function handleBackClick() {
   // First check if we're in history mode
   if (isHistoryMode.value) {
     // If in history mode, go back to normal view
-    isHistoryMode.value = false;
-    return;
+    isHistoryMode.value = false
+    return
   }
-  
+
   // If not in history mode, use the previous behavior
   if (previousItems.value.length > 0) {
     // Go back to the previous item in the detail panel
-    emit('back', previousItems.value.pop());
+    emit('back', previousItems.value.pop())
   } else {
     // Nothing to go back to – close the detail panel
-    close();
+    close()
   }
 }
 
@@ -72,15 +72,15 @@ const canEdit = computed(() => {
 
 const getEventIconClass = (eventType) => {
   const iconClasses = {
-    'inspection': 'inspection-icon',
-    'document': 'document-icon',
-    'maintenance': 'maintenance-icon',
-    'comment': 'comment-icon',
-    'task': 'task-icon'
-  };
-  
-  return iconClasses[eventType] || 'default-icon';
-};
+    inspection: 'inspection-icon',
+    document: 'document-icon',
+    maintenance: 'maintenance-icon',
+    comment: 'comment-icon',
+    task: 'task-icon'
+  }
+
+  return iconClasses[eventType] || 'default-icon'
+}
 
 // Methods
 const formatDate = (dateString) => {
@@ -286,7 +286,7 @@ const handleDelete = () => {
             </div>
           </div>
         </div>
-        
+
         <div class="timeline-actions">
           <button class="secondary-button comment-button">
             <span class="comment-icon">
@@ -474,7 +474,7 @@ const handleDelete = () => {
   border: 1px solid $secondary-300;
   margin-bottom: 16px;
   border-radius: 4px;
-  
+
   .qr-code {
     max-width: 250px;
     height: auto;
@@ -483,18 +483,18 @@ const handleDelete = () => {
 
 .files-list {
   margin-bottom: 16px;
-  
+
   .file-item {
     display: flex;
     align-items: center;
     padding: 12px 0;
-    
+
     .file-icon {
       color: #6B7280;
       margin-right: $spacing-small;
       display: flex;
     }
-    
+
     .file-name {
       font-size: $body-2-font-size;
       font-weight: $body-2-font-weight-semibold;
@@ -514,7 +514,7 @@ const handleDelete = () => {
     display: flex;
     margin-bottom: 24px;
     position: relative;
-    
+
     &:not(:last-child):before {
       content: '';
       position: absolute;
@@ -524,7 +524,7 @@ const handleDelete = () => {
       width: 1px;
       background-color: #E5E7EB;
     }
-    
+
     .timeline-icon {
       width: 16px;
       height: 16px;
@@ -536,43 +536,43 @@ const handleDelete = () => {
       margin-right: 16px;
       flex-shrink: 0;
       color: #6B7280;
-      
+
       &.inspection-icon {
         background-color: #EFF6FF;
         color: #3B82F6;
       }
-      
+
       &.document-icon {
         background-color: #F5F3FF;
         color: #8B5CF6;
       }
-      
+
       &.maintenance-icon {
         background-color: #FEF3C7;
         color: #D97706;
       }
-      
+
       &.comment-icon {
         background-color: #ECFDF5;
         color: #10B981;
       }
     }
-    
+
     .timeline-content {
       flex: 1;
-      
+
       .event-title {
         font-weight: 500;
         color: #374151;
         margin-bottom: 4px;
       }
-      
+
       .event-date {
         font-size: 0.875rem;
         color: #6B7280;
         margin-bottom: 4px;
       }
-      
+
       .event-user {
         font-size: 0.875rem;
         color: #4B5563;
@@ -580,14 +580,14 @@ const handleDelete = () => {
     }
   }
 }
-    
+
 .timeline-actions {
   padding-top: 16px;
   border-top: 1px solid #E5E7EB;
   display: flex;
   justify-content: center;
   margin-top: 16px;
-  
+
   .comment-button {
     background-color: #F3F4F6;
     border: 1px solid #E5E7EB;
