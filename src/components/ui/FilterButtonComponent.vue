@@ -20,6 +20,11 @@ defineProps({
   fullWidth: {
     type: Boolean,
     default: false
+  },
+  // Show icon option
+  showIcon: {
+    type: Boolean,
+    default: true
   }
 })
 
@@ -38,7 +43,7 @@ defineEmits(['click'])
 		@click="$emit('click')"
 	>
 		<span class="filter-button-text">{{ text }}</span>
-		<span class="filter-button-edit-icon">
+		<span class="filter-button-edit-icon" v-if="showIcon">
 			<IconPencil v-if="!disabled" />
 			<IconPencil v-else class="disabled-icon" />
 		</span>
