@@ -57,71 +57,82 @@ const createBruger = () => {
 </script>
 
 <template>
-  <div class="page-header">
-    <h1 class="heading-1">{{ $route.meta.title }}</h1>
-    <ButtonComponent
-      variant="primary"
-      @click="createBruger"
-    >
-      <template #icon>
-        <IconPlus />
-      </template>
-      Opret Bruger
-    </ButtonComponent>
-  </div>
-  <div class="content-layout">
-    <div class="gruppe-panel-section">
-      <GruppePanelComponent />
-    </div>
-    <div class="table-section">
-      <TablesComponent
-        :items="brugerData"
-        :columns="columns"
-        :columnWidths="['50%', '50%']"
-        :selectedItemId="selectedItem?.id"
-        @row-click="handleRowClick"
-      />
-    </div>
-    <div class="detail-panel-section">
-      <DetailPanelComponent
-        context="brugere"
-        :item="selectedItem"
-        :showEditButton="true"
-        :showBackButton="false"
-        @close="closeDetailPanel"
-        @edit="handleEdit"
-        @delete="handleDelete"
+  <div class="brugere-view">
+    <div class="page-header">
+      <h1 class="heading-1">{{ $route.meta.title }}</h1>
+      <ButtonComponent
+        variant="primary"
+        @click="createBruger"
+      >
+        <template #icon>
+          <IconPlus />
+        </template>
+        Opret Bruger
+      </ButtonComponent>
+      </div>
+    <div class="content-layout">
+      <div class="gruppe-panel-section">
+        <GruppePanelComponent />
+      </div>
+      <div class="table-section">
+        <TablesComponent
+          :items="brugerData"
+          :columns="columns"
+          :columnWidths="['50%', '50%']"
+          :selectedItemId="selectedItem?.id"
+          @row-click="handleRowClick"
         />
+      </div>
+      <div class="detail-panel-section">
+        <DetailPanelComponent
+          context="brugere"
+          :item="selectedItem"
+          :showEditButton="true"
+          :showBackButton="false"
+          @close="closeDetailPanel"
+          @edit="handleEdit"
+          @delete="handleDelete"
+          />
+      </div>
+    </div>
   </div>
-</div>
 </template>
 
 <style lang="scss" scoped>
 @use '@/assets/variables' as *;
-  .page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 0 0 24px 0;
+
+.brugere-view {
+  height: 100%;
+  min-height: 0;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0 0 24px 0;
+}
+
+.content-layout {
+  display: flex;
+  flex: 1;
+  gap: $spacing-large;
+  overflow: hidden;
+  width: 100%;
+  min-height: 800px;
+
+  .table-section {
+    min-width: 50%;
   }
 
-  .content-layout {
-    display: flex;
-    flex: 1;
-    gap: $spacing-large;
-    overflow: hidden;
-    width: 100%;
-
-    .table-section {
-      min-width: 50%;
-    }
-
-    .gruppe-panel-section {
-      width: 25%;
-    }
-
-    .detail-panel-section {
-      width: 25%;
-    }
+  .gruppe-panel-section {
+    width: 25%;
+    height: 100%;
   }
+
+  .detail-panel-section {
+    width: 25%;
+    height: 100%;
+  }
+}
 </style>

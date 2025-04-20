@@ -49,6 +49,7 @@ const handleDelete = (item) => {
 </script>
 
 <template>
+<div class="egenkontrol-view">
   <div class="page-header">
     <h1 class="heading-1">{{ $route.meta.title }}</h1>
     <ButtonComponent
@@ -71,7 +72,6 @@ const handleDelete = (item) => {
         @row-click="handleRowClick"
       />
     </div>
-    <div class="detail-panel-section">
     <DetailPanel
         v-if="selectedItem"
         context="egenkontroller"
@@ -83,12 +83,17 @@ const handleDelete = (item) => {
         @edit="handleEdit"
         @delete="handleDelete"
       />
-    </div>
   </div>
+</div>
 </template>
 
 <style lang="scss" scoped>
 @use '@/assets/variables' as *;
+
+.egenkontrol-view {
+  height: 100%;
+  min-height: 0;
+}
 
 .page-header {
   display: flex;
@@ -102,13 +107,10 @@ const handleDelete = (item) => {
   flex: 1;
   gap: $spacing-large;
   overflow: hidden;
+  min-height: 800px;
 
   .table-section {
     min-width: 66%;
-  }
-
-  .detail-panel-section {
-      min-width: 32%;
   }
 }
 </style>

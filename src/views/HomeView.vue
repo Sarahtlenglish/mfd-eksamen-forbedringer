@@ -138,7 +138,7 @@ const createEgenkontrol = () => {
   flex: 1;
   gap: $spacing-large;
   overflow: hidden;
-  min-height: 0;
+  min-height: 800px;
 
   .calendar-section {
     min-width: 66%;
@@ -146,6 +146,12 @@ const createEgenkontrol = () => {
     display: flex;
     flex-direction: column;
     min-height: 0;
+    overflow-y: scroll;
+    scroll-behavior: smooth;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
   }
 }
 </style>

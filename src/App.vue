@@ -31,10 +31,13 @@ body, html {
   padding: 0;
   font-family: $font-family-base;
   color: $neutral-700;
+  height: 100%;
 }
 
 .app-container {
   display: flex;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .app-container.no-nav {
@@ -44,6 +47,9 @@ body, html {
 .main-content {
   flex: 1;
   margin-left: 250px; /* Match the width of side navigation */
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .main-content.full-width {
@@ -53,7 +59,9 @@ body, html {
 .content-area {
   padding: $main-padding;
   margin-top: 70px; /* Match the height of the header */
-  height: 100vh;
+  flex: 1;
+  overflow-y: auto;
+  box-sizing: border-box;
 }
 
 .content-area.no-margin {
