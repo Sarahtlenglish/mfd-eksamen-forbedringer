@@ -30,15 +30,14 @@
   width: 100%;
   box-sizing: border-box;
   height: 823px;
-  overflow-y: scroll;
-  scroll-behavior: smooth;
-
-  &::-webkit-scrollbar {
-    display: none;
 
     .panel-content {
       flex: 1;
-      overflow-y: auto;
+      overflow-y: scroll;
+      scroll-behavior: smooth;
+
+      &::-webkit-scrollbar {
+      display: none;
     }
   }
 }

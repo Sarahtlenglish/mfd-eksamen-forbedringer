@@ -102,6 +102,7 @@ const createEgenkontrol = () => {
         v-if="selectedItem"
         context="calendar"
         :item="selectedItem"
+        :showDeleteButton="false"
         @close="closeDetailPanel"
         @edit="handleEdit"
         @delete="handleDelete"

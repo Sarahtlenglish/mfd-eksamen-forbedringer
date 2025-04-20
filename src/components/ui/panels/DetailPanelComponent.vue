@@ -111,6 +111,12 @@ const shouldShowBackButton = computed(() => {
   return isHistoryMode.value || props.showBackButton
 })
 
+// Determine when to show delete button
+const shouldShowDeleteButton = computed(() => {
+  // If we're in history mode, show the delete button regardless of prop
+  return props.showDeleteButton
+})
+
 // Methods
 const toggleHistoryMode = () => {
   isHistoryMode.value = !isHistoryMode.value
@@ -225,7 +231,7 @@ const handleDelete = () => {
 
     <!-- Footer -->
     <template #footer>
-      <div v-if="showDeleteButton && !isHistoryMode" class="detail-actions-bottom">
+      <div v-if="shouldShowDeleteButton && !isHistoryMode" class="detail-actions-bottom">
         <span class="delete-button" @click="handleDelete">
           <IconTrash class="trash-icon"/>
           <span>Slet</span>

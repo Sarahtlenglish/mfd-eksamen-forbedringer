@@ -3,6 +3,11 @@ import BasePanel from '@/components/ui/panels/BasePanelComponent.vue'
 import ButtonComponent from '@/components/ui/ButtonComponent.vue'
 import FilterButtonComponent from '@/components/ui/FilterButtonComponent.vue'
 import { IconPlus } from '@tabler/icons-vue'
+
+const handleFilterClick = () => {
+  // Handle filter click
+  console.log ('Filter clicked')
+}
 </script>
 
 <template>
@@ -30,6 +35,7 @@ import { IconPlus } from '@tabler/icons-vue'
         text="Alle"
         :full-width="true"
         :show-icon="false"
+        @click="handleFilterClick"
       />
       <FilterButtonComponent
         text="Facility"
