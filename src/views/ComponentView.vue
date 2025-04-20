@@ -101,6 +101,7 @@
 								:active="isFilterActive"
 								:disabled="isFilterDisabled"
 								:full-width="isFilterFullWidth"
+								:show-icon="showFilterIcon"
 								@click="toggleFilterActive"
 							/>
 							<p class="preview-hint">Interact with the filter button to see hover, focus, and pressed states</p>
@@ -312,6 +313,10 @@
 									<label class="option">
 										<input type="checkbox" v-model="isFilterDisabled">
 										<span>Disabled</span>
+									</label>
+									<label class="option">
+										<input type="checkbox" v-model="showFilterIcon">
+										<span>Show icon</span>
 									</label>
 								</div>
 							</div>
@@ -790,6 +795,7 @@ const filterButtonText = ref('Filter Button')
 const isFilterActive = ref(false)
 const isFilterDisabled = ref(false)
 const isFilterFullWidth = ref(false)
+const showFilterIcon = ref(true)
 
 // Banner component props
 const bannerText = ref('Dette skema vil blive oprettet uden en checkliste.')
@@ -940,6 +946,10 @@ const getCodeExample = () => {
 
     if (isFilterFullWidth.value) {
       props.push(':full-width="true"')
+    }
+    
+    if (!showFilterIcon.value) {
+      props.push(':show-icon="false"')
     }
 
     const propsStr = props.length ? props.join('\n  ') : ''

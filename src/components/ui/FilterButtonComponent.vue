@@ -21,6 +21,7 @@ defineProps({
     type: Boolean,
     default: false
   },
+  // Show icon option
   showIcon: {
     type: Boolean,
     default: true
