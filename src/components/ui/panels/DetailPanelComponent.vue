@@ -6,6 +6,7 @@ import EgenkontrolDetailContent from '@/components/detailpanel/EgenkontrolDetail
 import EnhederDetailContent from '@/components/detailpanel/EnhederDetailContent.vue'
 import EnhederHistoryContent from '@/components/detailpanel/EnhederHistoryContent.vue'
 import TjeklisteDetailContent from '@/components/detailpanel/TjeklisteDetailContent.vue'
+import CalendarDetailContent from '@/components/detailpanel/CalendarDetailContent.vue'
 
 const props = defineProps({
   context: {
@@ -32,6 +33,11 @@ const props = defineProps({
   showEditButton: {
     type: Boolean,
     default: null // Will use canEdit computed property if null
+  },
+  // New prop for custom title
+  customTitle: {
+    type: String,
+    default: null
   }
 })
 
@@ -44,6 +50,22 @@ const previousItems = ref([])
 // Computed properties
 const panelTitle = computed(() => {
   if (!props.item) return ''
+
+  // Use custom title if provided
+  if (props.customTitle) return props.customTitle
+
+  // For calendar context, use date formatting
+  if (props.context === 'calendar') {
+    if (props.item.date) {
+      // Format date as "2. marts 2025" or "3. marts 2025"
+      return props.item.date.toLocaleDateString('da-DK', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      })
+    }
+    return 'Kalender'
+  }
 
   // Handle history mode title format
   if (isHistoryMode.value && props.context === 'enheder') {
@@ -61,6 +83,14 @@ const panelTitle = computed(() => {
 
   // Default to name property
   return props.item.name || ''
+})
+
+// Computed property for styling classes
+const titleClasses = computed(() => {
+  if (props.context === 'calendar') {
+    return 'detail-title calendar-title'
+  }
+  return 'detail-title'
 })
 
 const canEdit = computed(() => {
@@ -129,23 +159,23 @@ const handleDelete = () => {
 </script>
 
 <template>
-  <BasePanel v-if="item">
+  <BasePanel v-if="item" :class="{ 'calendar-panel': context === 'calendar' }">
     <!-- Header - Explicitly in the DetailPanel -->
     <template #header>
-      <div class="detail-panel-header">
+      <div class="detail-panel-header" :class="{ 'calendar-header': context === 'calendar' }">
         <div v-if="shouldShowBackButton" class="back-button-container">
           <button @click="handleBackClick" class="back-button">
             <IconChevronLeft/>
           </button>
         </div>
         <div class="detail-title-container" :class="{ 'no-back-button': !shouldShowBackButton }">
-          <h2 class="detail-title">{{ panelTitle }}</h2>
+          <h2 :class="titleClasses">{{ panelTitle }}</h2>
         </div>
         <div class="detail-actions">
           <button v-if="shouldShowEditButton" @click="handleEdit" class="edit-button">
             <IconPencil/>
           </button>
-          <button @click="handleClose" class="close-button">
+          <button @click="handleClose" class="close-button" :class="{ 'calendar-close': context === 'calendar' }">
             <IconX/>
           </button>
         </div>
@@ -155,9 +185,15 @@ const handleDelete = () => {
     <!-- Main content -->
     <template #default>
       <!-- Dynamic content based on context and mode -->
+      <!-- Calendar Detail -->
+      <CalendarDetailContent
+        v-if="context === 'calendar'"
+        :item="item"
+      />
+
       <!-- Egenkontrol Detail -->
       <EgenkontrolDetailContent
-        v-if="context === 'egenkontroller'"
+        v-else-if="context === 'egenkontroller'"
         :item="item"
       />
 
@@ -183,6 +219,8 @@ const handleDelete = () => {
       />
 
       <!-- Additional contexts can be added here -->
+      <!-- Default slot for custom content -->
+      <slot name="content"></slot>
     </template>
 
     <!-- Footer -->
@@ -201,15 +239,27 @@ const handleDelete = () => {
 @use '@/assets/variables' as *;
 @use '@/assets/icons' as *;
 
+:deep(.base-panel) {
+  &.calendar-panel {
+    padding: 18px;
+  }
+}
+
 .detail-panel-header {
   display: flex;
   align-items: center;
   margin-bottom: $spacing-large;
   width: 100%;
 
+  &.calendar-header {
+    margin-bottom: $spacing-medium;
+    border-bottom: 1px solid $neutral-300;
+  }
+
   .back-button-container {
     display: flex;
     align-items: center;
+    min-width: 24px;
   }
 
   .back-button {
@@ -240,6 +290,10 @@ const handleDelete = () => {
     font-weight: $subtitle-1-font-weight;
   }
 
+  .calendar-title {
+    font-size: 18px !important;
+  }
+
   .detail-actions {
     display: flex;
     align-items: center;
@@ -255,6 +309,10 @@ const handleDelete = () => {
       display: flex;
       align-items: center;
       justify-content: center;
+    }
+
+    .calendar-close {
+      font-size: 20px;
     }
   }
 }
@@ -283,5 +341,10 @@ const handleDelete = () => {
   .trash-icon {
     font-size: $icon-small;
   }
+}
+
+/* Special styling for calendar view */
+:deep(.calendar-panel) .detail-content {
+  padding-top: 0 !important;
 }
 </style>

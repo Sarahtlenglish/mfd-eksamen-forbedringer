@@ -235,7 +235,6 @@ const handleDelete = () => {
   flex-direction: column;
   padding: $detail-panel-padding;
   width: 100%;
-  overflow: scroll;
 
   &.calendar-panel {
     padding: 18px;
@@ -274,10 +273,6 @@ const handleDelete = () => {
       &.no-back-button {
         text-align: left;
       }
-    }
-
-    .detail-title-container {
-      flex: 1;
     }
 
     .detail-title {

@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import CalendarComponent from '../components/calendar/CalendarComponent.vue'
 import ButtonComponent from '../components/ui/ButtonComponent.vue'
-import DetailPanel from '../components/ui/DetailPanelComponent.vue'
+import DetailPanel from '../components/ui/panels/DetailPanelComponent.vue'
 import { IconPlus } from '@tabler/icons-vue'
 import { useRouter } from 'vue-router'
 import { useEgenkontrolStore } from '../stores/egenkontrolStore'

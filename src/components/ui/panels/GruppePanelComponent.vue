@@ -5,7 +5,7 @@ import FilterButtonComponent from '@/components/ui/FilterButtonComponent.vue'
 import { IconPlus } from '@tabler/icons-vue'
 </script>
 
-<template> 
+<template>
   <BasePanel>
   <template #header>
     <div class="detail-panel-header">
@@ -29,6 +29,7 @@ import { IconPlus } from '@tabler/icons-vue'
       <FilterButtonComponent
         text="Alle"
         :full-width="true"
+        :show-icon="false"
       />
       <FilterButtonComponent
         text="Facility"
@@ -46,7 +47,7 @@ import { IconPlus } from '@tabler/icons-vue'
         @click="handleFilterClick"
       />
     </div>
-    <div class="detail-panel-header">
+    <div class="detail-panel-header rolle-panel-header">
       <div class="detail-title-container">
         <h2 class="detail-title">Roller</h2>
       </div>
@@ -55,21 +56,25 @@ import { IconPlus } from '@tabler/icons-vue'
       <FilterButtonComponent
         text="Administrator"
         :full-width="true"
+        :show-icon="false"
         @click="handleFilterClick"
       />
       <FilterButtonComponent
         text="Facility Manager"
         :full-width="true"
+        :show-icon="false"
         @click="handleFilterClick"
       />
       <FilterButtonComponent
         text="Service Bruger"
         :full-width="true"
+        :show-icon="false"
         @click="handleFilterClick"
       />
       <FilterButtonComponent
         text="Visnings Bruger"
         :full-width="true"
+        :show-icon="false"
         @click="handleFilterClick"
       />
     </div>
@@ -84,9 +89,6 @@ import { IconPlus } from '@tabler/icons-vue'
 .detail-panel-header {
   margin-bottom: $spacing-large;
 
-  &:last-of-type {
-    margin-top: $spacing-xlarge;
-  }
   .detail-title-container {
     display: flex;
     align-items: center;
@@ -103,6 +105,10 @@ import { IconPlus } from '@tabler/icons-vue'
       font-weight: $subtitle-1-font-weight;
     }
   }
+}
+
+.rolle-panel-header {
+  margin-top: $spacing-large;
 }
 
 .filter-container {
