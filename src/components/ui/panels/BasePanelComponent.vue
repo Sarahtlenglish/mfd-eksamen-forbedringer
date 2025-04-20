@@ -29,12 +29,16 @@
   padding: $detail-panel-padding;
   width: 100%;
   box-sizing: border-box;
-  overflow: hidden;
   height: 823px;
 
-  .panel-content {
-    flex: 1;
-    overflow-y: auto;
+    .panel-content {
+      flex: 1;
+      overflow-y: scroll;
+      scroll-behavior: smooth;
+
+      &::-webkit-scrollbar {
+      display: none;
+    }
   }
 }
 </style>
