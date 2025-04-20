@@ -97,6 +97,7 @@ defineEmits(['click'])
 	font-size: $body-2-font-size;
 	font-weight: $body-2-font-weight-regular;
 	color: inherit;
+	font-family: $font-family-base;
 }
 
 .filter-button-edit-icon {

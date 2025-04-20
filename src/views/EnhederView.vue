@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import TablesComponent from '@/components/ui/TablesComponent.vue'
-import DetailPanel from '@/components/ui/DetailPanelComponent.vue'
+import DetailPanel from '@/components/ui/panels/DetailPanelComponent.vue'
 import ButtonComponent from '@/components/ui/ButtonComponent.vue'
 import { IconPlus } from '@tabler/icons-vue'
 
@@ -78,11 +78,24 @@ const historyItems = ref([
 
 // State for selected item
 const selectedItem = ref(null)
-const selectedItemKey = ref(0)
+// Track panel state
+const detailPanelRef = ref(null)
 
+// Update your handleRowClick function
 const handleRowClick = (item) => {
+  // Store the new selected item
   selectedItem.value = item
-  selectedItemKey.value++ // Increment the key to force a complete re-render
+  // Reset history mode (if panel exists and it's a different item)
+  // Use optional chaining to safely access the method
+  if (detailPanelRef.value?.resetHistoryMode) {
+    detailPanelRef.value.resetHistoryMode()
+  }
+}
+
+const createEnhed = () => {
+  console.log('Opret item:')
+  // Here you would typically open an edit form or dialog
+  alert('Oprettelse af enhed - denne funktionalitet er ikke implementeret endnu')
 }
 
 // Event handlers
@@ -140,16 +153,19 @@ onMounted(async () => {
       @row-click="handleRowClick"
     />
     </div>
+    <div class="detail-panel-section">
     <DetailPanel
       v-if="selectedItem"
-      :key="selectedItemKey"
+      ref="detailPanelRef"
       context="enheder"
       :item="selectedItem"
       :historyItems="historyItems"
+      :showBackButton="false"
       @close="closeDetailPanel"
       @edit="handleEdit"
       @delete="handleDelete"
-      />
+    />
+  </div>
   </div>
 </template>
 
@@ -167,9 +183,18 @@ onMounted(async () => {
     flex: 1;
     gap: $spacing-large;
     overflow: hidden;
+    width: 100%;
 
     .table-section {
       min-width: 66%;
+      height: 100%;
+      max-height: 900px;
+    }
+
+    .detail-panel-section {
+      min-width: 32%;
+      height: 100%;
+      max-height: 900px;
     }
   }
 </style>

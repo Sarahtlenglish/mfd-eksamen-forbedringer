@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { IconChevronLeft, IconX, IconPencil, IconTrash } from '@tabler/icons-vue'
+import BasePanel from '@/components/ui/panels/BasePanelComponent.vue'
 import EgenkontrolDetailContent from '@/components/detailpanel/EgenkontrolDetailContent.vue'
 import EnhederDetailContent from '@/components/detailpanel/EnhederDetailContent.vue'
 import EnhederHistoryContent from '@/components/detailpanel/EnhederHistoryContent.vue'
@@ -10,7 +11,7 @@ const props = defineProps({
   context: {
     type: String,
     required: true,
-    validator: (value) => ['calendar', 'egenkontroller', 'enheder', 'tjeklister', 'brugere'].includes(value)
+    validator: value => ['calendar', 'egenkontroller', 'enheder', 'tjeklister', 'brugere'].includes(value)
   },
   item: {
     type: Object,
@@ -20,7 +21,6 @@ const props = defineProps({
     type: Array,
     default: () => []
   },
-  // New props for controlling variants
   showBackButton: {
     type: Boolean,
     default: true
@@ -32,11 +32,6 @@ const props = defineProps({
   showEditButton: {
     type: Boolean,
     default: null // Will use canEdit computed property if null
-  },
-  // New prop for custom title
-  customTitle: {
-    type: String,
-    default: null
   }
 })
 
@@ -116,11 +111,11 @@ function handleBackClick() {
     emit('back', previousItems.value.pop())
   } else {
     // Nothing to go back to – close the detail panel
-    close()
+    handleClose()
   }
 }
 
-const close = () => {
+const handleClose = () => {
   emit('close')
 }
 
@@ -134,29 +129,32 @@ const handleDelete = () => {
 </script>
 
 <template>
-  <div class="detail-panel" v-if="item">
-    <!-- Header - Directly in the main component -->
-    <div class="detail-panel-header">
-      <div v-if="shouldShowBackButton" class="back-button-container">
-        <button @click="handleBackClick" class="back-button">
-          <IconChevronLeft/>
-        </button>
+  <BasePanel v-if="item">
+    <!-- Header - Explicitly in the DetailPanel -->
+    <template #header>
+      <div class="detail-panel-header">
+        <div v-if="shouldShowBackButton" class="back-button-container">
+          <button @click="handleBackClick" class="back-button">
+            <IconChevronLeft/>
+          </button>
+        </div>
+        <div class="detail-title-container" :class="{ 'no-back-button': !shouldShowBackButton }">
+          <h2 class="detail-title">{{ panelTitle }}</h2>
+        </div>
+        <div class="detail-actions">
+          <button v-if="shouldShowEditButton" @click="handleEdit" class="edit-button">
+            <IconPencil/>
+          </button>
+          <button @click="handleClose" class="close-button">
+            <IconX/>
+          </button>
+        </div>
       </div>
-      <div class="detail-title-container" :class="{ 'no-back-button': !shouldShowBackButton }">
-        <h2 class="detail-title">{{ panelTitle }}</h2>
-      </div>
-      <div class="detail-actions">
-        <button v-if="shouldShowEditButton" @click="handleEdit" class="edit-button">
-          <IconPencil/>
-        </button>
-        <button @click="close" class="close-button">
-          <IconX/>
-        </button>
-      </div>
-    </div>
+    </template>
 
-    <!-- Dynamic content based on context and mode -->
-    <div class="detail-content">
+    <!-- Main content -->
+    <template #default>
+      <!-- Dynamic content based on context and mode -->
       <!-- Egenkontrol Detail -->
       <EgenkontrolDetailContent
         v-if="context === 'egenkontroller'"
@@ -185,128 +183,105 @@ const handleDelete = () => {
       />
 
       <!-- Additional contexts can be added here -->
+    </template>
 
-      <!-- Default slot for custom content -->
-      <slot name="content"></slot>
-    </div>
-
-    <!-- Footer - Directly in the main component -->
-    <div v-if="showDeleteButton" class="detail-bottom">
-      <div class="detail-actions-bottom">
+    <!-- Footer -->
+    <template #footer>
+      <div v-if="showDeleteButton && !isHistoryMode" class="detail-actions-bottom">
         <span class="delete-button" @click="handleDelete">
           <IconTrash class="trash-icon"/>
           <span>Slet</span>
         </span>
       </div>
-    </div>
-  </div>
+    </template>
+  </BasePanel>
 </template>
 
 <style lang="scss" scoped>
 @use '@/assets/variables' as *;
 @use '@/assets/icons' as *;
 
-@use '@/assets/variables' as *;
-@use '@/assets/icons' as *;
-
-.detail-panel {
-  background-color: $neutral-200;
-  border-radius: 8px;
-  border: 1px solid $neutral-300;
-  overflow: hidden;
+.detail-panel-header {
   display: flex;
-  flex-direction: column;
-  padding: $detail-panel-padding;
-  height: 823px;
+  align-items: center;
+  margin-bottom: $spacing-large;
   width: 100%;
 
-  .detail-panel-header {
+  .back-button-container {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    background-color: $neutral-200;
+  }
 
-    .back-button {
+  .back-button {
+    background: none;
+    border: none;
+    color: $secondary-500;
+    font-size: $icon-medium;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .detail-title-container {
+    flex: 1;
+    text-align: center;
+
+    &.no-back-button {
+      text-align: left;
+    }
+  }
+
+  .detail-title {
+    margin: 0;
+    line-height: $subtitle-1-line-height;
+    font-size: $subtitle-1-font-size;
+    color: $secondary-900;
+    font-weight: $subtitle-1-font-weight;
+  }
+
+  .detail-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-left: auto;
+
+    .edit-button, .close-button {
       background: none;
       border: none;
-      color: $secondary-500;
       font-size: $icon-medium;
+      color: $secondary-500;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
     }
-
-    .detail-title-container {
-      flex: 1;
-      text-align: center;
-
-      &.no-back-button {
-        text-align: left;
-      }
-    }
-
-    .detail-title {
-      flex: 1;
-      margin: 0;
-      line-height: $subtitle-1-line-height;
-      font-size: $subtitle-1-font-size;
-      color: $secondary-900;
-      font-weight: $subtitle-1-font-weight;
-    }
-
-    .detail-actions {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-
-      .edit-button, .close-button {
-        background: none;
-        border: none;
-        font-size: $icon-medium;
-        color: $secondary-500;
-        cursor: pointer;
-      }
-    }
   }
+}
 
-  .detail-content {
-    padding-top: $spacing-large;
+.detail-actions-bottom {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+
+  .delete-button {
+    border: none;
     display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-    height: 100%;
-    font-size: $body-1-font-size;
-    color: $neutral-800;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-small;
+    color: $error-base;
+    padding: $spacing-small $spacing-medium;
+    border-radius: 4px;
+    font-size: $body-2-font-size;
+    font-weight: $body-2-font-weight-semibold;
+    cursor: pointer;
   }
 
-  .detail-bottom {
-    margin-top: auto;
-
-    .detail-actions-bottom {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      align-items: center;
-
-      .delete-button {
-        border: none;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: $spacing-small;
-        color: $error-base;
-        padding: $spacing-small $spacing-medium;
-        border-radius: 4px;
-        font-size: $body-2-font-size;
-        font-weight: $body-2-font-weight-semibold;
-        cursor: pointer;
-      }
-
-      .trash-icon {
-        font-size: $icon-small;
-      }
-    }
+  .trash-icon {
+    font-size: $icon-small;
   }
 }
 </style>

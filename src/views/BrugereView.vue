@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import TablesComponent from '@/components/ui/TablesComponent.vue'
 import ButtonComponent from '@/components/ui/ButtonComponent.vue'
+import GruppePanelComponent from '@/components/ui/panels/GruppePanelComponent.vue'
 import { IconPlus } from '@tabler/icons-vue'
 
 // Define columns for this view
@@ -28,6 +29,12 @@ onMounted(async () => {
 const handleRowClick = (item) => {
   selectedItem.value = item
 }
+
+const createBruger = () => {
+  console.log('Opret item:')
+  // Here you would typically open an edit form or dialog
+  alert('Oprettelse af bruger - denne funktionalitet er ikke implementeret endnu')
+}
 </script>
 
 <template>
@@ -44,6 +51,11 @@ const handleRowClick = (item) => {
     </ButtonComponent>
   </div>
   <div class="content-layout">
+    <div>
+      <div class="gruppe-panel-section">
+        <GruppePanelComponent />
+      </div>
+    </div>
     <div class="table-section">
       <TablesComponent
         :items="brugerData"
@@ -70,9 +82,14 @@ const handleRowClick = (item) => {
     flex: 1;
     gap: $spacing-large;
     overflow: hidden;
+    width: 100%;
 
-  .table-section {
-    min-width: 66%;
+    .table-section {
+      min-width: 50%;
+    }
+
+    .gruppe-panel-section {
+      min-width: 25%;
+    }
   }
-}
 </style>

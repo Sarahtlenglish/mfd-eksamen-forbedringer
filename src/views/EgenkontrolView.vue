@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import TablesComponent from '@/components/ui/TablesComponent.vue'
 import ButtonComponent from '@/components/ui/ButtonComponent.vue'
-import DetailPanel from '@/components/ui/DetailPanelComponent.vue'
+import DetailPanel from '@/components/ui/panels/DetailPanelComponent.vue'
 import { IconPlus } from '@tabler/icons-vue'
 
 // Define columns for this view
@@ -108,6 +108,12 @@ const handleRowClick = (item) => {
   selectedItem.value = item
 }
 
+const createEgenkontrol = () => {
+  console.log('Opret item:')
+  // Here you would typically open an edit form or dialog
+  alert('Oprettelse af egenkontrol - denne funktionalitet er ikke implementeret endnu')
+}
+
 const closeDetailPanel = () => {
   selectedItem.value = null
 }
@@ -161,14 +167,19 @@ onMounted(async () => {
         @row-click="handleRowClick"
       />
     </div>
+    <div class="detail-panel-section">
     <DetailPanel
         v-if="selectedItem"
         context="egenkontroller"
         :item="selectedItem"
+        :showBackButton="true"
+        :showDeleteButton="true"
+        :showEditButton="true"
         @close="closeDetailPanel"
         @edit="handleEdit"
         @delete="handleDelete"
       />
+    </div>
   </div>
 </template>
 
@@ -190,6 +201,10 @@ onMounted(async () => {
 
   .table-section {
     min-width: 66%;
+  }
+
+  .detail-panel-section {
+      min-width: 32%;
   }
 }
 </style>

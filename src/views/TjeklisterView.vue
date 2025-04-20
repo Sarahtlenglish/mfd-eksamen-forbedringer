@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import TablesComponent from '@/components/ui/TablesComponent.vue'
+import DetailPanel from '@/components/ui/panels/DetailPanelComponent.vue'
 import ButtonComponent from '@/components/ui/ButtonComponent.vue'
 import { IconPlus } from '@tabler/icons-vue'
 
@@ -12,23 +13,41 @@ const columns = [
 ]
 
 // Data state
-const TjeklistData = ref([])
-const selectedItem = ref(null)
+const TjeklistData = ref([
+  { id: 1, type: 'BR18', tjekliste: 'AVS anlæg', frequency: 'Ugentlig 7.5.2.1', description: 'Tjeklisten er til gennemgåelse af AVS anlæg, det er en type BR18 som skal udføres ugentlig' },
+  { id: 2, type: 'BR18', tjekliste: 'Røgalarm anlæg', frequency: 'Kvartal 7.5.4.1', description: 'Tjeklisten er til gennemgåelse af Røgalarm anlæg, det er en type BR18 som skal udføres per kvartal' }
+])
 
-onMounted(async () => {
-  // Fetch data from API or store
-  // For demo, using static data
-  TjeklistData.value = [
-    { id: 1, type: 'BR18', tjekliste: 'AVS anlæg', frequency: 'Ugentlig 7.5.2.1' },
-    { id: 2, type: 'BR18', tjekliste: 'Røgalarm anlæg', frequency: 'Kvartal 7.5.4.1' }
-    // More items...
-  ]
-})
+const selectedItem = ref(null)
+// Add this missing variable
 
 // Handle row click
 const handleRowClick = (item) => {
   selectedItem.value = item
 }
+
+// Add these missing functions
+const closeDetailPanel = () => {
+  selectedItem.value = null
+}
+
+const handleEdit = (item) => {
+  console.log('Edit item:', item)
+  // Implement edit functionality
+}
+
+const handleDelete = (item) => {
+  console.log('Delete item:', item)
+  TjeklistData.value = TjeklistData.value.filter(i => i.id !== item.id)
+  selectedItem.value = null
+}
+
+const createTjekliste = () => {
+  console.log('Opret item:')
+  // Here you would typically open an edit form or dialog
+  alert('Oprettelse af enhed - denne funktionalitet er ikke implementeret endnu')
+}
+
 </script>
 
 <template>
@@ -54,6 +73,18 @@ const handleRowClick = (item) => {
       @row-click="handleRowClick"
       />
     </div>
+    <div class="detail-panel-section">
+    <DetailPanel
+      v-if="selectedItem"
+      context="tjeklister"
+      :item="selectedItem"
+      :showEditButton="true"
+      :showBackButton="false"
+      @close="closeDetailPanel"
+      @edit="handleEdit"
+      @delete="handleDelete"
+    />
+    </div>
   </div>
 </template>
 
@@ -75,6 +106,12 @@ const handleRowClick = (item) => {
 
   .table-section {
     min-width: 66%;
+  }
+
+  .detail-panel-section {
+      min-width: 32%;
+      height: 100%;
+      max-height: 900px;
   }
 }
 </style>
