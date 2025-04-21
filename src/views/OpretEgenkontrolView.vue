@@ -78,26 +78,26 @@ const formatDate = (date) => {
   return `Fra d. ${d.getDate()}. ${months[d.getMonth()]} ${d.getFullYear()}`
 }
 
-// Detail panel data
-const detailItem = computed(() => {
-  // Find labels for selected values
-  const tjeklisteLabel = findLabel(egenkontrolFormData.checklistOptions, selectedCheckliste.value)
-  // Format datoen korrekt når den er valgt
-  const startDatoFormatted = selectedStartDato.value ? formatDate(selectedStartDato.value) : ''
-  const enhederLabel = findLabel(egenkontrolFormData.locationOptions, selectedEnheder.value)
-  const ansvarligeLabel = findLabel(egenkontrolFormData.responsibleOptions, selectedAnsvarlige.value)
-  const reminderFrekvensLabel = findLabel(egenkontrolFormData.frekvensOptions, reminderFrekvens.value)
-  const reminderTidspunktLabel = findLabel(egenkontrolFormData.tidspunktOptions, reminderTidspunkt.value)
-  const kvitteringModtagerLabel = findLabel(egenkontrolFormData.brugerOptions, kvitteringModtager.value)
-  const afvigelseModtagerLabel = findLabel(egenkontrolFormData.brugerOptions, afvigelseModtager.value)
+// Hjælpefunktion til at finde labels
+function findLabel(options, value) {
+  if (!value) return ''
+  const option = options.find((opt) => {
+    if (typeof opt === 'object' && opt !== null) {
+      return opt.value === value
+    }
+    return opt === value
+  })
+  return option && typeof option === 'object' ? option.label : option
+}
 
-  // Bestem standard/tjekliste baseret på valgte enheder
+// Helper to get standard values based on selected entity or checklist
+function getEnhedsStandardData(enhederLabel, tjeklisteLabel) {
   let standardInfo = enhederStandardData.defaultValues.standard
   let standardTitleInfo = enhederStandardData.defaultValues.standardTitle
   let enhederDisplay = enhederStandardData.defaultValues.displayText
   let frekvens = enhederStandardData.defaultValues.frekvens
 
-  // Find relevant enhedsgruppe baseret på valgt enhed
+  // Find relevant enhedsgruppe based on valgt enhed
   let enhedsGruppe = null
 
   // Tjek om der er valgt en enhed
@@ -133,6 +133,30 @@ const detailItem = computed(() => {
     frekvens = enhedsGruppe.frekvens
   }
 
+  return {
+    standard: standardInfo,
+    standardTitle: standardTitleInfo,
+    enhederDisplay,
+    frekvens
+  }
+}
+
+// Detail panel data
+const detailItem = computed(() => {
+  // Find labels for selected values
+  const tjeklisteLabel = findLabel(egenkontrolFormData.checklistOptions, selectedCheckliste.value)
+  // Format datoen korrekt når den er valgt
+  const startDatoFormatted = selectedStartDato.value ? formatDate(selectedStartDato.value) : ''
+  const enhederLabel = findLabel(egenkontrolFormData.locationOptions, selectedEnheder.value)
+  const ansvarligeLabel = findLabel(egenkontrolFormData.responsibleOptions, selectedAnsvarlige.value)
+  const reminderFrekvensLabel = findLabel(egenkontrolFormData.frekvensOptions, reminderFrekvens.value)
+  const reminderTidspunktLabel = findLabel(egenkontrolFormData.tidspunktOptions, reminderTidspunkt.value)
+  const kvitteringModtagerLabel = findLabel(egenkontrolFormData.brugerOptions, kvitteringModtager.value)
+  const afvigelseModtagerLabel = findLabel(egenkontrolFormData.brugerOptions, afvigelseModtager.value)
+
+  // Get standard values
+  const { standard, standardTitle, enhederDisplay, frekvens } = getEnhedsStandardData(enhederLabel, tjeklisteLabel)
+
   // Vis standardværdier for eksempelvisning
   return {
     name: egenkontrolTitle.value || 'Inspektion af røgdetektore',
@@ -141,8 +165,8 @@ const detailItem = computed(() => {
     checkliste: tjeklisteLabel, // Viser den valgte tjekliste direkte
     frequency: frekvens,
     startDate: startDatoFormatted || 'Fra d. 17. marts 2025',
-    standard: standardInfo,
-    standardTitle: standardTitleInfo,
+    standard,
+    standardTitle,
     responsibleUsers: [ansvarligeLabel || 'Hans Christiansen'],
     enheder: enhederDisplay, // Viser den valgte enhedsgruppe
     ansvarlige: 'Ansvarlige',
@@ -158,18 +182,6 @@ const detailItem = computed(() => {
   }
 })
 
-// Hjælpefunktion til at finde labels
-function findLabel(options, value) {
-  if (!value) return ''
-  const option = options.find((opt) => {
-    if (typeof opt === 'object' && opt !== null) {
-      return opt.value === value
-    }
-    return opt === value
-  })
-  return option && typeof option === 'object' ? option.label : option
-}
-
 // Event handlers
 const handleComplete = () => {
   // Find labels for de valgte værdier
@@ -181,25 +193,8 @@ const handleComplete = () => {
   const kvitteringModtagerLabel = findLabel(egenkontrolFormData.brugerOptions, kvitteringModtager.value) || 'Facility'
   const afvigelseModtagerLabel = findLabel(egenkontrolFormData.brugerOptions, afvigelseModtager.value) || 'Hans Christiansen'
 
-  // Find enheds-information
-  let standardInfo = enhederStandardData.defaultValues.standard
-  let standardTitleInfo = enhederStandardData.defaultValues.standardTitle
-  let enhederDisplay = enhederStandardData.defaultValues.displayText
-  let frekvens = enhederStandardData.defaultValues.frekvens
-
-  // Find relevant enhedsgruppe
-  if (enhederLabel) {
-    for (const key in enhederStandardData.enhederGrupper) {
-      if (enhederLabel.includes(key)) {
-        const gruppe = enhederStandardData.enhederGrupper[key]
-        standardInfo = gruppe.standard
-        standardTitleInfo = gruppe.standardTitle
-        enhederDisplay = gruppe.displayText
-        frekvens = gruppe.frekvens
-        break
-      }
-    }
-  }
+  // Get standard values
+  const { standard, standardTitle, enhederDisplay, frekvens } = getEnhedsStandardData(enhederLabel, tjeklisteLabel)
 
   // Opret simpel egenkontrol med de nødvendige felter
   const nyEgenkontrol = {
@@ -210,8 +205,8 @@ const handleComplete = () => {
     status: 'normal',
     location: enhederLabel || 'Ikke specificeret',
     enheder: enhederDisplay,
-    standard: standardInfo,
-    standardTitle: standardTitleInfo,
+    standard,
+    standardTitle,
     description: egenkontrolBeskrivelse.value || 'Ingen beskrivelse angivet',
     frequency: frekvens,
     startDate: selectedStartDato.value ? new Date(selectedStartDato.value).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
@@ -574,15 +569,15 @@ onMounted(() => {
 
 .wizard-container {
   background-color: #F7F7F7;
-    border-radius: 8px;
-    border: 1px solid #D1D3D4;
-    display: flex;
-    flex-direction: column;
-    padding: 24px 24px 8px 24px;
-    width: 100%;
-    box-sizing: border-box;
-    height: 100%;
-    min-height: 823px;
+  border-radius: 8px;
+  border: 1px solid #D1D3D4;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 24px 8px 24px;
+  width: 100%;
+  box-sizing: border-box;
+  height: 100%;
+  min-height: 823px;
 }
 
 .form-group {
@@ -638,7 +633,7 @@ onMounted(() => {
   font-weight: 500;
 }
 
-/* Wizard Card Styling */
+/* Wizard styling */
 :deep(.wizard-card) {
   background-color: transparent;
   box-shadow: none;
@@ -649,7 +644,6 @@ onMounted(() => {
   flex-direction: column;
 }
 
-/* Navigation/Steps styling */
 :deep(.wizard-nav) {
   margin-bottom: $spacing-large;
   height: auto;
@@ -663,7 +657,6 @@ onMounted(() => {
   width: 100%;
 }
 
-/* Progress line styling - very simple approach */
 .wizard-navigation-container {
   position: relative;
   width: 100%;
@@ -694,7 +687,7 @@ onMounted(() => {
   transition: width 0.3s ease;
 }
 
-/* Step width classes that will be added dynamically based on activeTabIndex */
+/* Step width classes */
 .step-0 :deep(.wizard-nav)::after {
   width: 0%;
 }
@@ -707,7 +700,6 @@ onMounted(() => {
   width: 60%;
 }
 
-/* Fjern de redundante CSS regler der nu ikke længere bruges */
 :deep(.wizard-nav-item) {
   position: relative;
   z-index: 2;
@@ -717,7 +709,7 @@ onMounted(() => {
   flex: 1;
 }
 
-/* Kun behold de nødvendige skjul-regler */
+/* Hide unwanted wizard elements */
 :deep(.wizard-progress-with-circle),
 :deep(.wizard-icon-circle),
 :deep(.wizard-icon),
@@ -736,11 +728,6 @@ onMounted(() => {
   text-align: center;
 }
 
-/* Remove the custom connector lines since we're using the wizard's default line */
-.custom-step-container:not(:last-child)::after {
-  display: none;
-}
-
 .custom-icon-container {
   width: 80px;
   height: 80px;
@@ -753,16 +740,14 @@ onMounted(() => {
   margin-bottom: 0.5rem;
   position: relative;
   z-index: 2;
+  svg {
+    width: 33px;
+    height: 33px;
+    stroke: $neutral-600;
+    stroke-width: 2;
+  }
 }
 
-.custom-icon-container svg {
-  width: 33px;
-  height: 33px;
-  stroke: $neutral-600;
-  stroke-width: 2;
-}
-
-/* Styling for active and completed steps - using only secondary-50 for active as shown in screenshots */
 .custom-step-container.active .custom-icon-container {
   border-color: $secondary-500;
   background-color: $secondary-50;
@@ -789,33 +774,6 @@ onMounted(() => {
   margin-top: $spacing-xs;
 }
 
-/* Remove the custom connector lines since we're using the wizard's default line */
-.custom-step-container:not(:last-child)::after {
-  display: none;
-}
-
-/* Responsive adjustments */
-@media (max-width: $tablet) {
-  :deep(.wizard-nav) {
-    flex-direction: column;
-    align-items: center;
-    gap: $spacing-xlarge;
-    padding: $spacing-medium 0;
-  }
-
-  :deep(.wizard-nav)::before {
-    width: 2px;
-    height: 100%;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-  }
-
-  .custom-step-container {
-    margin-bottom: $spacing-medium;
-  }
-}
-
 /* Tab content styling */
 :deep(.wizard-tab-content) {
   padding: $spacing-medium-plus;
@@ -827,14 +785,14 @@ onMounted(() => {
 }
 
 :deep(.wizard-footer-buttons) {
-  display: none !important; /* Hide default buttons, we use our own */
+  display: none !important; /* Hide default buttons */
 }
 
 .step-content {
   padding: $spacing-small 0;
 }
 
-/* Forenklet datepicker styling */
+/* Datepicker styling */
 .custom-datepicker-wrapper {
   position: relative;
   width: 100%;
@@ -876,11 +834,10 @@ onMounted(() => {
 }
 
 .input-label {
-  display: block;
-  font-size: 14px;
-  color: $neutral-800;
-  margin-bottom: $spacing-xs;
-  font-weight: 500;
+  font-size: 1rem;
+    font-weight: 600;
+    color: #383838;
+    margin-bottom: 2px;
 }
 
 .required-mark {
