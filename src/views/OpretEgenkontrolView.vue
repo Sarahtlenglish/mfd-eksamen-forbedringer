@@ -218,7 +218,7 @@ const handleComplete = () => {
     responsibleUsers: [ansvarligeLabel],
     checkliste: tjeklisteLabel,
     reminders: [
-      { 
+      {
         description: reminderFrekvensLabel && reminderTidspunktLabel
           ? `${reminderFrekvensLabel} kl. ${reminderTidspunktLabel}`
           : '1 dag før, kl. 09.00'
@@ -240,10 +240,10 @@ const handleComplete = () => {
       { recipient: afvigelseModtagerLabel, description: 'modtager besked om afvigelser' }
     ]
   }
-  
+
   // Tilføj til store
   egenkontrolStore.addEgenkontrol(nyEgenkontrol)
-  
+
   // Naviger tilbage til oversigten
   router.push('/egenkontrol')
 }
