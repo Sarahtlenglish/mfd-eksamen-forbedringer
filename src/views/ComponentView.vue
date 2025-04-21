@@ -947,7 +947,7 @@ const getCodeExample = () => {
     if (isFilterFullWidth.value) {
       props.push(':full-width="true"')
     }
-    
+
     if (!showFilterIcon.value) {
       props.push(':show-icon="false"')
     }

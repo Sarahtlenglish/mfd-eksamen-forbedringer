@@ -1,13 +1,15 @@
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import TablesComponent from '@/components/ui/TablesComponent.vue'
 import ButtonComponent from '@/components/ui/ButtonComponent.vue'
 import DetailPanel from '@/components/ui/panels/DetailPanelComponent.vue'
 import { IconPlus } from '@tabler/icons-vue'
 import { useEgenkontrolStore } from '../stores/egenkontrolStore'
 
-// Get store
+// Get store og router
 const egenkontrolStore = useEgenkontrolStore()
+const router = useRouter()
 
 // Define columns for this view
 const columns = [
@@ -24,9 +26,8 @@ const handleRowClick = (item) => {
 }
 
 const createEgenkontrol = () => {
-  console.log('Opret item:')
-  // Here you would typically open an edit form or dialog
-  alert('Oprettelse af egenkontrol - denne funktionalitet er ikke implementeret endnu')
+  // Naviger til opret egenkontrol-view
+  router.push('/egenkontrol/opret')
 }
 
 const closeDetailPanel = () => {

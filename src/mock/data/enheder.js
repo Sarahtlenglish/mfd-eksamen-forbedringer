@@ -62,3 +62,70 @@ export const enhederHistoryItems = [
     user: 'Christian Hansen'
   }
 ]
+
+// Mock data for enheder displays og standarder
+export const enhederStandardData = {
+  // Grupper af enheder som kan vælges i dropdown
+  enhederGrupper: {
+    Røgalarm: {
+      displayText: 'Røgdetektore (Gruppe)',
+      standard: 'BR18',
+      standardTitle: 'Røgalarm anlæg (Kvartal) 7.5.4.1',
+      frekvens: 'hver 3. måned',
+      medlemmer: [
+        { id: 101, name: 'Røgdetektor', location: 'Bygning A, 1. sal' },
+        { id: 102, name: 'Røgdetektor', location: 'Bygning A, 2. sal' },
+        { id: 103, name: 'Røgdetektor', location: 'Bygning B, stuen' }
+      ]
+    },
+    Sprinkler: {
+      displayText: 'Sprinklerhoveder (Gruppe)',
+      standard: 'BR18',
+      standardTitle: 'Sprinkler anlæg (Månedlig) 6.3.2',
+      frekvens: 'månedligt',
+      medlemmer: [
+        { id: 201, name: 'Sprinklerhoved', location: 'Bygning A, kælder' },
+        { id: 202, name: 'Sprinklerhoved', location: 'Bygning A, 1. sal' },
+        { id: 203, name: 'Sprinklerhoved', location: 'Bygning B, 1. sal' }
+      ]
+    },
+    ABA: {
+      displayText: 'ABA Centraler (Gruppe)',
+      standard: 'BR18',
+      standardTitle: 'ABA Central (Kvartal) 8.1.1',
+      frekvens: 'kvartalsvis',
+      medlemmer: [
+        { id: 301, name: 'ABA Central', location: 'Bygning A, teknikrum' },
+        { id: 302, name: 'ABA Central', location: 'Bygning B, teknikrum' }
+      ]
+    },
+    Flugtvej: {
+      displayText: 'Flugtvejsskilte (Gruppe)',
+      standard: 'BR18',
+      standardTitle: 'Flugtvejsskilte (Månedlig) 5.2.2',
+      frekvens: 'månedligt',
+      medlemmer: [
+        { id: 401, name: 'Flugtvejsskilt', location: 'Bygning A, stuen' },
+        { id: 402, name: 'Flugtvejsskilt', location: 'Bygning A, 1. sal' },
+        { id: 403, name: 'Flugtvejsskilt', location: 'Bygning B, stuen' }
+      ]
+    }
+  },
+
+  // Mapping for tjeklister til enheder
+  tjeklisteMapping: {
+    Røgdetektor: 'Røgalarm',
+    Brandslukker: 'Brandslukkere',
+    Flugtvej: 'Flugtvej',
+    Sprinkler: 'Sprinkler',
+    ABA: 'ABA'
+  },
+
+  // Default værdier
+  defaultValues: {
+    displayText: 'Flugtvejsskilte (Gruppe)',
+    standard: 'BR18',
+    standardTitle: 'Flugtvejsskilte (Månedlig) 5.2.2',
+    frekvens: 'månedligt'
+  }
+}

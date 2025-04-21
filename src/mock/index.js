@@ -38,3 +38,6 @@ export {
 }
 
 // Her kan tilføjes andre data-typer (brugere, enheder, etc.) efterhånden som de oprettes
+
+// Eksporterer al mockdata herfra
+export * from './data/formData'

@@ -44,6 +44,15 @@ export const routes = [
     }
   },
   {
+    path: '/egenkontrol/opret',
+    name: 'opret-egenkontrol',
+    component: () => import('@/views/OpretEgenkontrolView.vue'),
+    meta: { 
+      showInNav: false,
+      title: 'Opret Egenkontrol'
+    }
+  },
+  {
     path: '/tjeklister',
     name: 'tjeklister',
     component: () => import('@/views/TjeklisterView.vue'),

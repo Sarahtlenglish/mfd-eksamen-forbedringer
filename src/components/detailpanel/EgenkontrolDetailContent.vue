@@ -1,7 +1,5 @@
 <script setup>
-import { computed } from 'vue'
-
-const props = defineProps({
+defineProps({
   item: {
     type: Object,
     required: true
@@ -66,7 +64,17 @@ const formatDate = (dateString) => {
           <span v-if="item.standard" class="detail-label">{{ item.standard }} - {{ item.standardTitle }}</span>
         </div>
         <div class="detail-row">
-          <span>Flugtvejsskilte (Gruppe)</span>
+          <span>{{ item.enheder }}</span>
+        </div>
+      </div>
+
+      <!-- Separate checklist section -->
+      <div v-if="item.checkliste" class="detail-section">
+        <div class="detail-row">
+          <span class="detail-label">Tjekliste:</span>
+        </div>
+        <div class="detail-row">
+          <span>{{ item.checkliste }}</span>
         </div>
       </div>
 
@@ -83,15 +91,20 @@ const formatDate = (dateString) => {
       </div>
 
       <div class="detail-section">
+        <div class="detail-row">
+          <span class="detail-label">Påmindelser:</span>
+        </div>
         <div v-for="(reminder, index) in item.reminders || defaultReminders" :key="index" class="detail-row">
-          <span class="detail-label">Påmindelse - </span>
           <span>{{ reminder.description || reminder }}</span>
         </div>
-        <div class="detail-row notification-row">
-          <span class="detail-label">Børge Jakobsen modtager kvittering</span>
+      </div>
+
+      <div class="detail-section">
+        <div class="detail-row">
+          <span class="detail-label">Notifikationsmodtagere:</span>
         </div>
-        <div class="detail-row notification-row">
-          <span class="detail-label">Christian Hansen modtager besked om afvigelser</span>
+        <div v-for="(modtager, index) in item.modtagere" :key="`modtager-${index}`" class="detail-row">
+          <span>{{ modtager }}</span>
         </div>
       </div>
     </div>

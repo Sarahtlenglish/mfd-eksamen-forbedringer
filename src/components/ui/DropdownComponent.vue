@@ -43,7 +43,7 @@
 					@keydown.up.prevent="navigateOptions('up')"
 					ref="optionElements"
 				>
-					{{ option }}
+					{{ getOptionLabel(option) }}
 				</button>
 			</div>
 		</div>
@@ -116,7 +116,23 @@ const activeOptionIndex = ref(-1)
 
 // Handle display value (selected option or placeholder)
 const displayValue = computed(() => {
-  return props.modelValue || props.placeholder
+  if (!props.modelValue) return props.placeholder
+
+  // Hvis options er objekter med label property
+  const selectedOption = props.options.find((option) => {
+    if (typeof option === 'object' && option !== null) {
+      return option.value === props.modelValue
+    }
+    return option === props.modelValue
+  })
+
+  if (selectedOption) {
+    return typeof selectedOption === 'object' && selectedOption !== null
+      ? selectedOption.label
+      : selectedOption
+  }
+
+  return props.placeholder
 })
 
 // Toggle dropdown visibility
@@ -148,9 +164,21 @@ const toggleDropdown = () => {
 // Handle option selection
 const selectOption = (option) => {
   if (props.disabled) return
-  emit('update:modelValue', option)
-  emit('change', option)
+
+  const value = typeof option === 'object' && option !== null
+    ? option.value
+    : option
+
+  emit('update:modelValue', value)
+  emit('change', value)
   closeDropdown()
+}
+
+// Formatter til at vise option tekst
+const getOptionLabel = (option) => {
+  return typeof option === 'object' && option !== null
+    ? option.label
+    : option
 }
 
 // Close the dropdown
