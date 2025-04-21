@@ -6,7 +6,7 @@ import DetailPanel from '@/components/ui/panels/DetailPanelComponent.vue'
 import InputComponent from '@/components/ui/InputComponent.vue'
 import DropdownComponent from '@/components/ui/DropdownComponent.vue'
 import ButtonComponent from '@/components/ui/ButtonComponent.vue'
-import { IconX, IconClipboard, IconUsers, IconBell } from '@tabler/icons-vue'
+import { IconX, IconClipboard, IconUsers, IconBell, IconPlus } from '@tabler/icons-vue'
 import { enhederStandardData } from '@/mock/data/enheder'
 // Import FormWizard komponenter
 import { FormWizard, TabContent } from 'vue3-form-wizard'
@@ -424,7 +424,13 @@ onMounted(() => {
               <ButtonComponent
                 variant="primary"
                 @click="handleNextTab">
-                {{ activeTabIndex === 2 ? 'Opret' : 'Næste' }}
+                <template v-if="activeTabIndex === 2">
+                  <IconPlus class="button-icon" />
+                  Opret
+                </template>
+                <template v-else>
+                  Næste
+                </template>
               </ButtonComponent>
             </div>
           </div>
@@ -549,7 +555,7 @@ onMounted(() => {
 .wizard-footer-left,
 .wizard-footer-right {
   display: flex;
-  gap: $spacing-xlarge;
+  gap: $spacing-medium;
   align-items: center;
 }
 
@@ -817,5 +823,14 @@ onMounted(() => {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
   border: 1px solid $neutral-300 !important;
   border-radius: $border-radius-md !important;
+}
+
+/* Button icon styling */
+.button-icon {
+  width: 1.2rem;
+  height: 1.2rem;
+  margin-right: $spacing-xs;
+  vertical-align: middle;
+  margin-top: -2px;
 }
 </style>
