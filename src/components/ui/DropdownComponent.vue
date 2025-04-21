@@ -300,6 +300,7 @@ onBeforeUnmount(() => {
 	transition: $transition-base;
 	text-align: left;
 	box-shadow: 0 0.125rem 0.125rem 0 rgba(33, 37, 41, 0.06);
+	line-height: 1.5;
 
 	// Hover/Focus State
 	&:hover:not(:disabled),

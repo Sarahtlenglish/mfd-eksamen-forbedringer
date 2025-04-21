@@ -1,19 +1,18 @@
 <script setup>
 import { useRouter } from 'vue-router'
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { egenkontrolFormData } from '@/mock'
 import DetailPanel from '@/components/ui/panels/DetailPanelComponent.vue'
 import InputComponent from '@/components/ui/InputComponent.vue'
 import DropdownComponent from '@/components/ui/DropdownComponent.vue'
 import ButtonComponent from '@/components/ui/ButtonComponent.vue'
+import DatePickerComponent from '@/components/ui/DatePickerComponent.vue'
+import WizardStepperComponent from '@/components/forms/WizardStepperComponent.vue'
 import { IconX, IconClipboard, IconUsers, IconBell, IconPlus } from '@tabler/icons-vue'
 import { enhederStandardData } from '@/mock/data/enheder'
 // Import FormWizard komponenter
-import { FormWizard, TabContent } from 'vue3-form-wizard'
+import { TabContent } from 'vue3-form-wizard'
 import 'vue3-form-wizard/dist/style.css'
-// Import datepicker
-import Datepicker from '@vuepic/vue-datepicker'
-import '@vuepic/vue-datepicker/dist/main.css'
 // Import store
 import { useEgenkontrolStore } from '@/stores/egenkontrolStore'
 
@@ -34,41 +33,16 @@ const deadlineTidspunkt = ref('')
 const kvitteringModtager = ref('')
 const afvigelseModtager = ref('')
 
-// Reference to form wizard
-const formWizard = ref(null)
+// Reference to wizard stepper
+const wizardStepper = ref(null)
 
 // Active tab tracking
 const activeTabIndex = ref(0)
 
-// Overstyring af wizard-checked-status baseret på aktivt trin
-const isStepChecked = (index) => {
-  return index < activeTabIndex.value
-}
+// Array of step icons for the WizardStepperComponent
+const stepIcons = [IconClipboard, IconUsers, IconBell]
 
-// Update step class when tab changes and manage checked state
-const updateActiveTab = () => {
-  if (formWizard.value) {
-    const prevIndex = activeTabIndex.value
-    activeTabIndex.value = formWizard.value.activeTabIndex
-    // Update step class
-    const container = document.querySelector('.wizard-container')
-    if (container) {
-      container.classList.remove(`step-${prevIndex}`)
-      container.classList.add(`step-${activeTabIndex.value}`)
-    }
-    // Update checked state for steps
-    const steps = document.querySelectorAll('.wizard-nav-item')
-    steps.forEach((step, idx) => {
-      if (idx < activeTabIndex.value) {
-        step.classList.add('checked')
-      } else if (idx > activeTabIndex.value) {
-        step.classList.remove('checked')
-      }
-    })
-  }
-}
-
-// Datepicker format handler
+// Datepicker format handler for display in the detail panel
 const formatDate = (date) => {
   if (!date) return ''
   const d = new Date(date)
@@ -248,26 +222,16 @@ const handleCancel = () => {
 }
 
 const handleNextTab = () => {
-  if (formWizard.value) {
-    if (activeTabIndex.value < 2) {
-      formWizard.value.nextTab()
-    } else {
-      handleComplete()
-    }
-    updateActiveTab()
+  if (activeTabIndex.value < 2) {
+    wizardStepper.value.nextTab()
+  } else {
+    handleComplete()
   }
 }
 
 const handlePrevTab = () => {
-  if (formWizard.value) {
-    formWizard.value.prevTab()
-  }
+  wizardStepper.value.prevTab()
 }
-
-// Initialiser step-klasse ved mount
-onMounted(() => {
-  document.querySelector('.wizard-container').classList.add(`step-${activeTabIndex.value}`)
-})
 </script>
 
 <template>
@@ -281,230 +245,180 @@ onMounted(() => {
 
     <div class="content-layout">
       <div class="form-section">
-        <div class="wizard-container">
-          <FormWizard
-            ref="formWizard"
-            shape="circle"
-            color="#4B97C0"
-            @on-complete="handleComplete"
-            @on-change="updateActiveTab"
-            :hide-buttons="true"
-            :subtitle="false"
-            stepSize="md"
-            backButtonText="Tilbage"
-            nextButtonText="Næste"
-            finishButtonText="Opret">
-            <!-- Add a custom class to track current step -->
-            <template v-slot:wizard="props">
-              <div :class="['wizard-navigation-container', `step-${activeTabIndex}`]">
-                <div class="wizard-nav">
-                  <slot name="step" v-for="tab in props.tabs" :tab="tab" :index="tab.index" :transition="props.transition"></slot>
-                </div>
-                <slot name="content" :transition="props.transition"></slot>
+        <WizardStepperComponent
+          ref="wizardStepper"
+          v-model:activeTabIndex="activeTabIndex"
+          :stepIcons="stepIcons"
+          @complete="handleComplete">
+          <!-- Step 1: Information -->
+          <TabContent title="Egenkontrol Information">
+            <div class="step-content">
+              <h2 class="step-heading">Udfyld information for egenkontrollen</h2>
+              <div class="form-group">
+                <InputComponent
+                  label="Egenkontrol title"
+                  placeholder="En kort beskrivende title"
+                  :required="true"
+                  v-model="egenkontrolTitle"
+                />
               </div>
-            </template>
 
-            <!-- Custom step styling -->
-            <template v-slot:step="props">
-              <div
-                class="custom-step-container"
-                :class="{
-                  'active': props.tab.active,
-                  'checked': isStepChecked(props.index)
-                }">
-                <div class="custom-icon-container">
-                  <IconClipboard v-if="props.index === 0" />
-                  <IconUsers v-if="props.index === 1" />
-                  <IconBell v-if="props.index === 2" />
-                </div>
-                <div class="step-title">{{ props.tab.title }}</div>
+              <div class="form-group">
+                <InputComponent
+                  label="Beskrivelse"
+                  placeholder="En dybdegående beskrivelse hjælper de ansvarlige"
+                  v-model="egenkontrolBeskrivelse"
+                />
               </div>
-            </template>
 
-            <!-- Step 1: Information -->
-            <TabContent
-              title="Egenkontrol Information">
-              <div class="step-content">
-                <h2 class="step-heading">Udfyld information for egenkontrollen</h2>
-                <div class="form-group">
-                  <InputComponent
-                    label="Egenkontrol title"
-                    placeholder="En kort beskrivende title"
-                    :required="true"
-                    v-model="egenkontrolTitle"
-                  />
-                </div>
-
-                <div class="form-group">
-                  <InputComponent
-                    label="Beskrivelse"
-                    placeholder="En dybdegående beskrivelse hjælper de ansvarlige"
-                    v-model="egenkontrolBeskrivelse"
-                  />
-                </div>
-
-                <div class="form-group">
-                  <DropdownComponent
-                    label="Tjekliste i denne egenkontrol"
-                    placeholder="Vælg den tjekliste der skal fyldes ud ved kontrollen"
-                    :required="true"
-                    :options="egenkontrolFormData.checklistOptions"
-                    v-model="selectedCheckliste"
-                  />
-                </div>
-
-                <div class="form-group">
-                  <label class="input-label">Start Dato <span class="required-mark">*</span></label>
-                  <div class="custom-datepicker-wrapper">
-                    <Datepicker
-                      v-model="selectedStartDato"
-                      :enable-time-picker="false"
-                      placeholder="Vælg start dato for denne egenkontrol"
-                      :auto-apply="true"
-                      locale="da"
-                      :format="formatDate"
-                      :text-input="false"
-                      position="bottom-start"
-                      :closeOnScroll="false"
-                      menuClassName="datepicker-dropdown"
-                    />
-                    <div class="datepicker-icon">
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="1.5" fill="none">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
+              <div class="form-group">
+                <DropdownComponent
+                  label="Tjekliste i denne egenkontrol"
+                  placeholder="Vælg den tjekliste der skal fyldes ud ved kontrollen"
+                  :required="true"
+                  :options="egenkontrolFormData.checklistOptions"
+                  v-model="selectedCheckliste"
+                />
               </div>
-            </TabContent>
 
-            <!-- Step 2: Enheder & Ansvarlige -->
-            <TabContent
-              title="Enheder & Ansvarlige">
-              <div class="step-content">
-                <h2 class="step-heading">Enheder og ansvarlige</h2>
-                <div class="form-group">
-                  <DropdownComponent
-                    label="Enheder tilknyttet egenkontrollen"
-                    placeholder="Vælg den/de enheder kontrollen skal udføres på"
-                    :required="true"
-                    :options="egenkontrolFormData.locationOptions"
-                    v-model="selectedEnheder"
-                  />
-                </div>
-
-                <div class="form-group">
-                  <DropdownComponent
-                    label="Ansvarlige for at udføre kontrollen"
-                    placeholder="Vælg brugere eller grupper ansvarlige for at udføre kontrollen"
-                    :required="true"
-                    :options="egenkontrolFormData.responsibleOptions"
-                    v-model="selectedAnsvarlige"
-                  />
-                </div>
+              <div class="form-group">
+                <DatePickerComponent
+                  label="Start Dato"
+                  placeholder="Vælg start dato for denne egenkontrol"
+                  :required="true"
+                  v-model="selectedStartDato"
+                />
               </div>
-            </TabContent>
+            </div>
+          </TabContent>
 
-            <!-- Step 3: Notifikationer -->
-            <TabContent
-              title="Notifikationer">
-              <div class="step-content">
-                <h2 class="step-heading">Notifikations indstillinger for egenkontrollen</h2>
-                <div class="section-group">
-                  <h3 class="section-label">Påmindelse før deadline</h3>
-                  <div class="form-row">
-                    <div class="form-group">
-                      <DropdownComponent
-                        placeholder="Vælg frekvens"
-                        :options="egenkontrolFormData.frekvensOptions"
-                        v-model="reminderFrekvens"
-                      />
-                    </div>
-                    <div class="form-group">
-                      <DropdownComponent
-                        placeholder="Vælg tidspunkt"
-                        :options="egenkontrolFormData.tidspunktOptions"
-                        v-model="reminderTidspunkt"
-                      />
-                    </div>
-                  </div>
-                </div>
+          <!-- Step 2: Enheder & Ansvarlige -->
+          <TabContent title="Enheder & Ansvarlige">
+            <div class="step-content">
+              <h2 class="step-heading">Enheder og ansvarlige</h2>
+              <div class="form-group">
+                <DropdownComponent
+                  label="Enheder tilknyttet egenkontrollen"
+                  placeholder="Vælg den/de enheder kontrollen skal udføres på"
+                  :required="true"
+                  :options="egenkontrolFormData.locationOptions"
+                  v-model="selectedEnheder"
+                />
+              </div>
 
-                <div class="section-group">
-                  <h3 class="section-label">Påmindelse ved overskredet deadline</h3>
-                  <div class="form-row">
-                    <div class="form-group">
-                      <DropdownComponent
-                        placeholder="Vælg frekvens"
-                        :options="egenkontrolFormData.frekvensOptions"
-                        v-model="deadlineFrekvens"
-                      />
-                    </div>
-                    <div class="form-group">
-                      <DropdownComponent
-                        placeholder="Vælg tidspunkt"
-                        :options="egenkontrolFormData.tidspunktOptions"
-                        v-model="deadlineTidspunkt"
-                      />
-                    </div>
-                  </div>
-                </div>
+              <div class="form-group">
+                <DropdownComponent
+                  label="Ansvarlige for at udføre kontrollen"
+                  placeholder="Vælg brugere eller grupper ansvarlige for at udføre kontrollen"
+                  :required="true"
+                  :options="egenkontrolFormData.responsibleOptions"
+                  v-model="selectedAnsvarlige"
+                />
+              </div>
+            </div>
+          </TabContent>
 
-                <div class="section-group">
-                  <h3 class="section-label">Modtager af kvittering ved udførsels</h3>
+          <!-- Step 3: Notifikationer -->
+          <TabContent title="Notifikationer">
+            <div class="step-content">
+              <h2 class="step-heading">Notifikations indstillinger for egenkontrollen</h2>
+              <div class="section-group">
+                <h3 class="section-label">Påmindelse før deadline</h3>
+                <div class="form-row">
                   <div class="form-group">
                     <DropdownComponent
-                      placeholder="Vælg brugere eller gruppe"
-                      :options="egenkontrolFormData.brugerOptions"
-                      v-model="kvitteringModtager"
+                      placeholder="Vælg frekvens"
+                      :options="egenkontrolFormData.frekvensOptions"
+                      v-model="reminderFrekvens"
                     />
                   </div>
-                </div>
-
-                <div class="section-group">
-                  <h3 class="section-label">Modtager af kvittering i tilfælde af afvigelser</h3>
                   <div class="form-group">
                     <DropdownComponent
-                      placeholder="Vælg brugere eller gruppe"
-                      :options="egenkontrolFormData.brugerOptions"
-                      v-model="afvigelseModtager"
+                      placeholder="Vælg tidspunkt"
+                      :options="egenkontrolFormData.tidspunktOptions"
+                      v-model="reminderTidspunkt"
                     />
                   </div>
                 </div>
               </div>
-            </TabContent>
-          </FormWizard>
+
+              <div class="section-group">
+                <h3 class="section-label">Påmindelse ved overskredet deadline</h3>
+                <div class="form-row">
+                  <div class="form-group">
+                    <DropdownComponent
+                      placeholder="Vælg frekvens"
+                      :options="egenkontrolFormData.frekvensOptions"
+                      v-model="deadlineFrekvens"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <DropdownComponent
+                      placeholder="Vælg tidspunkt"
+                      :options="egenkontrolFormData.tidspunktOptions"
+                      v-model="deadlineTidspunkt"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="section-group">
+                <h3 class="section-label">Modtager af kvittering ved udførsels</h3>
+                <div class="form-group">
+                  <DropdownComponent
+                    placeholder="Vælg brugere eller gruppe"
+                    :options="egenkontrolFormData.brugerOptions"
+                    v-model="kvitteringModtager"
+                  />
+                </div>
+              </div>
+
+              <div class="section-group">
+                <h3 class="section-label">Modtager af kvittering i tilfælde af afvigelser</h3>
+                <div class="form-group">
+                  <DropdownComponent
+                    placeholder="Vælg brugere eller gruppe"
+                    :options="egenkontrolFormData.brugerOptions"
+                    v-model="afvigelseModtager"
+                  />
+                </div>
+              </div>
+            </div>
+          </TabContent>
+
           <!-- Custom navigation knapper -->
-          <div class="custom-wizard-footer">
-            <div class="wizard-footer-left">
-              <ButtonComponent
-                variant="tertiary"
-                @click="handleCancel">
-                Annuller
-              </ButtonComponent>
+          <template #footer>
+            <div class="custom-wizard-footer">
+              <div class="wizard-footer-left">
+                <ButtonComponent
+                  variant="tertiary"
+                  @click="handleCancel">
+                  Annuller
+                </ButtonComponent>
+              </div>
+              <div class="wizard-footer-right">
+                <ButtonComponent
+                  v-if="activeTabIndex > 0"
+                  variant="secondary"
+                  class="tilbage-button"
+                  @click="handlePrevTab">
+                  Tilbage
+                </ButtonComponent>
+                <ButtonComponent
+                  variant="primary"
+                  @click="handleNextTab">
+                  <template v-if="activeTabIndex === 2">
+                    <IconPlus class="button-icon" />
+                    Opret
+                  </template>
+                  <template v-else>
+                    Næste
+                  </template>
+                </ButtonComponent>
+              </div>
             </div>
-            <div class="wizard-footer-right">
-              <ButtonComponent
-                v-if="activeTabIndex > 0"
-                variant="secondary"
-                class="tilbage-button"
-                @click="handlePrevTab">
-                Tilbage
-              </ButtonComponent>
-              <ButtonComponent
-                variant="primary"
-                @click="handleNextTab">
-                <template v-if="activeTabIndex === 2">
-                  <IconPlus class="button-icon" />
-                  Opret
-                </template>
-                <template v-else>
-                  Næste
-                </template>
-              </ButtonComponent>
-            </div>
-          </div>
-        </div>
+          </template>
+        </WizardStepperComponent>
       </div>
 
       <DetailPanel
@@ -567,19 +481,6 @@ onMounted(() => {
   }
 }
 
-.wizard-container {
-  background-color: #F7F7F7;
-  border-radius: 8px;
-  border: 1px solid #D1D3D4;
-  display: flex;
-  flex-direction: column;
-  padding: 24px 24px 8px 24px;
-  width: 100%;
-  box-sizing: border-box;
-  height: 100%;
-  min-height: 823px;
-}
-
 .form-group {
   margin-bottom: $spacing-medium-plus;
 }
@@ -633,226 +534,8 @@ onMounted(() => {
   font-weight: 500;
 }
 
-/* Wizard styling */
-:deep(.wizard-card) {
-  background-color: transparent;
-  box-shadow: none;
-  padding: 0;
-  margin: 0;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-:deep(.wizard-nav) {
-  margin-bottom: $spacing-large;
-  height: auto;
-  min-height: 5rem;
-  display: flex;
-  justify-content: space-between;
-  position: relative;
-  padding: 0 $spacing-xlarge;
-  flex-wrap: nowrap;
-  max-width: 100%;
-  width: 100%;
-}
-
-.wizard-navigation-container {
-  position: relative;
-  width: 100%;
-}
-
-/* Base gray line */
-:deep(.wizard-nav)::before {
-  content: "";
-  position: absolute;
-  top: 40px;
-  left: 20%;
-  width: 60%;
-  height: 2px;
-  background-color: #E5E5E5;
-  z-index: 1;
-}
-
-/* Blue overlay line - controlled by step classes */
-:deep(.wizard-nav)::after {
-  content: "";
-  position: absolute;
-  top: 40px;
-  left: 20%;
-  height: 2px;
-  background-color: $secondary-500;
-  z-index: 2;
-  width: 0%; /* Start with no blue line */
-  transition: width 0.3s ease;
-}
-
-/* Step width classes */
-.step-0 :deep(.wizard-nav)::after {
-  width: 0%;
-}
-
-.step-1 :deep(.wizard-nav)::after {
-  width: 30%;
-}
-
-.step-2 :deep(.wizard-nav)::after {
-  width: 60%;
-}
-
-:deep(.wizard-nav-item) {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex: 1;
-}
-
-/* Hide unwanted wizard elements */
-:deep(.wizard-progress-with-circle),
-:deep(.wizard-icon-circle),
-:deep(.wizard-icon),
-:deep(.stepTitle) {
-  display: none !important;
-}
-
-/* Custom step styling */
-.custom-step-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: relative;
-  z-index: 5;
-  width: 100%;
-  text-align: center;
-}
-
-.custom-icon-container {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  border: 2px solid $neutral-300;
-  background-color: $neutral-200;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 0.5rem;
-  position: relative;
-  z-index: 2;
-  svg {
-    width: 33px;
-    height: 33px;
-    stroke: $neutral-600;
-    stroke-width: 2;
-  }
-}
-
-.custom-step-container.active .custom-icon-container {
-  border-color: $secondary-500;
-  background-color: $secondary-50;
-  border-width: 2px;
-}
-
-.custom-step-container.checked .custom-icon-container {
-  border-width: 2px;
-  border-color: $secondary-500;
-}
-
-.custom-step-container.active .custom-icon-container svg,
-.custom-step-container.checked .custom-icon-container svg {
-  stroke-width: 2;
-}
-
-.step-title {
-  font-size: 0.875rem;
-  font-weight: 400;
-  color: $neutral-700;
-  text-align: center;
-  width: 100%;
-  padding: 0 $spacing-xs;
-  margin-top: $spacing-xs;
-}
-
-/* Tab content styling */
-:deep(.wizard-tab-content) {
-  padding: $spacing-medium-plus;
-  border-radius: $border-radius-lg;
-  margin-bottom: $spacing-medium;
-  flex: 1;
-  overflow-y: visible;
-  max-height: calc(100vh - 250px);
-}
-
-:deep(.wizard-footer-buttons) {
-  display: none !important; /* Hide default buttons */
-}
-
 .step-content {
   padding: $spacing-small 0;
-}
-
-/* Datepicker styling */
-.custom-datepicker-wrapper {
-  position: relative;
-  width: 100%;
-}
-
-.datepicker-icon {
-  position: absolute;
-  top: 50%;
-  right: 12px;
-  transform: translateY(-50%);
-  z-index: 1;
-  pointer-events: none;
-  color: $neutral-600;
-}
-
-:deep(.dp__main) {
-  width: 100%;
-}
-
-:deep(.dp__input) {
-  width: 100% !important;
-  height: 2.5rem !important;
-  padding: $spacing-xs $spacing-small !important;
-  font-size: 1rem !important;
-  border: 1px solid $neutral-300 !important;
-  border-radius: $border-radius-md !important;
-  color: $neutral-900 !important;
-}
-
-:deep(.dp__input_icon) {
-  display: none !important;
-}
-
-:deep(.dp__theme_light) {
-  --dp-primary-color: #{$secondary-500};
-  --dp-border-color: #{$neutral-300};
-  --dp-border-radius: #{$border-radius-md};
-  --dp-background-color: #fff;
-}
-
-.input-label {
-  font-size: 1rem;
-    font-weight: 600;
-    color: #383838;
-    margin-bottom: 2px;
-}
-
-.required-mark {
-  color: $error-base;
-}
-
-:deep(.datepicker-dropdown) {
-  margin-top: 2px !important;
-  left: 0 !important;
-  width: 100% !important;
-  max-width: 320px !important;
-  z-index: 100 !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-  border: 1px solid $neutral-300 !important;
-  border-radius: $border-radius-md !important;
 }
 
 /* Button icon styling */

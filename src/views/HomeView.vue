@@ -72,7 +72,7 @@ const handleDelete = (item) => {
 
 // Handle create egenkontrol button click
 const createEgenkontrol = () => {
-  router.push('/egenkontrol')
+  router.push('/egenkontrol/opret')
 }
 </script>
 
