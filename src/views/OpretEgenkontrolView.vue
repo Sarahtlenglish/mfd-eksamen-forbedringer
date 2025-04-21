@@ -14,8 +14,11 @@ import 'vue3-form-wizard/dist/style.css'
 // Import datepicker
 import Datepicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
+// Import store
+import { useEgenkontrolStore } from '@/stores/egenkontrolStore'
 
 const router = useRouter()
+const egenkontrolStore = useEgenkontrolStore()
 
 // Form data
 const egenkontrolTitle = ref('')
@@ -169,7 +172,79 @@ function findLabel(options, value) {
 
 // Event handlers
 const handleComplete = () => {
-  alert('Egenkontrol oprettet!')
+  // Find labels for de valgte værdier
+  const tjeklisteLabel = findLabel(egenkontrolFormData.checklistOptions, selectedCheckliste.value)
+  const enhederLabel = findLabel(egenkontrolFormData.locationOptions, selectedEnheder.value)
+  const ansvarligeLabel = findLabel(egenkontrolFormData.responsibleOptions, selectedAnsvarlige.value) || 'Hans Christiansen'
+  const reminderFrekvensLabel = findLabel(egenkontrolFormData.frekvensOptions, reminderFrekvens.value)
+  const reminderTidspunktLabel = findLabel(egenkontrolFormData.tidspunktOptions, reminderTidspunkt.value)
+  const kvitteringModtagerLabel = findLabel(egenkontrolFormData.brugerOptions, kvitteringModtager.value) || 'Facility'
+  const afvigelseModtagerLabel = findLabel(egenkontrolFormData.brugerOptions, afvigelseModtager.value) || 'Hans Christiansen'
+
+  // Find enheds-information
+  let standardInfo = enhederStandardData.defaultValues.standard
+  let standardTitleInfo = enhederStandardData.defaultValues.standardTitle
+  let enhederDisplay = enhederStandardData.defaultValues.displayText
+  let frekvens = enhederStandardData.defaultValues.frekvens
+
+  // Find relevant enhedsgruppe
+  if (enhederLabel) {
+    for (const key in enhederStandardData.enhederGrupper) {
+      if (enhederLabel.includes(key)) {
+        const gruppe = enhederStandardData.enhederGrupper[key]
+        standardInfo = gruppe.standard
+        standardTitleInfo = gruppe.standardTitle
+        enhederDisplay = gruppe.displayText
+        frekvens = gruppe.frekvens
+        break
+      }
+    }
+  }
+
+  // Opret simpel egenkontrol med de nødvendige felter
+  const nyEgenkontrol = {
+    id: Math.max(...egenkontrolStore.egenkontrollerData.map(item => item.id)) + 1,
+    name: egenkontrolTitle.value || 'Ny Egenkontrol',
+    title: egenkontrolTitle.value || 'Ny Egenkontrol', // Detailpanelet bruger title i stedet for name nogle gange
+    type: 'Egenkontrol',
+    status: 'normal',
+    location: enhederLabel || 'Ikke specificeret',
+    enheder: enhederDisplay,
+    standard: standardInfo,
+    standardTitle: standardTitleInfo,
+    description: egenkontrolBeskrivelse.value || 'Ingen beskrivelse angivet',
+    frequency: frekvens,
+    startDate: selectedStartDato.value ? new Date(selectedStartDato.value).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+    responsibleUsers: [ansvarligeLabel],
+    checkliste: tjeklisteLabel,
+    reminders: [
+      { 
+        description: reminderFrekvensLabel && reminderTidspunktLabel
+          ? `${reminderFrekvensLabel} kl. ${reminderTidspunktLabel}`
+          : '1 dag før, kl. 09.00'
+      },
+      {
+        description: deadlineFrekvens.value && deadlineTidspunkt.value
+          ? `dagligt kl. ${deadlineTidspunkt.value} efter overskredet deadline`
+          : 'dagligt kl. 09.00 efter overskredet deadline'
+      }
+    ],
+    // Formatér modtagere som EgenkontrolDetailContent.vue forventer
+    modtagere: [
+      `${kvitteringModtagerLabel} modtager kvittering`,
+      `${afvigelseModtagerLabel} modtager besked om afvigelser`
+    ],
+    // Behold deadlineNotifications for kompatibilitet med eksisterende data
+    deadlineNotifications: [
+      { recipient: kvitteringModtagerLabel, description: 'modtager kvittering' },
+      { recipient: afvigelseModtagerLabel, description: 'modtager besked om afvigelser' }
+    ]
+  }
+  
+  // Tilføj til store
+  egenkontrolStore.addEgenkontrol(nyEgenkontrol)
+  
+  // Naviger tilbage til oversigten
   router.push('/egenkontrol')
 }
 
@@ -714,11 +789,9 @@ onMounted(() => {
   margin-top: $spacing-xs;
 }
 
-/* Remove special text color styling to match screenshots */
-.custom-step-container.active .step-title,
-.custom-step-container.checked .step-title {
-  color: $neutral-700;
-  font-weight: 400;
+/* Remove the custom connector lines since we're using the wizard's default line */
+.custom-step-container:not(:last-child)::after {
+  display: none;
 }
 
 /* Responsive adjustments */
