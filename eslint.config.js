@@ -17,7 +17,12 @@ export default [
       '**/dist-ssr/**',
       '**/coverage/**',
       'src/configs/firebase.js',
-      'src/router/index.js'
+      '/jsconfig.json',
+      'src/router/index.js',
+      'jsconfig.json',
+      '**/jsconfig.json',
+      '**/*.json',
+      '**/*.md'
     ]
   },
 
