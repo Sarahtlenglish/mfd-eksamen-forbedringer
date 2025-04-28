@@ -1,24 +1,26 @@
 <script setup>
 import { useRouter } from 'vue-router'
-import { reactive, onMounted } from 'vue'
+import { reactive, computed } from 'vue'
 import DetailPanel from '@/components/ui/panels/DetailPanelComponent.vue'
 import { IconX } from '@tabler/icons-vue'
 import { useEgenkontrolStore } from '@/stores/egenkontrolStore'
-import { useEgenkontrolForm } from '@/components/forms/EgenkontrolFormData.js'
-import EgenkontrolFormContent from '@/components/forms/EgenkontrolFormContent.vue'
+import WizardFormComponent from '@/components/forms/WizardFormComponent.vue'
+import { getWizardConfig, prepareDetailItem } from '@/components/forms/WizardFormConfig.js'
+import { egenkontrolFormData } from '@/mock/data/egenkontrol'
 
 const router = useRouter()
 const egenkontrolStore = useEgenkontrolStore()
 
-// Get the computed detail panel data and helper function from the form logic
-const { detailItem, prepareEgenkontrolData, updateDetailItem } = useEgenkontrolForm()
+// Initialiser form wizard med kontekst og mockdata
+const context = 'egenkontroller'
+const config = getWizardConfig(context, { mockData: { egenkontroller: egenkontrolFormData } })
 
-// Create form data state for the reusable component
+// Skabelon for form input data
 const formData = reactive({
-  egenkontrolTitle: '',
-  egenkontrolBeskrivelse: '',
+  title: '',
+  description: '',
   selectedCheckliste: '',
-  selectedStartDato: '',
+  startDate: '',
   selectedEnheder: '',
   selectedAnsvarlige: '',
   reminderFrekvens: '',
@@ -29,34 +31,26 @@ const formData = reactive({
   afvigelseModtager: ''
 })
 
-// Update form data handler
+// Live preview af egenkontrol i detail panel
+const detailItem = computed(() => prepareDetailItem(context, formData))
+
+// Håndterer opdatering af formular
 const handleFormUpdate = (newFormData) => {
-  // Update local formData object
   Object.assign(formData, newFormData)
-  // Update the detailItem (which is computed in useEgenkontrolForm)
-  updateDetailItem(formData)
 }
 
-// Initialize detailItem med værdierne fra formData
-onMounted(() => {
-  updateDetailItem(formData)
-})
-
-// Event handlers
+// Gemmer ny egenkontrol og navigerer tilbage
 const handleComplete = () => {
-  // Get prepared data for the store
   const nyEgenkontrol = {
-    id: Math.max(...egenkontrolStore.egenkontrollerData.map(item => item.id)) + 1,
-    ...prepareEgenkontrolData()
+    id: Math.max(...egenkontrolStore.egenkontrollerData.map(item => item.id), 0) + 1,
+    ...detailItem.value
   }
 
-  // Add to store
   egenkontrolStore.addEgenkontrol(nyEgenkontrol)
-
-  // Navigate back to overview
   router.push('/egenkontrol')
 }
 
+// Afbryder oprettelse uden at gemme
 const handleCancel = () => {
   router.push('/egenkontrol')
 }
@@ -72,17 +66,19 @@ const handleCancel = () => {
     </div>
 
     <div class="content-layout">
-      <!-- Brug EgenkontrolFormContent direkte -->
-      <div class="form-container form-egenkontroller">
-        <EgenkontrolFormContent
+      <!-- Wizard formular -->
+      <div class="form-container">
+        <WizardFormComponent
+          :context="context"
+          :config="config"
           :formData="formData"
-          context="egenkontroller"
           @update:formData="handleFormUpdate"
           @complete="handleComplete"
           @cancel="handleCancel"
         />
       </div>
 
+      <!-- Live preview af den nye egenkontrol -->
       <DetailPanel
         context="egenkontroller"
         :item="detailItem"
@@ -138,14 +134,8 @@ const handleCancel = () => {
 }
 
 .form-container {
-  background-color: #F7F7F7;
-  border-radius: 8px;
-  border: 1px solid #D1D3D4;
-  display: flex;
-  flex-direction: column;
   min-width: 66%;
   box-sizing: border-box;
   height: 100%;
-  min-height: 823px;
 }
 </style>

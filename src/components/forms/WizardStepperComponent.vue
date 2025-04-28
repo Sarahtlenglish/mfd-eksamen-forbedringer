@@ -16,15 +16,14 @@ const props = defineProps({
 
 const emit = defineEmits(['update:activeTabIndex', 'next', 'previous', 'complete'])
 
-// Reference to form wizard
 const formWizard = ref(null)
 
-// Overstyring af wizard-checked-status baseret på aktivt trin
+// Tjekker om et trin er gennemført baseret på aktivt trin
 const isStepChecked = (index) => {
   return index < props.activeTabIndex
 }
 
-// Update step class when tab changes
+// Synkroniserer aktivt trin med parent component
 const updateActiveTab = () => {
   if (formWizard.value) {
     const newActiveTabIndex = formWizard.value.activeTabIndex
@@ -32,7 +31,7 @@ const updateActiveTab = () => {
   }
 }
 
-// Navigation methods
+// Navigation mellem trin
 const nextTab = () => {
   if (formWizard.value) {
     formWizard.value.nextTab()
@@ -49,8 +48,8 @@ const prevTab = () => {
   }
 }
 
+// Afslutter formularen
 const completeWizard = () => {
-  // Tilføj completed klasse til wizard-containeren
   const wizardContainer = document.querySelector('.wizard-navigation-container')
   if (wizardContainer) {
     wizardContainer.classList.add('completed')
@@ -58,14 +57,14 @@ const completeWizard = () => {
   emit('complete')
 }
 
-// Expose methods
+// Eksponér metoder til parent component
 defineExpose({
   nextTab,
   prevTab,
   formWizard
 })
 
-// Initialiser step-klasse ved mount
+// Initialiser korrekt trin-status ved opstart
 onMounted(() => {
   updateActiveTab()
 })
@@ -80,14 +79,14 @@ onMounted(() => {
       @on-complete="completeWizard"
       @on-change="updateActiveTab"
       :hide-buttons="true"
-      :subtitle="false"
+      subtitle=""
       stepSize="md"
       backButtonText="Tilbage"
       nextButtonText="Næste"
       finishButtonText="Opret">
-      <!-- Add a custom class to track current step -->
+      <!-- Wrapper til navigation og indhold -->
       <template v-slot:wizard="wizardProps">
-        <div :class="['wizard-navigation-container', `step-${props.activeTabIndex}`]">
+        <div :class="['wizard-navigation-container', { 'completed': props.activeTabIndex === wizardProps.tabs.length }]">
           <div class="wizard-nav">
             <slot name="step" v-for="tab in wizardProps.tabs" :tab="tab" :index="tab.index" :transition="wizardProps.transition"></slot>
           </div>
@@ -95,7 +94,7 @@ onMounted(() => {
         </div>
       </template>
 
-      <!-- Custom step styling -->
+      <!-- Tilpasset udseende for hvert trin -->
       <template v-slot:step="stepProps">
         <div
           class="custom-step-container"
@@ -110,11 +109,11 @@ onMounted(() => {
         </div>
       </template>
 
-      <!-- Pass through the default slot -->
+      <!-- Indhold fra parent component -->
       <slot></slot>
     </FormWizard>
 
-    <!-- Footer slot -->
+    <!-- Footer fra parent component -->
     <slot name="footer"></slot>
   </div>
 </template>
@@ -135,7 +134,7 @@ onMounted(() => {
   min-height: 823px;
 }
 
-/* Wizard styling */
+/* Grund-styling for wizard */
 :deep(.wizard-card) {
   background-color: transparent;
   box-shadow: none;
@@ -164,49 +163,6 @@ onMounted(() => {
   width: 100%;
 }
 
-/* Base gray line */
-:deep(.wizard-nav)::before {
-  content: "";
-  position: absolute;
-  top: 40px;
-  left: 20%;
-  width: 60%;
-  height: 2px;
-  background-color: #E5E5E5;
-  z-index: 1;
-}
-
-/* Blue overlay line - controlled by step classes */
-:deep(.wizard-nav)::after {
-  content: "";
-  position: absolute;
-  top: 40px;
-  left: 20%;
-  height: 2px;
-  background-color: $secondary-500;
-  z-index: 2;
-  width: 0%; /* Start with no blue line */
-  transition: width 0.3s ease;
-}
-
-/* Step width classes */
-.step-0 :deep(.wizard-nav)::after {
-  width: 0%;
-}
-
-.step-1 :deep(.wizard-nav)::after {
-  width: 30%;
-}
-
-.step-2 :deep(.wizard-nav)::after {
-  width: 60%;
-}
-
-.step-3 :deep(.wizard-nav)::after,
-.completed :deep(.wizard-nav)::after {
-  width: 100%;
-}
-
 :deep(.wizard-nav-item) {
   position: relative;
   z-index: 2;
@@ -216,15 +172,12 @@ onMounted(() => {
   flex: 1;
 }
 
-/* Hide unwanted wizard elements */
-:deep(.wizard-progress-with-circle),
-:deep(.wizard-icon-circle),
-:deep(.wizard-icon),
-:deep(.stepTitle) {
-  display: none !important;
+:deep(.wizard-progress-with-circle) {
+  height: 2px !important;
+  width: 100% !important;
 }
 
-/* Custom step styling */
+/* Styling for vores egne step-indikatorer */
 .custom-step-container {
   display: flex;
   flex-direction: column;
@@ -283,15 +236,16 @@ onMounted(() => {
 
 /* Tab content styling */
 :deep(.wizard-tab-content) {
-  padding: $spacing-medium-plus;
   border-radius: $border-radius-lg;
   margin-bottom: $spacing-medium;
   flex: 1;
   overflow-y: visible;
   max-height: calc(100vh - 250px);
+  padding: 2rem 0 !important;
 }
 
 :deep(.wizard-footer-buttons) {
   display: none !important; /* Hide default buttons */
 }
+
 </style>
