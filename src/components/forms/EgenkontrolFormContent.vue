@@ -128,7 +128,7 @@ const handleNextTab = () => {
   } else {
     // Complete the wizard first, then emit complete
     // This ensures the progress bar reaches 100%
-    if (wizardStepper.value && wizardStepper.value.formWizard) {
+    if (wizardStepper.value && wizardStepper.value.formWizard && wizardStepper.value.formWizard.value) {
       wizardStepper.value.formWizard.value.isLastStep = true
       wizardStepper.value.completeWizard()
     }
