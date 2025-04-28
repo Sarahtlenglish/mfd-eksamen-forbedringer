@@ -50,6 +50,11 @@ const prevTab = () => {
 }
 
 const completeWizard = () => {
+  // Tilføj completed klasse til wizard-containeren
+  const wizardContainer = document.querySelector('.wizard-navigation-container')
+  if (wizardContainer) {
+    wizardContainer.classList.add('completed')
+  }
   emit('complete')
 }
 
@@ -195,6 +200,11 @@ onMounted(() => {
 
 .step-2 :deep(.wizard-nav)::after {
   width: 60%;
+}
+
+.step-3 :deep(.wizard-nav)::after,
+.completed :deep(.wizard-nav)::after {
+  width: 100%;
 }
 
 :deep(.wizard-nav-item) {
