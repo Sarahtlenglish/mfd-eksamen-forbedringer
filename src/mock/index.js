@@ -5,7 +5,8 @@ import {
   egenkontrollerData,
   defaultReminders,
   mapStatusForCalendar,
-  formatTasksForCalendar
+  formatTasksForCalendar,
+  egenkontrolFormData
 } from './data/egenkontrol'
 
 // Kalender-specifik data
@@ -21,6 +22,13 @@ import {
   enhederHistoryItems
 } from './data/enheder'
 
+// Tjekliste-specifik data
+import {
+  tjeklisteFormData,
+  tjeklisteData,
+  prepareTjeklisteDetailItem
+} from './data/tjekliste'
+
 // Eksporter alt samlet
 export {
   // Egenkontrol
@@ -28,16 +36,16 @@ export {
   defaultReminders,
   mapStatusForCalendar,
   formatTasksForCalendar,
+  egenkontrolFormData,
   // Kalender
   calendarTaskData,
   exampleDateTasks,
   defaultCalendarDate,
   // Enheder
   enhederData,
-  enhederHistoryItems
+  enhederHistoryItems,
+  // Tjeklister
+  tjeklisteFormData,
+  tjeklisteData,
+  prepareTjeklisteDetailItem
 }
-
-// Her kan tilføjes andre data-typer (brugere, enheder, etc.) efterhånden som de oprettes
-
-// Eksporterer al mockdata herfra
-export * from './data/formData'

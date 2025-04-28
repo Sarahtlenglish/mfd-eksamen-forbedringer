@@ -314,3 +314,39 @@ export const formatTasksForCalendar = (tasks) => {
   })
   return calendarTasks
 }
+
+// Form data til oprettelse af egenkontroller
+export const egenkontrolFormData = {
+  checklistOptions: [
+    { value: 'checklist1', label: 'Brandslukker Tjekliste' },
+    { value: 'checklist2', label: 'Flugtvejsskilt Tjekliste' },
+    { value: 'checklist3', label: 'Varslingsanlæg Tjekliste' }
+  ],
+  locationOptions: [
+    { value: 'location1', label: 'Bygning A, Etage 1' },
+    { value: 'location2', label: 'Bygning A, Etage 2' },
+    { value: 'location3', label: 'BR18 - ABA Central' }
+  ],
+  responsibleOptions: [
+    { value: 'user1', label: 'Christian Hansen' },
+    { value: 'user2', label: 'Kasper Bohr' },
+    { value: 'group1', label: 'Vedligeholdelse' }
+  ],
+  frekvensOptions: [
+    { value: 'daily', label: 'Dagligt' },
+    { value: 'weekly', label: 'Ugentligt' },
+    { value: 'monthly', label: 'Månedligt' }
+  ],
+  tidspunktOptions: [
+    { value: 'morning', label: '09:00' },
+    { value: 'noon', label: '12:00' },
+    { value: 'afternoon', label: '15:00' }
+  ],
+  brugerOptions: [
+    { value: 'user1', label: 'Christian Hansen' },
+    { value: 'user2', label: 'Kasper Bohr' },
+    { value: 'user3', label: 'Børge Jakobsen' },
+    { value: 'group1', label: 'Vedligeholdelse' },
+    { value: 'group2', label: 'Alle brugere' }
+  ]
+}

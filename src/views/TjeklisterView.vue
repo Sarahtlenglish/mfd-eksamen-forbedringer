@@ -1,9 +1,15 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import TablesComponent from '@/components/ui/TablesComponent.vue'
 import DetailPanel from '@/components/ui/panels/DetailPanelComponent.vue'
 import ButtonComponent from '@/components/ui/ButtonComponent.vue'
 import { IconPlus } from '@tabler/icons-vue'
+import { useTjeklisteStore } from '@/stores/tjeklisteStore'
+
+// Get store og router
+const tjeklisteStore = useTjeklisteStore()
+const router = useRouter()
 
 // Define columns for this view
 const columns = [
@@ -12,42 +18,35 @@ const columns = [
   { key: 'frequency', label: 'Frekvens' }
 ]
 
-// Data state
-const TjeklistData = ref([
-  { id: 1, type: 'BR18', tjekliste: 'AVS anlæg', frequency: 'Ugentlig 7.5.2.1', description: 'Tjeklisten er til gennemgåelse af AVS anlæg, det er en type BR18 som skal udføres ugentlig' },
-  { id: 2, type: 'BR18', tjekliste: 'Røgalarm anlæg', frequency: 'Kvartal 7.5.4.1', description: 'Tjeklisten er til gennemgåelse af Røgalarm anlæg, det er en type BR18 som skal udføres per kvartal' }
-])
-
+// State for selected item
 const selectedItem = ref(null)
-// Add this missing variable
 
-// Handle row click
+// Event handlers
 const handleRowClick = (item) => {
   selectedItem.value = item
 }
 
-// Add these missing functions
+const createTjekliste = () => {
+  // Naviger til opret tjekliste-view
+  router.push('/tjeklister/opret')
+}
+
 const closeDetailPanel = () => {
   selectedItem.value = null
 }
 
 const handleEdit = (item) => {
   console.log('Edit item:', item)
-  // Implement edit functionality
+  // Here you would typically open an edit form or dialog
+  alert(`Redigering af ${item.tjekliste} - denne funktionalitet er ikke implementeret endnu`)
 }
 
 const handleDelete = (item) => {
   console.log('Delete item:', item)
-  TjeklistData.value = TjeklistData.value.filter(i => i.id !== item.id)
+  // Delete the item from the store
+  tjeklisteStore.deleteTjekliste(item.id)
   selectedItem.value = null
 }
-
-const createTjekliste = () => {
-  console.log('Opret item:')
-  // Here you would typically open an edit form or dialog
-  alert('Oprettelse af enhed - denne funktionalitet er ikke implementeret endnu')
-}
-
 </script>
 
 <template>
@@ -67,7 +66,7 @@ const createTjekliste = () => {
   <div class="content-layout">
     <div class="table-section">
       <TablesComponent
-      :items="TjeklistData"
+      :items="tjeklisteStore.tjeklisterData"
       :columns="columns"
       :columnWidths="['33%', '33%', '33%']"
       :selectedItemId="selectedItem?.id"

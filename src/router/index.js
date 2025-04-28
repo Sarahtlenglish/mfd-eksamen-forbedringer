@@ -65,6 +65,15 @@ export const routes = [
     }
   },
   {
+    path: '/tjeklister/opret',
+    name: 'opret-tjekliste',
+    component: () => import('@/views/OpretTjeklisteView.vue'),
+    meta: { 
+      showInNav: false,
+      title: 'Opret Tjekliste'
+    }
+  },
+  {
     path: '/enheder',
     name: 'enheder',
     component: () => import('@/views/EnhederView.vue'),

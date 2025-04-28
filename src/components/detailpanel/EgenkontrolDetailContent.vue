@@ -1,111 +1,90 @@
 <script setup>
-defineProps({
+import { computed } from 'vue'
+import { enhederStandardData } from '@/mock/data/enheder'
+
+const props = defineProps({
   item: {
     type: Object,
     required: true
   }
 })
 
-// Default values
-const defaultReminders = [
-  '1 dag før, kl. 09.00',
-  'dagligt kl. 09.00 efter overskredet deadline'
-]
+const enhedData = computed(() => {
+  const tjeklisteNavn = props.item.checkliste || props.item.selectedEnheder || ''
+  return Object.values(enhederStandardData.enhederGrupper).find(
+    g => g.displayText === tjeklisteNavn || g.displayText === props.item.location
+  ) || null
+})
 
-// Methods
-const formatDate = (dateString) => {
-  if (!dateString) return ''
-  const date = new Date(dateString)
-  return date.toLocaleDateString('da-DK')
+// Hjælper til at tjekke om en værdi er gyldig - ikke tom og ikke "Ikke valgt"
+function isValid(value) {
+  return value && value !== '' && value !== 'Ikke valgt' && !value.includes('Ikke valgt')
 }
 </script>
 
 <template>
   <div>
-    <!-- For Opgave/Task type egenkontrol -->
-    <div v-if="item.type === 'Opgave'">
-      <div class="simple-content">
-        <div class="detail-row">
-          <span class="detail-label">Udføres:</span>
-          <span>{{ item.frequency || 'Ugentlig' }}</span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Ansvarlige brugere:</span>
-          <span>{{ item.responsibleUsers?.join(', ') || 'Christian Hansen' }}</span>
-        </div>
+    <!-- Beskrivelse - altid vist (hvis der er en) -->
+    <div v-if="props.item.description" class="description">
+      {{ props.item.description }}
+    </div>
 
-        <div class="detail-section">
-          <div v-for="(reminder, index) in item.reminders || defaultReminders" :key="index" class="detail-row">
-            <span class="detail-label">Påmindelse:</span>
-            <span>{{ reminder.description || reminder }}</span>
-          </div>
-        </div>
+    <!-- Udføres hver [frekvens] - altid vist -->
+    <div class="detail-section">
+      <div class="detail-row">
+        <span class="detail-label">
+          Udføres hver {{ enhedData?.value?.frekvens || props.item.frequency }}
+        </span>
+      </div>
+      <div v-if="props.item.startDate" class="detail-row">
+        <span>Fra d. {{ props.item.startDate }}</span>
       </div>
     </div>
 
-    <!-- For standard Egenkontrol type -->
-    <div v-else>
-      <div v-if="item.description" class="description">
-        {{ item.description }}
+    <!-- Standard og enhed/gruppe -->
+    <div v-if="enhedData?.value?.standard || isValid(props.item.standard)" class="detail-section">
+      <div class="detail-row">
+        <span class="detail-label">
+          {{ enhedData?.value
+             ? `${enhedData.value.standard} - ${enhedData.value.standardTitle}`
+             : `${props.item.standard} - ${props.item.standardTitle}` }}
+        </span>
       </div>
+    </div>
 
-      <div class="detail-section">
-        <div class="detail-row">
-          <span class="detail-label">Udføres ugentlig</span>
-        </div>
-        <div v-if="item.startDate" class="detail-row">
-          <span>Starter d.</span>
-          <span>{{ formatDate(item.startDate) }}</span>
-        </div>
+    <!-- Tjekliste og lokation/enhed i samme gruppe -->
+    <div v-if="isValid(props.item.checkliste) || (enhedData?.value?.displayText || isValid(props.item.location))" class="detail-section">
+      <div v-if="isValid(props.item.checkliste)" class="detail-row">
+        <strong>{{ props.item.checkliste }}</strong>
       </div>
-
-      <div class="detail-section">
-        <div class="detail-row">
-          <span v-if="item.standard" class="detail-label">{{ item.standard }} - {{ item.standardTitle }}</span>
-        </div>
-        <div class="detail-row">
-          <span>{{ item.enheder }}</span>
-        </div>
+      <div v-if="enhedData?.value?.displayText || isValid(props.item.location)" class="detail-row">
+        <span>{{ enhedData?.value?.displayText || props.item.location }}</span>
       </div>
+    </div>
 
-      <!-- Separate checklist section -->
-      <div v-if="item.checkliste" class="detail-section">
-        <div class="detail-row">
-          <span class="detail-label">Tjekliste:</span>
-        </div>
-        <div class="detail-row">
-          <span>{{ item.checkliste }}</span>
-        </div>
+    <!-- Ansvarlige -->
+    <div v-if="props.item.responsibleUsers?.length && isValid(props.item.responsibleUsers[0])" class="detail-section">
+      <div class="detail-row">
+        <span class="detail-label">Ansvarlige</span>
       </div>
-
-      <div class="detail-section">
-        <div class="detail-row">
-          <span class="detail-label">Ansvarlige brugere:</span>
-        </div>
-        <div class="detail-row user-row">
-          <span>{{ item.responsibleUsers?.join(', ') || 'Christian Hansen' }}</span>
-        </div>
-        <div class="detail-row" v-if="item.bodyText">
-          <span>{{ item.bodyText }}</span>
-        </div>
+      <div class="detail-row user-row">
+        <span v-for="(user, idx) in props.item.responsibleUsers" :key="idx">{{ user }}</span>
       </div>
+    </div>
 
-      <div class="detail-section">
-        <div class="detail-row">
-          <span class="detail-label">Påmindelser:</span>
-        </div>
-        <div v-for="(reminder, index) in item.reminders || defaultReminders" :key="index" class="detail-row">
-          <span>{{ reminder.description || reminder }}</span>
-        </div>
+    <!-- Påmindelser -->
+    <div v-if="props.item.reminders?.length" class="detail-section">
+      <div v-for="(reminder, idx) in props.item.reminders" :key="idx" class="detail-row">
+        <span v-if="isValid(reminder.description || reminder)" class="detail-label">
+          Påmindelse - {{ reminder.description || reminder }}
+        </span>
       </div>
+    </div>
 
-      <div class="detail-section">
-        <div class="detail-row">
-          <span class="detail-label">Notifikationsmodtagere:</span>
-        </div>
-        <div v-for="(modtager, index) in item.modtagere" :key="`modtager-${index}`" class="detail-row">
-          <span>{{ modtager }}</span>
-        </div>
+    <!-- Notifikationsmodtagere -->
+    <div v-if="props.item.modtagere?.length" class="detail-section">
+      <div v-for="(modtager, idx) in props.item.modtagere" :key="idx" class="detail-row">
+        <span v-if="isValid(modtager)" class="detail-label">{{ modtager }}</span>
       </div>
     </div>
   </div>
