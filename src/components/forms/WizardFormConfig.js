@@ -3,10 +3,11 @@
  * Centraliseret konfiguration for formular wizards i forskellige kontekster.
  */
 
-import { IconClipboard, IconUsers, IconBell, IconChecklist } from '@tabler/icons-vue'
+import { IconClipboard, IconUsers, IconBell, IconChecklist, IconBuilding, IconStack } from '@tabler/icons-vue'
 import InputComponent from '@/components/ui/InputComponent.vue'
 import DropdownComponent from '@/components/ui/DropdownComponent.vue'
 import DatePickerComponent from '@/components/ui/DatePickerComponent.vue'
+import UnderenhederListComponent from '@/components/forms/UnderenhederListComponent.vue'
 import { egenkontrolFormData } from '@/mock/data/egenkontrol'
 
 /**
@@ -119,6 +120,52 @@ export function getWizardConfig(context, options = {}) {
       required: true,
       component: DropdownComponent,
       options: 'frekvensOptions'
+    },
+
+    // Enhed-specifikke felter
+    enhedType: {
+      label: 'Opret singel eller gruppe enhed',
+      placeholder: 'Vælg type',
+      required: true,
+      component: DropdownComponent,
+      options: 'enhedTypeOptions'
+    },
+    enhedNavn: {
+      label: 'Enheds navn',
+      placeholder: 'Angiv et navn',
+      required: true,
+      component: InputComponent
+    },
+    beskrivelse: {
+      label: 'Beskrivelse',
+      placeholder: 'Angiv beskrivelse af enheden',
+      required: true,
+      component: InputComponent
+    },
+    location: {
+      label: 'Hvor befinder enheden sig?',
+      placeholder: 'Vælg lokation',
+      required: true,
+      component: DropdownComponent,
+      options: 'locationOptions'
+    },
+    gruppeTitel: {
+      label: 'Gruppens titel - bruges som prefix til underenheder',
+      placeholder: 'Angiv gruppens titel',
+      required: true,
+      component: InputComponent
+    },
+    gruppeBeskrivelse: {
+      label: 'Beskrivelse',
+      placeholder: 'Angiv beskrivelse af gruppen',
+      required: false,
+      component: InputComponent
+    },
+    underenheder: {
+      label: 'Underenheder',
+      placeholder: 'Tilføj underenheder',
+      required: true,
+      component: UnderenhederListComponent
     }
   }
 
@@ -185,6 +232,32 @@ export function getWizardConfig(context, options = {}) {
       },
       fieldDefinitions,
       dropdownOptions: mockData.tjeklister || {}
+    },
+
+    // Configuration for enheder
+    enheder: {
+      stepIcons: [IconBuilding, IconStack],
+      steps: [
+        {
+          title: 'Enheds Information',
+          heading: 'Udfyld informationen for enheden'
+        }
+      ],
+      fields: {
+        step1: ['enhedType', 'enhedNavn', 'beskrivelse', 'location']
+      },
+      fieldDefinitions,
+      dropdownOptions: mockData.enheder || {
+        locationOptions: [
+          { value: 'bygningA', label: 'Bygning A' },
+          { value: 'bygningB', label: 'Bygning B' },
+          { value: 'bygningC', label: 'Bygning C' }
+        ],
+        enhedTypeOptions: [
+          { value: 'single', label: 'Single' },
+          { value: 'gruppe', label: 'Gruppe' }
+        ]
+      }
     }
   }
 
@@ -246,6 +319,41 @@ export function prepareDetailItem(context, formData) {
         type: formData.type || 'Standard',
         status: 'normal',
         frequency: findLabel(egenkontrolFormData.frekvensOptions, formData.frekvens) || 'Ikke valgt'
+      }
+    }
+
+    // Case for enheder
+    case 'enheder': {
+      // Afhængig af type ('singel' eller 'gruppe')
+      if (formData.enhedType === 'gruppe') {
+        return {
+          ...baseDetailItem,
+          title: formData.gruppeTitel || 'Ny gruppeenhed',
+          name: formData.gruppeTitel || 'Ny gruppeenhed',
+          description: formData.gruppeBeskrivelse || 'Ingen beskrivelse angivet',
+          type: 'Gruppe',
+          status: 'normal',
+          location: findLabel([
+            { value: 'bygningA', label: 'Bygning A' },
+            { value: 'bygningB', label: 'Bygning B' },
+            { value: 'bygningC', label: 'Bygning C' }
+          ], formData.location),
+          underenheder: formData.underenheder || []
+        }
+      } else {
+        return {
+          ...baseDetailItem,
+          title: formData.enhedNavn || 'Ny enhed',
+          name: formData.enhedNavn || 'Ny enhed',
+          description: formData.beskrivelse || 'Ingen beskrivelse angivet',
+          type: 'Enkelt Enhed',
+          status: 'normal',
+          location: findLabel([
+            { value: 'bygningA', label: 'Bygning A' },
+            { value: 'bygningB', label: 'Bygning B' },
+            { value: 'bygningC', label: 'Bygning C' }
+          ], formData.location)
+        }
       }
     }
 

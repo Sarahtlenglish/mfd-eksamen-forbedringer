@@ -86,6 +86,15 @@ export const routes = [
     }
   },
   {
+    path: '/enheder/opret',
+    name: 'opret-enhed',
+    component: () => import('@/views/OpretEnhedView.vue'),
+    meta: { 
+      showInNav: false,
+      title: 'Opret Enhed'
+    }
+  },
+  {
     path: '/brugere',
     name: 'brugere',
     component: () => import('@/views/BrugereView.vue'),

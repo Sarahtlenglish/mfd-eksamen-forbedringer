@@ -85,6 +85,7 @@ const handleCancel = () => {
         :showBackButton="false"
         :showDeleteButton="false"
         :showEditButton="false"
+        :isCreationMode="true"
       />
     </div>
   </div>
@@ -109,7 +110,7 @@ const handleCancel = () => {
   background: none;
   border: none;
   cursor: pointer;
-  color: $neutral-600;
+  color: $secondary-500;
   padding: $spacing-xs;
   display: flex;
   align-items: center;

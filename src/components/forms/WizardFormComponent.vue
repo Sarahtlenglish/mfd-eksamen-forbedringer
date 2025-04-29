@@ -95,7 +95,7 @@ defineExpose({
         :key="index"
         :title="step.title">
         <div class="step-content">
-          <h2 class="step-heading">{{ step.heading }}</h2>
+          <h2 class="step-heading heading-3">{{ step.heading }}</h2>
 
           <!-- Special-case for step 3 med grupperede felter -->
           <template v-if="index === 2 && config.step3Groups">
@@ -197,10 +197,7 @@ defineExpose({
 }
 
 .step-heading {
-  font-size: 1.25rem;
-  margin-bottom: $spacing-medium-plus;
-  font-weight: 500;
-  color: $neutral-800;
+  margin-bottom: $spacing-xlarge;
 }
 
 .form-group {

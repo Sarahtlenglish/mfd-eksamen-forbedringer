@@ -1,5 +1,6 @@
 <!-- EnhederDetailContent.vue -->
 <script setup>
+import { ref, computed } from 'vue'
 import { IconPrinter, IconUpload, IconFileText } from '@tabler/icons-vue'
 import ButtonComponent from '@/components/ui/ButtonComponent.vue'
 
@@ -7,10 +8,30 @@ const props = defineProps({
   item: {
     type: Object,
     required: true
+  },
+  showHistoryButton: {
+    type: Boolean,
+    default: true
   }
 })
 
 const emit = defineEmits(['toggle-history'])
+
+// Check if the item is a group
+const isGruppe = computed(() => {
+  return props.item.type === 'Gruppe'
+})
+
+// Check if there are underenheder
+const hasUnderenheder = computed(() => {
+  return props.item.underenheder && props.item.underenheder.length > 0
+})
+
+// Get count of underenheder
+const underenhederCount = computed(() => {
+  if (!props.item.underenheder) return 0
+  return props.item.underenheder.length
+})
 </script>
 
 <template>
@@ -21,7 +42,7 @@ const emit = defineEmits(['toggle-history'])
         {{ item.description }}
       </p>
 
-      <div class="action-buttons">
+      <div v-if="showHistoryButton" class="action-buttons">
         <ButtonComponent
           size="small"
           variant="secondary"
@@ -29,6 +50,23 @@ const emit = defineEmits(['toggle-history'])
         >
           Se historik
         </ButtonComponent>
+      </div>
+    </div>
+
+    <div v-if="isGruppe && hasUnderenheder" class="underenheder-section">
+      <div class="underenheder-count">{{ underenhederCount }} underenheder</div>
+
+      <div class="underenheder-table">
+        <div class="table-header">
+          <div class="header-cell">Underenhed</div>
+          <div class="header-cell">Lokation</div>
+        </div>
+        <div class="table-body">
+          <div v-for="(enhed, index) in item.underenheder" :key="index" class="table-row">
+            <div class="cell">{{ enhed.navn || `Branddør ${index + 1}` }}</div>
+            <div class="cell">{{ enhed.lokation || 'Ikke valgt' }}</div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -141,5 +179,69 @@ const emit = defineEmits(['toggle-history'])
       font-weight: $body-2-font-weight-semibold;
     }
   }
+}
+
+.underenheder-section {
+  margin-top: $spacing-large;
+}
+
+.underenheder-count {
+  font-weight: $body-1-font-weight-semibold;
+  font-size: 0.9375rem;
+  margin-bottom: $spacing-small;
+  color: $neutral-700;
+}
+
+.underenheder-table {
+  border: 1px solid $neutral-200;
+  border-radius: $border-radius-md;
+  overflow: hidden;
+  background-color: white;
+}
+
+.table-header {
+  display: flex;
+  background-color: #EDF2F7;
+  font-weight: 500;
+  border-bottom: 1px solid $neutral-200;
+}
+
+.header-cell {
+  flex: 1;
+  padding: $spacing-small $spacing-medium;
+  color: $neutral-700;
+}
+
+.table-body {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.table-row {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid $neutral-200;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+  
+  &:nth-child(even) {
+    background-color: #F9FAFB;
+  }
+}
+
+.cell {
+  flex: 1;
+  padding: $spacing-small $spacing-medium;
+  color: $neutral-700;
+}
+
+.section-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: $neutral-700;
+  margin: 0 0 $spacing-small 0;
+  text-transform: uppercase;
 }
 </style>
