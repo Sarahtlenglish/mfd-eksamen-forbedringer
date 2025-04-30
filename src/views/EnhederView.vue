@@ -1,22 +1,47 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted, watch, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import TablesComponent from '@/components/ui/TablesComponent.vue'
 import DetailPanel from '@/components/ui/panels/DetailPanelComponent.vue'
 import ButtonComponent from '@/components/ui/ButtonComponent.vue'
 import { IconPlus } from '@tabler/icons-vue'
-import { enhederData as initialEnhederData, enhederHistoryItems as initialHistoryItems } from '@/mock/index'
+import { useEnhedStore } from '@/stores/enhedStore'
+import { enhederConfig } from '@/configs/enhederConfig'
 
 const router = useRouter()
-// Define columns for this view
+const enhedStore = useEnhedStore()
+
+// Helper functions to get labels
+const getLocationLabel = (value) => {
+  const option = enhederConfig.locations.find(opt => opt.value === value)
+  return option ? option.label : value
+}
+
+const getTypeLabel = (value) => {
+  const option = enhederConfig.types.find(opt => opt.value === value)
+  return option ? option.label : value
+}
+// Process checklist data to include labels
+const processedEnheder = computed(() => {
+  return enhedStore.enheder.map(item => ({
+    ...item,
+    type: getTypeLabel(item.type),
+    location: getLocationLabel(item.location)
+  }))
+})
+
+// Define columns for this view with formatters
 const columns = [
   { key: 'name', label: 'Enhed' },
-  { key: 'location', label: 'Lokation' }
+  {
+    key: 'location',
+    label: 'Lokation'
+  }
 ]
 
-// Brug data fra mock-filen
-const enhederData = ref([...initialEnhederData])
-const historyItems = ref([...initialHistoryItems])
+// Use store data
+const enhederData = ref([])
+const historyItems = ref([])
 
 // State for selected item
 const selectedItem = ref(null)
@@ -25,10 +50,12 @@ const detailPanelRef = ref(null)
 
 // Update your handleRowClick function
 const handleRowClick = (item) => {
-  // Store the new selected item
   selectedItem.value = item
-  // Reset history mode (if panel exists and it's a different item)
-  // Use optional chaining to safely access the method
+  // Get history for the selected item
+  if (item) {
+    historyItems.value = enhedStore.getHistoryForEnhed(item.id)
+  }
+  // Reset history mode
   if (detailPanelRef.value?.resetHistoryMode) {
     detailPanelRef.value.resetHistoryMode()
   }
@@ -41,31 +68,45 @@ const createEnhed = () => {
 // Event handlers
 const closeDetailPanel = () => {
   selectedItem.value = null
+  historyItems.value = []
 }
 
 const handleEdit = (item) => {
   console.log('Edit item:', item)
-  // Here you would typically open an edit form or dialog
   alert(`Redigering af ${item.name} - denne funktionalitet er ikke implementeret endnu`)
 }
 
-const handleDelete = (item) => {
-  console.log('Delete item:', item)
-  // Here you would typically call an API to delete the item
-  enhederData.value = enhederData.value.filter(i => i.id !== item.id)
-  selectedItem.value = null
+const handleDelete = async (item) => {
+  try {
+    await enhedStore.deleteEnhed(item.id)
+    selectedItem.value = null
+  } catch (error) {
+    console.error('Error deleting item:', error)
+    // Handle error (show notification, etc.)
+  }
 }
 
-// Fetch data on component mount - in a real application
+// Watch for changes in store's enheder
+watch(() => enhedStore.enheder, (newEnheder) => {
+  console.log('EnhederView: Store enheder updated:', newEnheder)
+  enhederData.value = [...newEnheder]
+}, { deep: true, immediate: true })
+
+// Set up real-time listener
+let unsubscribe
 onMounted(async () => {
-  // In a real app, you would fetch data from an API
-  // Example:
-  // try {
-  //   const response = await fetch('/api/enheder');
-  //   enhederData.value = await response.json();
-  // } catch (error) {
-  //   console.error('Error fetching data:', error);
-  // }
+  console.log('EnhederView: Setting up Firestore listener')
+  unsubscribe = enhedStore.setupEnhederListener()
+  // Fetch initial data
+  await enhedStore.fetchEnheder()
+})
+
+// Clean up listener
+onUnmounted(() => {
+  console.log('EnhederView: Cleaning up Firestore listener')
+  if (unsubscribe) {
+    unsubscribe()
+  }
 })
 
 </script>
@@ -87,7 +128,7 @@ onMounted(async () => {
   <div class="content-layout">
     <div class="table-section">
     <TablesComponent
-      :items="enhederData"
+      :items="processedEnheder"
       :columns="columns"
       :columnWidths="['50%', '50%']"
       :selectedItemId="selectedItem?.id"

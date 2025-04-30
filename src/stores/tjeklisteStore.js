@@ -11,7 +11,7 @@ export const useTjeklisteStore = defineStore('tjekliste', {
   }),
 
   getters: {
-    tjeklisterData: (state) => state.tjeklister
+    tjeklisterData: state => state.tjeklister
   },
 
   actions: {

@@ -5,9 +5,11 @@ import DetailPanel from '@/components/ui/panels/DetailPanelComponent.vue'
 import { IconX } from '@tabler/icons-vue'
 import WizardFormComponent from '@/components/forms/WizardFormComponent.vue'
 import { getWizardConfig, prepareDetailItem } from '@/components/forms/WizardFormConfig.js'
-import { enhederData } from '@/mock/data/enheder'
+import { useEnhedStore } from '@/stores/enhedStore'
+import { enhederConfig } from '@/configs/enhederConfig'
 
 const router = useRouter()
+const enhedStore = useEnhedStore()
 
 // Holder styr på om vi opretter en enkelt enhed eller en gruppe
 const enhedType = ref('single')
@@ -71,15 +73,8 @@ const config = computed(() => {
   const mockOptions = {
     mockData: {
       enheder: {
-        locationOptions: [
-          { value: 'bygningA', label: 'Bygning A' },
-          { value: 'bygningB', label: 'Bygning B' },
-          { value: 'bygningC', label: 'Bygning C' }
-        ],
-        enhedTypeOptions: [
-          { value: 'single', label: 'Single' },
-          { value: 'gruppe', label: 'Gruppe' }
-        ]
+        locationOptions: enhederConfig.locations,
+        enhedTypeOptions: enhederConfig.types
       }
     }
   }
@@ -91,20 +86,7 @@ const config = computed(() => {
     // Opdater konfiguration for gruppe
     return {
       ...wizardConfig,
-      steps: [
-        {
-          title: 'Gruppe Information',
-          heading: 'Udfyld informationen for gruppen'
-        },
-        {
-          title: 'Underenheder',
-          heading: 'Opret underenheder'
-        }
-      ],
-      fields: {
-        step1: ['enhedType', 'gruppeTitel', 'gruppeBeskrivelse', 'location'],
-        step2: ['underenheder']
-      }
+      steps: enhederConfig.defaults.gruppe.steps
     }
   } else {
     // Konfiguration for enkelt enhed
@@ -112,12 +94,12 @@ const config = computed(() => {
       ...wizardConfig,
       steps: [
         {
-          title: 'Enheds Information',
-          heading: 'Udfyld informationen for enheden'
+          title: enhederConfig.defaults.single.title,
+          heading: enhederConfig.defaults.single.heading
         }
       ],
       fields: {
-        step1: ['enhedType', 'enhedNavn', 'beskrivelse', 'location']
+        step1: enhederConfig.defaults.single.fields
       }
     }
   }
@@ -148,43 +130,39 @@ const handleFormUpdate = (newFormData) => {
 }
 
 // Gemmer ny enhed og navigerer tilbage
-const handleComplete = () => {
-  const nyEnhed = {
-    id: Math.max(...enhederData.map(item => item.id), 0) + 1,
-    name: formData.enhedType === 'gruppe' ? formData.gruppeTitel : formData.enhedNavn,
-    description: formData.enhedType === 'gruppe' ? formData.gruppeBeskrivelse : formData.beskrivelse,
-    location: getLocationLabel(formData.location)
+const handleComplete = async () => {
+  try {
+    console.log('Form data before submission:', formData)
+
+    const enhedData = {
+      name: formData.enhedType === 'gruppe' ? formData.gruppeTitel : formData.enhedNavn,
+      description: formData.enhedType === 'gruppe' ? formData.gruppeBeskrivelse : formData.beskrivelse,
+      location: formData.location,
+      type: formData.enhedType === 'gruppe' ? 'Gruppe' : 'single'
+    }
+
+    console.log('Prepared enhed data:', enhedData)
+
+    if (formData.enhedType === 'gruppe') {
+      enhedData.underenheder = formData.underenheder
+      console.log('Adding gruppe:', enhedData)
+      await enhedStore.addGruppe(enhedData)
+    } else {
+      console.log('Adding single enhed:', enhedData)
+      await enhedStore.addEnhed(enhedData)
+    }
+
+    // Navigate back on success
+    router.push('/enheder')
+  } catch (error) {
+    console.error('Error creating enhed:', error)
+    alert('Der opstod en fejl ved oprettelse af enheden: ' + error.message)
   }
-
-  // Tilføj type-specifikke felter
-  if (formData.enhedType === 'gruppe') {
-    nyEnhed.type = 'Gruppe'
-    nyEnhed.underenheder = formData.underenheder
-  } else {
-    nyEnhed.type = 'Enkelt Enhed'
-  }
-
-  // Tilføj enheden til den eksisterende array
-  enhederData.push(nyEnhed)
-
-  // Naviger tilbage til enheder oversigten
-  router.push('/enheder')
 }
 
 // Afbryder oprettelse uden at gemme
 const handleCancel = () => {
   router.push('/enheder')
-}
-
-// Hjælpefunktion til at hente locationLabel
-function getLocationLabel(value) {
-  const locationOptions = [
-    { value: 'bygningA', label: 'Bygning A' },
-    { value: 'bygningB', label: 'Bygning B' },
-    { value: 'bygningC', label: 'Bygning C' }
-  ]
-  const option = locationOptions.find(opt => opt.value === value)
-  return option ? option.label : value || 'Ikke valgt'
 }
 </script>
 

@@ -221,11 +221,11 @@ const underenhederCount = computed(() => {
   display: flex;
   align-items: center;
   border-bottom: 1px solid $neutral-200;
-  
+
   &:last-child {
     border-bottom: none;
   }
-  
+
   &:nth-child(even) {
     background-color: #F9FAFB;
   }
