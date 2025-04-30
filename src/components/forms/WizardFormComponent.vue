@@ -114,7 +114,7 @@ defineExpose({
                 <label class="field-label">Telefon</label>
                 <component
                   :is="config.fieldDefinitions.telefon.component"
-                  :placeholder="config.fieldDefinitions.telefon.placeholder" 
+                  :placeholder="config.fieldDefinitions.telefon.placeholder"
                   :required="config.fieldDefinitions.telefon.required"
                   :modelValue="formData.telefon"
                   @update:modelValue="updateFormValue('telefon', $event)"
