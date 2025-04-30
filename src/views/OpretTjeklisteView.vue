@@ -6,14 +6,21 @@ import { IconX } from '@tabler/icons-vue'
 import { useTjeklisteStore } from '@/stores/tjeklisteStore'
 import WizardFormComponent from '@/components/forms/WizardFormComponent.vue'
 import { getWizardConfig } from '@/components/forms/WizardFormConfig.js'
-import { tjeklisteFormData, prepareTjeklisteDetailItem } from '@/mock'
+import { tjeklisteConfig } from '@/config/tjeklisteConfig'
 
 const router = useRouter()
 const tjeklisteStore = useTjeklisteStore()
 
 // Definer kontekst og konfiguration
 const context = 'tjeklister'
-const config = getWizardConfig(context, { mockData: { tjeklister: tjeklisteFormData } })
+const config = getWizardConfig(context, {
+  mockData: {
+    tjeklister: {
+      tjeklisteTypeOptions: tjeklisteConfig.typeOptions,
+      frekvensOptions: tjeklisteConfig.frekvensOptions
+    }
+  }
+})
 
 // Opret form data state
 const formData = reactive({
@@ -23,20 +30,13 @@ const formData = reactive({
   frekvens: ''
 })
 
-// Hjælpefunktioner til at hente label fra værdi
-const labelHelpers = {
-  getTypeLabel: (value) => {
-    const option = tjeklisteFormData.tjeklisteTypeOptions.find(opt => opt.value === value)
-    return option ? option.label : value
-  },
-  getFrekvensLabel: (value) => {
-    const option = tjeklisteFormData.frekvensOptions.find(opt => opt.value === value)
-    return option ? option.label : value
-  }
-}
-
 // Computed property for detail panel
-const detailItem = computed(() => prepareTjeklisteDetailItem(formData, labelHelpers))
+const detailItem = computed(() => ({
+  tjeklisteNavn: formData.name || 'Ny tjekliste',
+  beskrivelse: formData.description || '',
+  type: formData.type,
+  frekvens: formData.frekvens
+}))
 
 // Event handlers
 const handleFormUpdate = (newFormData) => {
@@ -44,18 +44,19 @@ const handleFormUpdate = (newFormData) => {
   Object.assign(formData, newFormData)
 }
 
-const handleComplete = () => {
-  // Forbered data til store
+const handleComplete = async () => {
+  // Forbered data til Firestore
   const nyTjekliste = {
-    id: Math.max(...tjeklisteStore.tjeklisterData.map(item => item.id), 0) + 1,
     ...detailItem.value
   }
 
-  // Tilføj til store
-  tjeklisteStore.addTjekliste(nyTjekliste)
-
-  // Naviger tilbage til oversigt
-  router.push('/tjeklister')
+  try {
+    await tjeklisteStore.addTjekliste(nyTjekliste)
+    router.push('/tjeklister')
+  } catch (error) {
+    alert('Der opstod en fejl under oprettelsen af tjeklisten.')
+    console.error(error)
+  }
 }
 
 const handleCancel = () => {

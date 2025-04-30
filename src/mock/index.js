@@ -22,13 +22,6 @@ import {
   enhederHistoryItems
 } from './data/enheder'
 
-// Tjekliste-specifik data
-import {
-  tjeklisteFormData,
-  tjeklisteData,
-  prepareTjeklisteDetailItem
-} from './data/tjekliste'
-
 // Eksporter alt samlet
 export {
   // Egenkontrol
@@ -43,9 +36,5 @@ export {
   defaultCalendarDate,
   // Enheder
   enhederData,
-  enhederHistoryItems,
-  // Tjeklister
-  tjeklisteFormData,
-  tjeklisteData,
-  prepareTjeklisteDetailItem
+  enhederHistoryItems
 }

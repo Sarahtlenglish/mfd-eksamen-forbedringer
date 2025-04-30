@@ -78,8 +78,8 @@ const panelTitle = computed(() => {
   }
 
   // Context-specific title properties
-  if (props.context === 'tjeklister' && props.item.tjekliste) {
-    return props.item.tjekliste + ' - Tjekliste'
+  if (props.context === 'tjeklister' && props.item.tjeklisteNavn) {
+    return props.item.tjeklisteNavn + ' - Tjekliste'
   }
 
   if (props.context === 'egenkontroller' && props.item.title) {

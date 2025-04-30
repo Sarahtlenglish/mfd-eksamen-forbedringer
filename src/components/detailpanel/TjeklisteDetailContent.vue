@@ -1,4 +1,6 @@
 <script setup>
+import { tjeklisteConfig } from '@/config/tjeklisteConfig'
+
 // Use script setup for Composition API
 const props = defineProps({
   context: {
@@ -13,17 +15,32 @@ const props = defineProps({
 
 const emit = defineEmits(['close', 'edit', 'delete', 'microcopy'])
 
+// Helper functions to get labels from values
+const getTypeLabel = (value) => {
+  const option = tjeklisteConfig.typeOptions.find(opt => opt.value === value)
+  return option ? option.label : value
+}
+
+const getFrekvensLabel = (value) => {
+  const option = tjeklisteConfig.frekvensOptions.find(opt => opt.value === value)
+  return option ? option.label : value
+}
 </script>
 
 <template>
   <div v-if="context === 'tjeklister'">
     <div class="detail-section">
-      <div v-if="item.description" class="detail-description">
-        {{ item.description || 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut et massa mi. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut et massa mi.' }}
+      <div v-if="item.beskrivelse" class="detail-description">
+        {{ item.beskrivelse || 'Ingen beskrivelse angivet.' }}
       </div>
 
       <div class="detail-body">
-        <p class="body-1-semibold">{{ item.frequency || 'Body 1 (SemiBold)' }}</p>
+        <p class="body-1-semibold">
+          {{ getTypeLabel(item.type) || 'Type ikke angivet' }}
+        </p>
+        <p class="body-1-semibold">
+          {{ getFrekvensLabel(item.frekvens) || 'Frekvens ikke angivet' }}
+        </p>
       </div>
 
       <div class="preview-section">
