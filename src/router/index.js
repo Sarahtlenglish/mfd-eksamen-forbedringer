@@ -105,6 +105,14 @@ export const routes = [
       icon: IconUsers,
       //requiresAuth: true 
     }
+  },
+  {
+    path: '/brugere/opret',
+    name: 'opret-bruger',
+    component: () => import('@/views/OpretBrugerView.vue'),
+    meta: {
+      title: 'Opret Bruger'
+    }
   }
 ]
 

@@ -97,8 +97,34 @@ defineExpose({
         <div class="step-content">
           <h2 class="step-heading heading-3">{{ step.heading }}</h2>
 
+           <!-- Special-case for brugere step 3 (contact info) -->
+           <template v-if="context === 'brugere' && index === 2">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="field-label">Email</label>
+                <component
+                  :is="config.fieldDefinitions.email.component"
+                  :placeholder="config.fieldDefinitions.email.placeholder"
+                  :required="config.fieldDefinitions.email.required"
+                  :modelValue="formData.email"
+                  @update:modelValue="updateFormValue('email', $event)"
+                />
+              </div>
+              <div class="form-group">
+                <label class="field-label">Telefon</label>
+                <component
+                  :is="config.fieldDefinitions.telefon.component"
+                  :placeholder="config.fieldDefinitions.telefon.placeholder" 
+                  :required="config.fieldDefinitions.telefon.required"
+                  :modelValue="formData.telefon"
+                  @update:modelValue="updateFormValue('telefon', $event)"
+                />
+              </div>
+            </div>
+          </template>
+
           <!-- Special-case for step 3 med grupperede felter -->
-          <template v-if="index === 2 && config.step3Groups">
+          <template v-else-if="context !== 'brugere' && index === 2 && config.step3Groups">
             <div v-for="(group, idx) in config.step3Groups" :key="idx">
               <h3 class="section-label">{{ group.label }}</h3>
               <div class="form-row">

@@ -1,10 +1,15 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import TablesComponent from '@/components/ui/TablesComponent.vue'
 import ButtonComponent from '@/components/ui/ButtonComponent.vue'
 import GruppePanelComponent from '@/components/ui/panels/GruppePanelComponent.vue'
 import { IconPlus } from '@tabler/icons-vue'
 import DetailPanelComponent from '@/components/ui/panels/DetailPanelComponent.vue'
+import { brugerStore } from '@/stores/brugerStore'
+
+const router = useRouter()
+const brugerStoreInstance = brugerStore()
 
 // Define columns for this view
 const columns = [
@@ -12,30 +17,23 @@ const columns = [
   { key: 'role', label: 'Rolle' }
 ]
 
-// Data state
-const brugerData = ref([
-  { id: 1, name: 'Anders Jensen', role: 'Service Bruger', email: 'a@b.dk', telefon: '12345678', gruppe: 'Gruppe 1', adresse: 'Adresselinje 1', postnummer: '1234', by: 'Bynavn', leder: 'Christian Hansen', ansvarlig_for_egenkontrol: 'Egenkontrol 1' },
-  { id: 2, name: 'Tanja Lund', role: 'Facility Manager', email: 'a@b.dk', telefon: '12345678', gruppe: 'Gruppe 2', adresse: 'Adresselinje 1', postnummer: '1234', by: 'Bynavn', leder: 'Christian Hansen', ansvarlig_for_egenkontrol: 'Egenkontrol 2' }
-  // More items...
-])
+// Data state from store
+const brugerData = computed(() => {
+  return brugerStoreInstance.brugere
+})
+
 const selectedItem = ref(null)
 
-/* onMounted(async () => {
-  // Fetch data from API or store
-  // For demo, using static data
-  brugerData.value = [
-    { id: 1, name: 'Anders Jensen', role: 'Service Bruger' },
-    { id: 2, name: 'Tanja Lund', role: 'Facility Manager' }
-    // More items...
-  ]
-}) */
+onMounted(() => {
+  console.log('Brugere from store:', brugerData.value)
+})
 
 // Handle row click
 const handleRowClick = (item) => {
   selectedItem.value = item
 }
 
-// Add these missing functions
+// Handle panel actions
 const closeDetailPanel = () => {
   selectedItem.value = null
 }
@@ -47,19 +45,19 @@ const handleEdit = (item) => {
 
 const handleDelete = (item) => {
   console.log('Delete item:', item)
+  brugerStoreInstance.deleteBruger(item.id)
   selectedItem.value = null
 }
+
 const createBruger = () => {
-  console.log('Opret item:')
-  // Here you would typically open an edit form or dialog
-  alert('Oprettelse af bruger - denne funktionalitet er ikke implementeret endnu')
+  router.push('/brugere/opret')
 }
 </script>
 
 <template>
   <div class="brugere-view">
     <div class="page-header">
-      <h1 class="heading-1">{{ $route.meta.title }}</h1>
+      <h1 class="heading-1">{{ $route.meta.title || 'Brugere' }}</h1>
       <ButtonComponent
         variant="primary"
         @click="createBruger"
@@ -69,7 +67,7 @@ const createBruger = () => {
         </template>
         Opret Bruger
       </ButtonComponent>
-      </div>
+    </div>
     <div class="content-layout">
       <div class="gruppe-panel-section">
         <GruppePanelComponent />
@@ -85,6 +83,7 @@ const createBruger = () => {
       </div>
       <div class="detail-panel-section">
         <DetailPanelComponent
+          v-if="selectedItem"
           context="brugere"
           :item="selectedItem"
           :showEditButton="true"
@@ -92,7 +91,7 @@ const createBruger = () => {
           @close="closeDetailPanel"
           @edit="handleEdit"
           @delete="handleDelete"
-          />
+        />
       </div>
     </div>
   </div>
