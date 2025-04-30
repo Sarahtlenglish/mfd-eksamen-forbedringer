@@ -169,32 +169,32 @@ export function getWizardConfig(context, options = {}) {
     },
 
     // Bruger-specifikke felter
-    brugername: {
-      label: 'Navn',
-      placeholder: 'Angiv brugerens navn',
+    fuldeNavn: {
+      label: 'Fulde navn',
+      placeholder: 'Angiv brugerens fulde navn',
       required: true,
       component: InputComponent
     },
-    role: {
+    rolle: {
       label: 'Rolle',
       placeholder: 'Vælg brugerens rolle',
       required: true,
       component: DropdownComponent,
-      options: 'roleOptions'
+      options: 'rolleOptions'
     },
-    ansvarlig_for_egenkontrol: {
-      label: 'Ansvarlig for',
-      placeholder: 'Vælg egenkontrol-ansvar',
-      required: false,
-      component: DropdownComponent,
-      options: 'egenkontrolOptions'
-    },
-    leder: {
+    brugereRef: {
       label: 'Nærmeste leder',
       placeholder: 'Vælg nærmeste leder',
       required: false,
       component: DropdownComponent,
-      options: 'lederOptions'
+      options: 'brugereRefOptions'
+    },
+    egenkontrolRef: {
+      label: 'Ansvarlig for',
+      placeholder: 'Vælg egenkontrol-ansvar',
+      required: false,
+      component: DropdownComponent,
+      options: 'egenkontrolRefOptions'
     },
     adresse: {
       label: 'Adresse',
@@ -353,11 +353,6 @@ export function getWizardConfig(context, options = {}) {
           { value: 'christian_hansen', label: 'Christian Hansen' },
           { value: 'anders_jensen', label: 'Anders Jensen' },
           { value: 'tanja_lund', label: 'Tanja Lund' }
-        ],
-        egenkontrolOptions: [
-          { value: 'egenkontrol_1', label: 'Egenkontrol 1' },
-          { value: 'egenkontrol_2', label: 'Egenkontrol 2' },
-          { value: 'egenkontrol_3', label: 'Egenkontrol 3' }
         ]
       }
     }

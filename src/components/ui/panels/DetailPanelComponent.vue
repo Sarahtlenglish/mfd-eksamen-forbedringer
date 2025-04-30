@@ -86,6 +86,10 @@ const panelTitle = computed(() => {
     return props.item.title
   }
 
+  if (props.context === 'brugere' && props.item.fuldeNavn) {
+    return props.item.fuldeNavn
+  }
+
   // Default to name property
   return props.item.name || ''
 })

@@ -16,12 +16,6 @@ import {
   defaultCalendarDate
 } from './data/calendar'
 
-// Enheder-specifik data
-import {
-  enhederData,
-  enhederHistoryItems
-} from './data/enheder'
-
 // Eksporter alt samlet
 export {
   // Egenkontrol
@@ -33,8 +27,5 @@ export {
   // Kalender
   calendarTaskData,
   exampleDateTasks,
-  defaultCalendarDate,
-  // Enheder
-  enhederData,
-  enhederHistoryItems
+  defaultCalendarDate
 }

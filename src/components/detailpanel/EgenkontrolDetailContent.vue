@@ -1,6 +1,5 @@
 <script setup>
 import { computed } from 'vue'
-import { enhederStandardData } from '@/mock/data/enheder'
 
 const props = defineProps({
   item: {
@@ -11,9 +10,12 @@ const props = defineProps({
 
 const enhedData = computed(() => {
   const tjeklisteNavn = props.item.checkliste || props.item.selectedEnheder || ''
-  return Object.values(enhederStandardData.enhederGrupper).find(
-    g => g.displayText === tjeklisteNavn || g.displayText === props.item.location
-  ) || null
+  return {
+    name: tjeklisteNavn,
+    description: props.item.description || '',
+    location: props.item.location || '',
+    type: props.item.type || 'single'
+  }
 })
 
 // Hjælper til at tjekke om en værdi er gyldig - ikke tom og ikke "Ikke valgt"

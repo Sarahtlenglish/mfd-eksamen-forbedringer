@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import TablesComponent from '@/components/ui/TablesComponent.vue'
 import ButtonComponent from '@/components/ui/ButtonComponent.vue'
@@ -7,26 +7,35 @@ import GruppePanelComponent from '@/components/ui/panels/GruppePanelComponent.vu
 import { IconPlus } from '@tabler/icons-vue'
 import DetailPanelComponent from '@/components/ui/panels/DetailPanelComponent.vue'
 import { brugerStore } from '@/stores/brugerStore'
+import { brugerConfig } from '@/configs/brugerConfig'
 
 const router = useRouter()
 const brugerStoreInstance = brugerStore()
 
+// Helper functions to get labels
+const getRoleLabel = (value) => {
+  const option = brugerConfig.fieldDefinitions.rolle.options.find(opt => opt.value === value)
+  return option ? option.label : value
+}
+
+// Process checklist data to include labels
+const processedBrugere = computed(() => {
+  return brugerStoreInstance.brugere.map(item => ({
+    ...item,
+    rolle: getRoleLabel(item.rolle)
+  }))
+})
+
 // Define columns for this view
 const columns = [
-  { key: 'name', label: 'Navn' },
-  { key: 'role', label: 'Rolle' }
+  { key: 'fuldeNavn', label: 'Navn' },
+  { key: 'rolle', label: 'Rolle' }
 ]
 
 // Data state from store
-const brugerData = computed(() => {
-  return brugerStoreInstance.brugere
-})
+const loading = ref(false)
 
 const selectedItem = ref(null)
-
-onMounted(() => {
-  console.log('Brugere from store:', brugerData.value)
-})
 
 // Handle row click
 const handleRowClick = (item) => {
@@ -43,15 +52,44 @@ const handleEdit = (item) => {
   // Implement edit functionality
 }
 
-const handleDelete = (item) => {
-  console.log('Delete item:', item)
-  brugerStoreInstance.deleteBruger(item.id)
-  selectedItem.value = null
+const handleDelete = async (item) => {
+  if (confirm(`Er du sikker på, at du vil slette ${item.fuldeNavn}?`)) {
+    try {
+      await brugerStoreInstance.deleteBruger(item.id)
+      selectedItem.value = null
+    } catch (error) {
+      console.error('Error deleting bruger:', error)
+      alert('Der opstod en fejl under sletningen af brugeren.')
+    }
+  }
 }
 
 const createBruger = () => {
   router.push('/brugere/opret')
 }
+
+// Set up real-time listener when component mounts
+let unsubscribe
+onMounted(async () => {
+  loading.value = true
+  try {
+    // Initial fetch
+    await brugerStoreInstance.fetchBrugere()
+    // Set up real-time listener
+    unsubscribe = brugerStoreInstance.setupBrugereListener()
+  } catch (error) {
+    console.error('Error setting up brugere:', error)
+  } finally {
+    loading.value = false
+  }
+})
+
+// Clean up listener when component unmounts
+onUnmounted(() => {
+  if (unsubscribe) {
+    unsubscribe()
+  }
+})
 </script>
 
 <template>
@@ -73,8 +111,10 @@ const createBruger = () => {
         <GruppePanelComponent />
       </div>
       <div class="table-section">
+        <div v-if="loading" class="loading">Loading...</div>
         <TablesComponent
-          :items="brugerData"
+          v-else
+          :items="processedBrugere"
           :columns="columns"
           :columnWidths="['50%', '50%']"
           :selectedItemId="selectedItem?.id"
@@ -133,5 +173,14 @@ const createBruger = () => {
     width: 25%;
     height: 100%;
   }
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  font-size: 1.2rem;
+  color: $neutral-600;
 }
 </style>

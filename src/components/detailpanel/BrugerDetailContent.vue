@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 
 const props = defineProps({
   item: {
@@ -27,14 +27,9 @@ const addressDisplay = computed(() => {
   return 'Ikke angivet'
 })
 
-// Check if ansvarlig message is the default message
-const isDefaultAnsvarligMessage = computed(() => {
-  return props.item.ansvarlig_for_egenkontrol === 'Denne bruger er endnu ikke ansvarlig for nogle egenkontrol'
-})
-
 // Check if user is chef
 const isBrugerChef = computed(() => {
-  return props.item.leder === 'Denne bruger er chef'
+  return !props.item.brugereRef
 })
 </script>
 
@@ -42,39 +37,36 @@ const isBrugerChef = computed(() => {
   <div class="bruger-detail-content">
     <!-- Arbejdsfunktioner section -->
     <div class="detail-section">
-        <div class="section-title">Arbejdsfunktioner</div>
+      <div class="section-title">Arbejdsfunktioner</div>
+
       <div class="detail-row">
-        <div class="role-value">{{ item.role }}</div>
+        <div class="label">Rolle</div>
+        <div class="separator">-</div>
+        <div class="role-value">{{ item.rolle || 'Ikke angivet' }}</div>
       </div>
 
-      <div class="detail-row" v-if="item.leder && !isBrugerChef">
+      <div class="detail-row" v-if="item.brugereRef">
         <div class="label">Nærmeste leder</div>
         <div class="separator">-</div>
-        <div class="value">{{ item.leder }}</div>
+        <div class="value">{{ item.lederNavn || item.brugereRef }}</div>
       </div>
 
       <div class="detail-row" v-if="isBrugerChef">
-        <div class="value chef-status">{{ item.leder }}</div>
+        <div class="value chef-status">Denne bruger er chef</div>
       </div>
     </div>
 
     <div class="detail-section">
       <div class="section-title">Ansvarlig for</div>
       <div class="detail-row">
-        <!-- Adjusted to always show the message -->
-        <div class="value default-message" v-if="isDefaultAnsvarligMessage">
-          {{ item.ansvarlig_for_egenkontrol }}
-        </div>
-        <div class="value" v-else>
-          {{ item.ansvarlig_for_egenkontrol }}
-        </div>
+        <div class="value">{{ item.egenkontrolRef || 'Denne bruger er ikke ansvarlig for nogle egenkontrol' }}</div>
       </div>
     </div>
 
     <!-- Tilhørende Grupper section -->
     <div class="detail-section">
       <h3 class="section-title">Tilhørende Grupper</h3>
-      <div class="value">{{ item.gruppe }}</div>
+      <div class="value">{{ item.gruppe || 'Brugeren er endnu ikke tilknyttet en gruppe' }}</div>
     </div>
 
     <!-- Personlige oplysninger section -->
@@ -159,14 +151,15 @@ const isBrugerChef = computed(() => {
     color: $neutral-900;
   }
 
-  .default-message {
-    color: $neutral-600;
-    font-style: italic;
+  .chef-status {
+    font-weight: 600;
+    color: $primary-600;
   }
 }
 
-.value {
+.role-value {
   font-size: 0.9375rem;
   color: $neutral-800;
+  font-weight: 500;
 }
 </style>
