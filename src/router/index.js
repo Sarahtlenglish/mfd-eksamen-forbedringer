@@ -86,6 +86,15 @@ export const routes = [
     }
   },
   {
+    path: '/enheder/opret',
+    name: 'opret-enhed',
+    component: () => import('@/views/OpretEnhedView.vue'),
+    meta: { 
+      showInNav: false,
+      title: 'Opret Enhed'
+    }
+  },
+  {
     path: '/brugere',
     name: 'brugere',
     component: () => import('@/views/BrugereView.vue'),
@@ -95,6 +104,14 @@ export const routes = [
       title: 'Brugere',
       icon: IconUsers,
       //requiresAuth: true 
+    }
+  },
+  {
+    path: '/brugere/opret',
+    name: 'opret-bruger',
+    component: () => import('@/views/OpretBrugerView.vue'),
+    meta: {
+      title: 'Opret Bruger'
     }
   }
 ]

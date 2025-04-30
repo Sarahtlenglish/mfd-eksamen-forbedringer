@@ -35,6 +35,10 @@ const props = defineProps({
     type: Boolean,
     default: null // Will use canEdit computed property if null
   },
+  isCreationMode: {
+    type: Boolean,
+    default: false
+  },
   // New prop for custom title
   customTitle: {
     type: String,
@@ -186,7 +190,7 @@ const handleDelete = () => {
           <button v-if="shouldShowEditButton" @click="handleEdit" class="edit-button">
             <IconPencil/>
           </button>
-          <button @click="handleClose" class="close-button" :class="{ 'calendar-close': context === 'calendar' }">
+          <button v-if="!isCreationMode" @click="handleClose" class="close-button" :class="{ 'calendar-close': context === 'calendar' }">
             <IconX/>
           </button>
         </div>
@@ -212,6 +216,7 @@ const handleDelete = () => {
         <EnhederDetailContent
           v-if="!isHistoryMode"
           :item="item"
+          :showHistoryButton="!isCreationMode"
           @toggle-history="toggleHistoryMode"
         />
         <EnhederHistoryContent

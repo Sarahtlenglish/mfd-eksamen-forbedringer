@@ -2,6 +2,7 @@
 import { useRouter } from 'vue-router'
 import { reactive, computed } from 'vue'
 import DetailPanel from '@/components/ui/panels/DetailPanelComponent.vue'
+import { IconX } from '@tabler/icons-vue'
 import { useTjeklisteStore } from '@/stores/tjeklisteStore'
 import WizardFormComponent from '@/components/forms/WizardFormComponent.vue'
 import { getWizardConfig } from '@/components/forms/WizardFormConfig.js'
@@ -66,6 +67,9 @@ const handleCancel = () => {
   <div class="opret-tjekliste-view">
     <div class="page-header">
       <h1 class="heading-1">Opret Tjekliste</h1>
+      <button class="close-button" @click="handleCancel">
+        <IconX />
+      </button>
     </div>
 
     <div class="content-layout">
@@ -88,6 +92,7 @@ const handleCancel = () => {
         :showBackButton="false"
         :showDeleteButton="false"
         :showEditButton="false"
+        :isCreationMode="true"
       />
     </div>
   </div>
@@ -106,6 +111,26 @@ const handleCancel = () => {
   justify-content: space-between;
   align-items: center;
   margin: 0 0 24px 0;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: $secondary-500;
+  padding: $spacing-xs;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  &:hover {
+    color: $neutral-900;
+  }
 }
 
 .content-layout {

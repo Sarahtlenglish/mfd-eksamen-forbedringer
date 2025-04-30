@@ -1,11 +1,13 @@
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import TablesComponent from '@/components/ui/TablesComponent.vue'
 import DetailPanel from '@/components/ui/panels/DetailPanelComponent.vue'
 import ButtonComponent from '@/components/ui/ButtonComponent.vue'
 import { IconPlus } from '@tabler/icons-vue'
 import { enhederData as initialEnhederData, enhederHistoryItems as initialHistoryItems } from '@/mock/index'
 
+const router = useRouter()
 // Define columns for this view
 const columns = [
   { key: 'name', label: 'Enhed' },
@@ -33,9 +35,7 @@ const handleRowClick = (item) => {
 }
 
 const createEnhed = () => {
-  console.log('Opret item:')
-  // Here you would typically open an edit form or dialog
-  alert('Oprettelse af enhed - denne funktionalitet er ikke implementeret endnu')
+  router.push('/enheder/opret')
 }
 
 // Event handlers

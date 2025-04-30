@@ -3,10 +3,11 @@
  * Centraliseret konfiguration for formular wizards i forskellige kontekster.
  */
 
-import { IconClipboard, IconUsers, IconBell, IconChecklist } from '@tabler/icons-vue'
+import { IconClipboard, IconUsers, IconBell, IconChecklist, IconBuilding, IconStack } from '@tabler/icons-vue'
 import InputComponent from '@/components/ui/InputComponent.vue'
 import DropdownComponent from '@/components/ui/DropdownComponent.vue'
 import DatePickerComponent from '@/components/ui/DatePickerComponent.vue'
+import UnderenhederListComponent from '@/components/forms/UnderenhederListComponent.vue'
 import { egenkontrolFormData } from '@/mock/data/egenkontrol'
 
 /**
@@ -119,7 +120,113 @@ export function getWizardConfig(context, options = {}) {
       required: true,
       component: DropdownComponent,
       options: 'frekvensOptions'
+    },
+
+    // Enhed-specifikke felter
+    enhedType: {
+      label: 'Opret singel eller gruppe enhed',
+      placeholder: 'Vælg type',
+      required: true,
+      component: DropdownComponent,
+      options: 'enhedTypeOptions'
+    },
+    enhedNavn: {
+      label: 'Enheds navn',
+      placeholder: 'Angiv et navn',
+      required: true,
+      component: InputComponent
+    },
+    beskrivelse: {
+      label: 'Beskrivelse',
+      placeholder: 'Angiv beskrivelse af enheden',
+      required: true,
+      component: InputComponent
+    },
+    location: {
+      label: 'Hvor befinder enheden sig?',
+      placeholder: 'Vælg lokation',
+      required: true,
+      component: DropdownComponent,
+      options: 'locationOptions'
+    },
+    gruppeTitel: {
+      label: 'Gruppens titel - bruges som prefix til underenheder',
+      placeholder: 'Angiv gruppens titel',
+      required: true,
+      component: InputComponent
+    },
+    gruppeBeskrivelse: {
+      label: 'Beskrivelse',
+      placeholder: 'Angiv beskrivelse af gruppen',
+      required: false,
+      component: InputComponent
+    },
+    underenheder: {
+      label: 'Underenheder',
+      placeholder: 'Tilføj underenheder',
+      required: true,
+      component: UnderenhederListComponent
+    },
+
+    // Bruger-specifikke felter
+    brugername: {
+      label: 'Navn',
+      placeholder: 'Angiv brugerens navn',
+      required: true,
+      component: InputComponent
+    },
+    role: {
+      label: 'Rolle',
+      placeholder: 'Vælg brugerens rolle',
+      required: true,
+      component: DropdownComponent,
+      options: 'roleOptions'
+    },
+    ansvarlig_for_egenkontrol: {
+      label: 'Ansvarlig for',
+      placeholder: 'Vælg egenkontrol-ansvar',
+      required: false,
+      component: DropdownComponent,
+      options: 'egenkontrolOptions'
+    },
+    leder: {
+      label: 'Nærmeste leder',
+      placeholder: 'Vælg nærmeste leder',
+      required: false,
+      component: DropdownComponent,
+      options: 'lederOptions'
+    },
+    adresse: {
+      label: 'Adresse',
+      placeholder: 'Angiv adresse',
+      required: false,
+      component: InputComponent
+    },
+    postnummer: {
+      label: 'Postnummer',
+      placeholder: 'Angiv postnummer',
+      required: false,
+      component: InputComponent
+    },
+    by: {
+      label: 'By',
+      placeholder: 'Angiv by',
+      required: false,
+      component: InputComponent
+    },
+    email: {
+      label: 'Email',
+      placeholder: 'Angiv email',
+      required: true,
+      component: InputComponent
+    },
+    telefon: {
+      label: 'Telefon',
+      placeholder: 'Angiv telefonnummer',
+      required: false,
+      component: InputComponent
     }
+
   }
 
   // Konfigurationer for forskellige formulartyper
@@ -185,6 +292,74 @@ export function getWizardConfig(context, options = {}) {
       },
       fieldDefinitions,
       dropdownOptions: mockData.tjeklister || {}
+    },
+
+    // Configuration for enheder
+    enheder: {
+      stepIcons: [IconBuilding, IconStack],
+      steps: [
+        {
+          title: 'Enheds Information',
+          heading: 'Udfyld informationen for enheden'
+        }
+      ],
+      fields: {
+        step1: ['enhedType', 'enhedNavn', 'beskrivelse', 'location']
+      },
+      fieldDefinitions,
+      dropdownOptions: mockData.enheder || {
+        locationOptions: [
+          { value: 'bygningA', label: 'Bygning A' },
+          { value: 'bygningB', label: 'Bygning B' },
+          { value: 'bygningC', label: 'Bygning C' }
+        ],
+        enhedTypeOptions: [
+          { value: 'single', label: 'Single' },
+          { value: 'gruppe', label: 'Gruppe' }
+        ]
+      }
+    },
+    // Configuration for brugere (users)
+    brugere: {
+      stepIcons: [IconClipboard, IconUsers, IconBell],
+      steps: [
+        {
+          title: 'Arbejdsfunktioner',
+          heading: 'Udfyld brugerens arbejdsfunktioner'
+        },
+        {
+          title: 'Personlige oplysninger',
+          heading: 'Udfyld brugerens personlige oplysninger'
+        },
+        {
+          title: 'Kontakt oplysninger',
+          heading: 'Udfyld brugerens kontakt oplysninger'
+        }
+      ],
+      fields: {
+        step1: ['name', 'role', 'ansvarlig_for_egenkontrol', 'leder'],
+        step2: ['adresse', 'postnummer', 'by'],
+        step3: ['email', 'telefon']
+      },
+      fieldDefinitions,
+      dropdownOptions: mockData.brugere || {
+        roleOptions: [
+          { value: 'service_bruger', label: 'Service Bruger' },
+          { value: 'facility_manager', label: 'Facility Manager' },
+          { value: 'administrator', label: 'Administrator' },
+          { value: 'visnings_bruger', label: 'Visnings Bruger' }
+        ],
+        lederOptions: [
+          { value: 'christian_hansen', label: 'Christian Hansen' },
+          { value: 'anders_jensen', label: 'Anders Jensen' },
+          { value: 'tanja_lund', label: 'Tanja Lund' }
+        ],
+        egenkontrolOptions: [
+          { value: 'egenkontrol_1', label: 'Egenkontrol 1' },
+          { value: 'egenkontrol_2', label: 'Egenkontrol 2' },
+          { value: 'egenkontrol_3', label: 'Egenkontrol 3' }
+        ]
+      }
     }
   }
 
@@ -246,6 +421,71 @@ export function prepareDetailItem(context, formData) {
         type: formData.type || 'Standard',
         status: 'normal',
         frequency: findLabel(egenkontrolFormData.frekvensOptions, formData.frekvens) || 'Ikke valgt'
+      }
+    }
+
+    // Case for enheder
+    case 'enheder': {
+      // Afhængig af type ('singel' eller 'gruppe')
+      if (formData.enhedType === 'gruppe') {
+        return {
+          ...baseDetailItem,
+          title: formData.gruppeTitel || 'Ny gruppeenhed',
+          name: formData.gruppeTitel || 'Ny gruppeenhed',
+          description: formData.gruppeBeskrivelse || 'Ingen beskrivelse angivet',
+          type: 'Gruppe',
+          status: 'normal',
+          location: findLabel([
+            { value: 'bygningA', label: 'Bygning A' },
+            { value: 'bygningB', label: 'Bygning B' },
+            { value: 'bygningC', label: 'Bygning C' }
+          ], formData.location),
+          underenheder: formData.underenheder || []
+        }
+      } else {
+        return {
+          ...baseDetailItem,
+          title: formData.enhedNavn || 'Ny enhed',
+          name: formData.enhedNavn || 'Ny enhed',
+          description: formData.beskrivelse || 'Ingen beskrivelse angivet',
+          type: 'Enkelt Enhed',
+          status: 'normal',
+          location: findLabel([
+            { value: 'bygningA', label: 'Bygning A' },
+            { value: 'bygningB', label: 'Bygning B' },
+            { value: 'bygningC', label: 'Bygning C' }
+          ], formData.location)
+        }
+      }
+    }
+    // Add to prepareDetailItem function:
+    case 'brugere': {
+      return {
+        ...baseDetailItem,
+        name: formData.name || 'Ny Bruger',
+        role: findLabel([
+          { value: 'service_bruger', label: 'Service Bruger' },
+          { value: 'facility_manager', label: 'Facility Manager' },
+          { value: 'administrator', label: 'Administrator' },
+          { value: 'visnings_bruger', label: 'Visnings Bruger' }
+        ], formData.role) || 'Ikke valgt',
+        ansvarlig_for_egenkontrol: findLabel([
+          { value: 'egenkontrol_1', label: 'Egenkontrol 1' },
+          { value: 'egenkontrol_2', label: 'Egenkontrol 2' },
+          { value: 'egenkontrol_3', label: 'Egenkontrol 3' }
+        ], formData.ansvarlig_for_egenkontrol) || '-',
+        leder: findLabel([
+          { value: 'christian_hansen', label: 'Christian Hansen' },
+          { value: 'anders_jensen', label: 'Anders Jensen' },
+          { value: 'tanja_lund', label: 'Tanja Lund' }
+        ], formData.leder) || '-',
+        adresse: formData.adresse || 'Ikke angivet',
+        postnummer: formData.postnummer || '',
+        by: formData.by || '',
+        email: formData.email || 'Ikke angivet',
+        telefon: formData.telefon || 'Ikke angivet',
+        gruppe: 'Tilhører ingen gruppe endnu',
+        status: 'normal'
       }
     }
 
