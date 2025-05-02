@@ -1,73 +1,146 @@
+import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { db } from '@/configs/firebase'
-import { collection, addDoc, getDocs, deleteDoc, doc, onSnapshot } from 'firebase/firestore'
-import { ref } from 'vue'
+import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, onSnapshot } from 'firebase/firestore'
 
-export const useTjeklisteStore = defineStore('tjekliste', {
-  state: () => ({
-    tjeklister: ref([]),
-    loading: false,
-    error: null
-  }),
+export const useTjeklisteStore = defineStore('tjekliste', () => {
+  // State
+  const tjeklister = ref([])
+  const loading = ref(false)
+  const error = ref(null)
 
-  getters: {
-    tjeklisterData: state => state.tjeklister
-  },
+  // Getters
+  const tjeklisterData = computed(() => tjeklister.value)
 
-  actions: {
-    async fetchTjeklister() {
-      this.loading = true
-      try {
-        const querySnapshot = await getDocs(collection(db, 'Tjeklister'))
-        this.tjeklister = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }))
-      } catch (error) {
-        console.error('Error fetching tjeklister:', error)
-        this.error = error
-      } finally {
-        this.loading = false
-      }
-    },
+  const getTjeklisteById = (id) => {
+    return tjeklister.value.find(tjekliste => tjekliste.id === id)
+  }
 
-    async addTjekliste(tjekliste) {
-      try {
-        // Add to Firestore 'Tjeklister' collection
-        const docRef = await addDoc(collection(db, 'Tjeklister'), tjekliste)
-        return docRef.id
-      } catch (error) {
-        console.error('Error adding tjekliste:', error)
-        throw error
-      }
-    },
+  const getTjeklisterByType = (type) => {
+    return tjeklister.value.filter(tjekliste => tjekliste.type === type)
+  }
 
-    async deleteTjekliste(id) {
-      try {
-        await deleteDoc(doc(db, 'Tjeklister', id))
-        // Remove from local state
-        this.tjeklister = this.tjeklister.filter(t => t.id !== id)
-      } catch (error) {
-        console.error('Error deleting tjekliste:', error)
-        throw error
-      }
-    },
-
-    // Set up real-time listener for tjeklister
-    setupTjeklisterListener() {
-      const unsubscribe = onSnapshot(collection(db, 'Tjeklister'),
-        (snapshot) => {
-          this.tjeklister = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-          }))
-        },
-        (error) => {
-          console.error('Error in tjeklister listener:', error)
-          this.error = error
-        }
-      )
-      return unsubscribe
+  // Actions
+  const fetchTjeklister = async () => {
+    loading.value = true
+    try {
+      console.log('Fetching tjeklister from Firestore...')
+      const querySnapshot = await getDocs(collection(db, 'Tjeklister'))
+      const fetchedTjeklister = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        tjeklisteNavn: doc.data().tjeklisteNavn,
+        beskrivelse: doc.data().beskrivelse,
+        type: doc.data().type,
+        frekvens: doc.data().frekvens,
+        tidspunkt: doc.data().tidspunkt,
+        opgaver: doc.data().opgaver || []
+      }))
+      console.log('Successfully fetched tjeklister:', fetchedTjeklister)
+      tjeklister.value = fetchedTjeklister
+    } catch (err) {
+      console.error('Error fetching tjeklister:', err)
+      error.value = err
+    } finally {
+      loading.value = false
     }
+  }
+
+  const addTjekliste = async (tjekliste) => {
+    try {
+      console.log('Adding tjekliste to Firestore:', tjekliste)
+      const docRef = await addDoc(collection(db, 'Tjeklister'), {
+        tjeklisteNavn: tjekliste.tjeklisteNavn,
+        beskrivelse: tjekliste.beskrivelse,
+        type: tjekliste.type,
+        frekvens: tjekliste.frekvens,
+        tidspunkt: tjekliste.tidspunkt,
+        opgaver: tjekliste.opgaver || [],
+        createdAt: new Date()
+      })
+      console.log('Successfully added tjekliste with ID:', docRef.id)
+
+      const newTjekliste = {
+        id: docRef.id,
+        tjeklisteNavn: tjekliste.tjeklisteNavn,
+        beskrivelse: tjekliste.beskrivelse,
+        type: tjekliste.type,
+        frekvens: tjekliste.frekvens,
+        tidspunkt: tjekliste.tidspunkt,
+        opgaver: tjekliste.opgaver || []
+      }
+      // Add to local state
+      tjeklister.value = [...tjeklister.value, newTjekliste]
+      return docRef.id
+    } catch (err) {
+      console.error('Error adding tjekliste:', err)
+      throw err
+    }
+  }
+
+  const updateTjekliste = async (id, updatedData) => {
+    try {
+      console.log('Updating tjekliste:', id, updatedData)
+      await updateDoc(doc(db, 'Tjeklister', id), updatedData)
+      // Update local state
+      const index = tjeklister.value.findIndex(tjekliste => tjekliste.id === id)
+      if (index !== -1) {
+        tjeklister.value[index] = { ...tjeklister.value[index], ...updatedData }
+      }
+    } catch (err) {
+      console.error('Error updating tjekliste:', err)
+      throw err
+    }
+  }
+
+  const deleteTjekliste = async (id) => {
+    try {
+      console.log('Deleting tjekliste:', id)
+      await deleteDoc(doc(db, 'Tjeklister', id))
+      // Update local state
+      tjeklister.value = tjeklister.value.filter(tjekliste => tjekliste.id !== id)
+      console.log('Successfully deleted tjekliste:', id)
+    } catch (err) {
+      console.error('Error deleting tjekliste:', err)
+      throw err
+    }
+  }
+
+  // Real-time listener
+  const setupTjeklisterListener = () => {
+    console.log('Setting up tjeklister listener...')
+    return onSnapshot(collection(db, 'Tjeklister'),
+      (snapshot) => {
+        console.log('Received Firestore update, docs:', snapshot.docs.length)
+        const newTjeklister = snapshot.docs.map(doc => ({
+          id: doc.id,
+          tjeklisteNavn: doc.data().tjeklisteNavn,
+          beskrivelse: doc.data().beskrivelse,
+          type: doc.data().type,
+          frekvens: doc.data().frekvens,
+          tidspunkt: doc.data().tidspunkt,
+          opgaver: doc.data().opgaver || []
+        }))
+        console.log('Updated local state with tjeklister:', newTjeklister)
+        tjeklister.value = newTjeklister
+      },
+      (err) => {
+        console.error('Error in tjeklister listener:', err)
+        error.value = err
+      }
+    )
+  }
+
+  return {
+    tjeklister,
+    loading,
+    error,
+    tjeklisterData,
+    getTjeklisteById,
+    getTjeklisterByType,
+    fetchTjeklister,
+    addTjekliste,
+    updateTjekliste,
+    deleteTjekliste,
+    setupTjeklisterListener
   }
 })

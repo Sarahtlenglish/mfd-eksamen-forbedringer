@@ -9,6 +9,7 @@ import DropdownComponent from '@/components/ui/DropdownComponent.vue'
 import DatePickerComponent from '@/components/ui/DatePickerComponent.vue'
 import UnderenhederListComponent from '@/components/forms/UnderenhederListComponent.vue'
 import { egenkontrolFormData } from '@/mock/data/egenkontrol'
+import { egenkontrolConfig } from '@/config/egenkontrolConfig'
 
 /**
  * Henter konfiguration for den specificerede formulartype
@@ -17,30 +18,21 @@ import { egenkontrolFormData } from '@/mock/data/egenkontrol'
  * @returns {Object} Konfiguration til brug i WizardFormComponent
  */
 export function getWizardConfig(context, options = {}) {
-  const mockData = options.mockData || {}
-
-  // Definition af alle formularfelter
   const fieldDefinitions = {
     // Generelle felter
-    title: {
-      label: 'Titel',
-      placeholder: 'Angiv en titel',
-      required: true,
-      component: InputComponent
-    },
-    name: {
+    navn: {
       label: 'Navn',
       placeholder: 'Angiv et navn',
       required: true,
       component: InputComponent
     },
-    description: {
+    beskrivelse: {
       label: 'Beskrivelse',
       placeholder: 'En dybdegående beskrivelse hjælper de ansvarlige',
       required: false,
       component: InputComponent
     },
-    startDate: {
+    startDato: {
       label: 'Start Dato',
       placeholder: 'Vælg start dato',
       required: true,
@@ -70,24 +62,28 @@ export function getWizardConfig(context, options = {}) {
       options: 'responsibleOptions'
     },
     reminderFrekvens: {
+      label: 'Frekvens',
       placeholder: 'Vælg frekvens',
       required: false,
       component: DropdownComponent,
       options: 'frekvensOptions'
     },
     reminderTidspunkt: {
+      label: 'Tidspunkt',
       placeholder: 'Vælg tidspunkt',
       required: false,
       component: DropdownComponent,
       options: 'tidspunktOptions'
     },
     deadlineFrekvens: {
+      label: 'Frekvens',
       placeholder: 'Vælg frekvens',
       required: false,
       component: DropdownComponent,
       options: 'frekvensOptions'
     },
     deadlineTidspunkt: {
+      label: 'Tidspunkt',
       placeholder: 'Vælg tidspunkt',
       required: false,
       component: DropdownComponent,
@@ -112,7 +108,7 @@ export function getWizardConfig(context, options = {}) {
       placeholder: 'Vælg type',
       required: true,
       component: DropdownComponent,
-      options: 'tjeklisteTypeOptions'
+      options: 'typeOptions'
     },
     frekvens: {
       label: 'Frekvens',
@@ -124,7 +120,7 @@ export function getWizardConfig(context, options = {}) {
 
     // Enhed-specifikke felter
     enhedType: {
-      label: 'Opret singel eller gruppe enhed',
+      label: 'Opret single eller gruppe enhed',
       placeholder: 'Vælg type',
       required: true,
       component: DropdownComponent,
@@ -136,7 +132,7 @@ export function getWizardConfig(context, options = {}) {
       required: true,
       component: InputComponent
     },
-    beskrivelse: {
+    enhedBeskrivelse: {
       label: 'Beskrivelse',
       placeholder: 'Angiv beskrivelse af enheden',
       required: true,
@@ -248,7 +244,7 @@ export function getWizardConfig(context, options = {}) {
         }
       ],
       fields: {
-        step1: ['title', 'description', 'selectedCheckliste', 'startDate'],
+        step1: ['navn', 'beskrivelse', 'selectedCheckliste', 'startDato'],
         step2: ['selectedEnheder', 'selectedAnsvarlige'],
         step3: ['reminderFrekvens', 'reminderTidspunkt', 'deadlineFrekvens', 'deadlineTidspunkt', 'kvitteringModtager', 'afvigelseModtager']
       },
@@ -271,7 +267,10 @@ export function getWizardConfig(context, options = {}) {
         }
       ],
       fieldDefinitions,
-      dropdownOptions: mockData.egenkontroller || {}
+      dropdownOptions: {
+        ...options.dropdownOptions,
+        ...egenkontrolConfig
+      }
     },
 
     tjeklister: {
@@ -287,11 +286,11 @@ export function getWizardConfig(context, options = {}) {
         }
       ],
       fields: {
-        step1: ['name', 'description', 'type'],
+        step1: ['navn', 'beskrivelse', 'type'],
         step2: ['frekvens']
       },
       fieldDefinitions,
-      dropdownOptions: mockData.tjeklister || {}
+      dropdownOptions: options.dropdownOptions || {}
     },
 
     // Configuration for enheder
@@ -307,7 +306,7 @@ export function getWizardConfig(context, options = {}) {
         step1: ['enhedType', 'enhedNavn', 'beskrivelse', 'location']
       },
       fieldDefinitions,
-      dropdownOptions: mockData.enheder || {
+      dropdownOptions: options.dropdownOptions || {
         locationOptions: [
           { value: 'bygningA', label: 'Bygning A' },
           { value: 'bygningB', label: 'Bygning B' },
@@ -337,12 +336,12 @@ export function getWizardConfig(context, options = {}) {
         }
       ],
       fields: {
-        step1: ['name', 'role', 'ansvarlig_for_egenkontrol', 'leder'],
+        step1: ['navn', 'rolle', 'ansvarlig_for_egenkontrol', 'leder'],
         step2: ['adresse', 'postnummer', 'by'],
         step3: ['email', 'telefon']
       },
       fieldDefinitions,
-      dropdownOptions: mockData.brugere || {
+      dropdownOptions: options.dropdownOptions || {
         roleOptions: [
           { value: 'service_bruger', label: 'Service Bruger' },
           { value: 'facility_manager', label: 'Facility Manager' },
@@ -377,34 +376,29 @@ export function prepareDetailItem(context, formData) {
 
   // Basis-information til alle typer
   const baseDetailItem = {
-    title: formData.title || formData.name || 'Ny Item',
-    name: formData.title || formData.name || 'Ny Item',
-    description: formData.description || 'Ingen beskrivelse angivet',
-    startDate: formData.startDate ? new Date(formData.startDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
+    navn: formData.navn || 'Ny Item',
+    beskrivelse: formData.beskrivelse || 'Ingen beskrivelse angivet',
+    startDato: formData.startDato ? new Date(formData.startDato).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
   }
 
   // Tilføj kontekst-specifik information
   switch (context) {
     case 'egenkontroller': {
-      const reminderFrekvens = findLabel(egenkontrolFormData.frekvensOptions, formData.reminderFrekvens)
-      const reminderTidspunkt = findLabel(egenkontrolFormData.tidspunktOptions, formData.reminderTidspunkt)
-      const deadlineFrekvens = findLabel(egenkontrolFormData.frekvensOptions, formData.deadlineFrekvens)
-      const deadlineTidspunkt = findLabel(egenkontrolFormData.tidspunktOptions, formData.deadlineTidspunkt)
-
+      // Gem kun rå data for påmindelser og brug danske feltnavne
       return {
         ...baseDetailItem,
         type: 'Egenkontrol',
         status: 'normal',
-        location: findLabel(egenkontrolFormData.locationOptions, formData.selectedEnheder),
-        checkliste: findLabel(egenkontrolFormData.checklistOptions, formData.selectedCheckliste),
-        responsibleUsers: [findLabel(egenkontrolFormData.responsibleOptions, formData.selectedAnsvarlige)],
-        reminders: [
-          { description: `${reminderFrekvens} kl. ${reminderTidspunkt}` },
-          { description: `${deadlineFrekvens} kl. ${deadlineTidspunkt} efter overskredet deadline` }
+        lokation: formData.selectedEnheder || formData.enhed || '',
+        checkliste: formData.selectedCheckliste || formData.tjekliste || '',
+        ansvarligeBrugere: [formData.selectedAnsvarlige || formData.ansvarlige || ''],
+        påmindelser: [
+          { frekvens: formData.reminderFrekvens, tidspunkt: formData.reminderTidspunkt },
+          { frekvens: formData.deadlineFrekvens, tidspunkt: formData.deadlineTidspunkt }
         ],
         modtagere: [
-          `${findLabel(egenkontrolFormData.brugerOptions, formData.kvitteringModtager)} modtager kvittering`,
-          `${findLabel(egenkontrolFormData.brugerOptions, formData.afvigelseModtager)} modtager besked om afvigelser`
+          formData.kvitteringModtager || '',
+          formData.afvigelseModtager || ''
         ]
       }
     }
@@ -412,7 +406,7 @@ export function prepareDetailItem(context, formData) {
     case 'tjeklister': {
       return {
         ...baseDetailItem,
-        tjekliste: formData.name || 'Ny tjekliste',
+        tjekliste: formData.navn || 'Ny tjekliste',
         type: formData.type || 'Standard',
         status: 'normal',
         frequency: findLabel(egenkontrolFormData.frekvensOptions, formData.frekvens) || 'Ikke valgt'
@@ -425,9 +419,8 @@ export function prepareDetailItem(context, formData) {
       if (formData.enhedType === 'gruppe') {
         return {
           ...baseDetailItem,
-          title: formData.gruppeTitel || 'Ny gruppeenhed',
-          name: formData.gruppeTitel || 'Ny gruppeenhed',
-          description: formData.gruppeBeskrivelse || 'Ingen beskrivelse angivet',
+          navn: formData.gruppeTitel || 'Ny gruppeenhed',
+          enhedBeskrivelse: formData.gruppeBeskrivelse || 'Ingen beskrivelse angivet',
           type: 'Gruppe',
           status: 'normal',
           location: findLabel([
@@ -440,9 +433,8 @@ export function prepareDetailItem(context, formData) {
       } else {
         return {
           ...baseDetailItem,
-          title: formData.enhedNavn || 'Ny enhed',
-          name: formData.enhedNavn || 'Ny enhed',
-          description: formData.beskrivelse || 'Ingen beskrivelse angivet',
+          navn: formData.enhedNavn || 'Ny enhed',
+          enhedBeskrivelse: formData.beskrivelse || 'Ingen beskrivelse angivet',
           type: 'Enkelt Enhed',
           status: 'normal',
           location: findLabel([
@@ -457,13 +449,13 @@ export function prepareDetailItem(context, formData) {
     case 'brugere': {
       return {
         ...baseDetailItem,
-        name: formData.name || 'Ny Bruger',
-        role: findLabel([
+        navn: formData.navn || 'Ny Bruger',
+        rolle: findLabel([
           { value: 'service_bruger', label: 'Service Bruger' },
           { value: 'facility_manager', label: 'Facility Manager' },
           { value: 'administrator', label: 'Administrator' },
           { value: 'visnings_bruger', label: 'Visnings Bruger' }
-        ], formData.role) || 'Ikke valgt',
+        ], formData.rolle) || 'Ikke valgt',
         ansvarlig_for_egenkontrol: findLabel([
           { value: 'egenkontrol_1', label: 'Egenkontrol 1' },
           { value: 'egenkontrol_2', label: 'Egenkontrol 2' },

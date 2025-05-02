@@ -1,32 +1,57 @@
 <script setup>
 import { useRouter } from 'vue-router'
-import { reactive, computed } from 'vue'
+import { reactive, computed, onMounted } from 'vue'
 import DetailPanel from '@/components/ui/panels/DetailPanelComponent.vue'
 import { IconX } from '@tabler/icons-vue'
 import { useEgenkontrolStore } from '@/stores/egenkontrolStore'
 import WizardFormComponent from '@/components/forms/WizardFormComponent.vue'
 import { getWizardConfig, prepareDetailItem } from '@/components/forms/WizardFormConfig.js'
 import { egenkontrolFormData } from '@/mock/data/egenkontrol'
+import { brugerStore } from '@/stores/brugerStore'
+import { useEnhedStore } from '@/stores/enhedStore'
+import { useTjeklisteStore } from '@/stores/tjeklisteStore'
 
 const router = useRouter()
 const egenkontrolStore = useEgenkontrolStore()
+const brugereStore = brugerStore()
+const enhedStore = useEnhedStore()
+const tjeklisteStore = useTjeklisteStore()
 
 // Initialiser form wizard med kontekst og mockdata
 const context = 'egenkontroller'
-const config = getWizardConfig(context, { mockData: { egenkontroller: egenkontrolFormData } })
+
+onMounted(() => {
+  brugereStore.fetchBrugere()
+  enhedStore.fetchEnheder()
+  tjeklisteStore.fetchTjeklister()
+})
+
+const dynamicOptions = computed(() => ({
+  checklistOptions: tjeklisteStore.tjeklister.map(t => ({ value: t.id, label: t.tjeklisteNavn || t.type || t.id })),
+  locationOptions: enhedStore.enheder.map(e => ({ value: e.id, label: e.name || e.location || e.id })),
+  responsibleOptions: brugereStore.brugere.map(b => ({ value: b.id, label: b.fuldeNavn || b.id })),
+  brugerOptions: brugereStore.brugere.map(b => ({ value: b.id, label: b.fuldeNavn || b.id }))
+}))
+
+const config = computed(() =>
+  getWizardConfig(context, {
+    mockData: { egenkontroller: egenkontrolFormData },
+    dropdownOptions: dynamicOptions.value
+  })
+)
 
 // Skabelon for form input data
 const formData = reactive({
-  title: '',
-  description: '',
-  selectedCheckliste: '',
-  startDate: '',
-  selectedEnheder: '',
-  selectedAnsvarlige: '',
-  reminderFrekvens: '',
-  reminderTidspunkt: '',
-  deadlineFrekvens: '',
-  deadlineTidspunkt: '',
+  titel: '',
+  beskrivelse: '',
+  tjekliste: '',
+  startDato: '',
+  enhed: '',
+  ansvarligeBrugere: '',
+  påmindelseFørFrekvens: '',
+  påmindelseFørTidspunkt: '',
+  påmindelseEfterFrekvens: '',
+  påmindelseEfterTidspunkt: '',
   kvitteringModtager: '',
   afvigelseModtager: ''
 })
@@ -40,13 +65,8 @@ const handleFormUpdate = (newFormData) => {
 }
 
 // Gemmer ny egenkontrol og navigerer tilbage
-const handleComplete = () => {
-  const nyEgenkontrol = {
-    id: Math.max(...egenkontrolStore.egenkontrollerData.map(item => item.id), 0) + 1,
-    ...detailItem.value
-  }
-
-  egenkontrolStore.addEgenkontrol(nyEgenkontrol)
+const handleComplete = async () => {
+  await egenkontrolStore.addEgenkontrol(detailItem.value)
   router.push('/egenkontrol')
 }
 

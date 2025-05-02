@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import TablesComponent from '@/components/ui/TablesComponent.vue'
 import ButtonComponent from '@/components/ui/ButtonComponent.vue'
@@ -13,16 +13,31 @@ const router = useRouter()
 
 // Define columns for this view
 const columns = [
-  { key: 'name', label: 'Egenkontroller' },
+  { key: 'navn', label: 'Egenkontroller' },
   { key: 'type', label: 'Type' }
 ]
 
 // State for selected item
 const selectedItem = ref(null)
+const unsubscribe = ref(null)
+
+// Fetch data and set up real-time updates
+onMounted(async () => {
+  await egenkontrolStore.fetchEgenkontroller()
+  unsubscribe.value = egenkontrolStore.setupEgenkontrollerListener()
+})
+
+// Clean up listener on unmount
+onUnmounted(() => {
+  if (unsubscribe.value) {
+    unsubscribe.value()
+  }
+})
 
 // Event handlers
-const handleRowClick = (item) => {
-  selectedItem.value = item
+const handleRowClick = async (item) => {
+  // Resolve references before showing in detail panel
+  selectedItem.value = await egenkontrolStore.resolveReferences(item)
 }
 
 const createEgenkontrol = () => {
@@ -70,6 +85,7 @@ const handleDelete = (item) => {
         :columns="columns"
         :columnWidths="['50%', '50%']"
         :selectedItemId="selectedItem?.id"
+        :loading="egenkontrolStore.loading"
         @row-click="handleRowClick"
       />
     </div>

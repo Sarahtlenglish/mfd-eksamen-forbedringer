@@ -82,8 +82,8 @@ const panelTitle = computed(() => {
     return props.item.tjeklisteNavn + ' - Tjekliste'
   }
 
-  if (props.context === 'egenkontroller' && props.item.title) {
-    return props.item.title
+  if (props.context === 'egenkontroller' && props.item.navn) {
+    return props.item.navn
   }
 
   if (props.context === 'brugere' && props.item.fuldeNavn) {

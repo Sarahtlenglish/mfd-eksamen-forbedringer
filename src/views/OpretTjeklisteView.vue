@@ -1,6 +1,6 @@
 <script setup>
 import { useRouter } from 'vue-router'
-import { reactive, computed } from 'vue'
+import { reactive, computed, onMounted } from 'vue'
 import DetailPanel from '@/components/ui/panels/DetailPanelComponent.vue'
 import { IconX } from '@tabler/icons-vue'
 import { useTjeklisteStore } from '@/stores/tjeklisteStore'
@@ -11,31 +11,38 @@ import { tjeklisteConfig } from '@/config/tjeklisteConfig'
 const router = useRouter()
 const tjeklisteStore = useTjeklisteStore()
 
-// Definer kontekst og konfiguration
-const context = 'tjeklister'
-const config = getWizardConfig(context, {
-  mockData: {
-    tjeklister: {
-      tjeklisteTypeOptions: tjeklisteConfig.typeOptions,
-      frekvensOptions: tjeklisteConfig.frekvensOptions
-    }
-  }
+// Initialiser store
+onMounted(() => {
+  tjeklisteStore.fetchTjeklister()
 })
 
 // Opret form data state
 const formData = reactive({
-  name: '',
-  description: '',
+  navn: '',
+  beskrivelse: '',
   type: '',
-  frekvens: ''
+  frekvens: '',
+  tidspunkt: '',
+  opgaver: []
 })
 
 // Computed property for detail panel
 const detailItem = computed(() => ({
-  tjeklisteNavn: formData.name || 'Ny tjekliste',
-  beskrivelse: formData.description || '',
-  type: formData.type,
-  frekvens: formData.frekvens
+  tjeklisteNavn: formData.navn || 'Ny tjekliste',
+  beskrivelse: formData.beskrivelse || '',
+  type: formData.type || 'Ikke valgt',
+  frekvens: formData.frekvens || 'Ikke valgt',
+  tidspunkt: formData.tidspunkt || 'Ikke valgt',
+  opgaver: formData.opgaver || []
+}))
+
+// Definer kontekst og konfiguration
+const context = 'tjeklister'
+const config = computed(() => getWizardConfig(context, {
+  dropdownOptions: {
+    typeOptions: tjeklisteConfig.typeOptions,
+    frekvensOptions: tjeklisteConfig.frekvensOptions
+  }
 }))
 
 // Event handlers
@@ -45,17 +52,22 @@ const handleFormUpdate = (newFormData) => {
 }
 
 const handleComplete = async () => {
-  // Forbered data til Firestore
-  const nyTjekliste = {
-    ...detailItem.value
-  }
-
   try {
+    // Forbered data til Firestore
+    const nyTjekliste = {
+      tjeklisteNavn: formData.navn,
+      beskrivelse: formData.beskrivelse,
+      type: formData.type,
+      frekvens: formData.frekvens,
+      tidspunkt: formData.tidspunkt,
+      opgaver: formData.opgaver
+    }
+
     await tjeklisteStore.addTjekliste(nyTjekliste)
     router.push('/tjeklister')
   } catch (error) {
-    alert('Der opstod en fejl under oprettelsen af tjeklisten.')
-    console.error(error)
+    console.error('Error creating tjekliste:', error)
+    alert('Der opstod en fejl under oprettelsen af tjeklisten: ' + error.message)
   }
 }
 
