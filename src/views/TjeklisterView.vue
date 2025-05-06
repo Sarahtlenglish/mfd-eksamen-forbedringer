@@ -6,31 +6,14 @@ import DetailPanel from '@/components/ui/panels/DetailPanelComponent.vue'
 import ButtonComponent from '@/components/ui/ButtonComponent.vue'
 import { IconPlus } from '@tabler/icons-vue'
 import { useTjeklisteStore } from '@/stores/tjeklisteStore'
-import { tjeklisteConfig } from '@/config/tjeklisteConfig'
+import { processTjeklister } from '@/utils/labelHelpers'
 
 // Get store og router
 const tjeklisteStore = useTjeklisteStore()
 const router = useRouter()
 
-// Helper functions to get labels
-const getFrekvensLabel = (value) => {
-  const option = tjeklisteConfig.frekvensOptions.find(opt => opt.value === value)
-  return option ? option.label : value
-}
-
-const getTypeLabel = (value) => {
-  const option = tjeklisteConfig.typeOptions.find(opt => opt.value === value)
-  return option ? option.label : value
-}
-
 // Process checklist data to include labels
-const processedTjeklister = computed(() => {
-  return tjeklisteStore.tjeklisterData.map(item => ({
-    ...item,
-    type: getTypeLabel(item.type),
-    frekvens: getFrekvensLabel(item.frekvens)
-  }))
-})
+const processedTjeklister = computed(() => processTjeklister(tjeklisteStore.tjeklisterData))
 
 // Define columns for this view
 const columns = [

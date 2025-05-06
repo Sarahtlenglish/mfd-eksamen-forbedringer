@@ -1,8 +1,8 @@
 <script setup>
-import { brugerStore } from '@/stores/brugerStore'
+import { useBrugerStore } from '@/stores/brugerStore'
 import { useEnhedStore } from '@/stores/enhedStore'
 import { useTjeklisteStore } from '@/stores/tjeklisteStore'
-import { egenkontrolConfig } from '@/config/egenkontrolConfig'
+import { getFrekvensLabel, getTidspunktLabel } from '@/utils/labelHelpers'
 
 const props = defineProps({
   item: {
@@ -11,13 +11,13 @@ const props = defineProps({
   }
 })
 
-const brugereStore = brugerStore()
+const brugerStore = useBrugerStore()
 const enhedStore = useEnhedStore()
 const tjeklisteStore = useTjeklisteStore()
 
 // Helper: find user name by ID
 const getUserName = (id) => {
-  const bruger = brugereStore.getBrugerById(id)
+  const bruger = brugerStore.getBrugerById(id)
   return bruger ? bruger.fuldeNavn : id
 }
 // Helper: find enhed name by ID
@@ -30,15 +30,6 @@ const getTjeklisteName = (id) => {
   const tjekliste = tjeklisteStore.tjeklister.find(t => t.id === id)
   return tjekliste ? tjekliste.navn || tjekliste.tjeklisteNavn : id
 }
-// Helper: find label for frekvens/tidspunkt
-const getFrekvensLabel = (value) => {
-  const opt = egenkontrolConfig.frekvensOptions.find(o => o.value === value)
-  return opt ? opt.label : value
-}
-const getTidspunktLabel = (value) => {
-  const opt = egenkontrolConfig.tidspunktOptions.find(o => o.value === value)
-  return opt ? opt.label : value
-}
 
 // Hjælper til at tjekke om en værdi er gyldig - ikke tom og ikke "Ikke valgt"
 function isValid(value) {
@@ -49,8 +40,7 @@ const getTjeklisteFrekvens = (id) => {
   const tjekliste = tjeklisteStore.tjeklister.find(t => t.id === id)
   // Hvis tjekliste har et felt 'frekvens', brug label hvis muligt
   if (tjekliste && tjekliste.frekvens) {
-    const opt = egenkontrolConfig.frekvensOptions.find(o => o.value === tjekliste.frekvens)
-    return opt ? opt.label : tjekliste.frekvens
+    return getFrekvensLabel(tjekliste.frekvens)
   }
   return ''
 }

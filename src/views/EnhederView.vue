@@ -6,29 +6,13 @@ import DetailPanel from '@/components/ui/panels/DetailPanelComponent.vue'
 import ButtonComponent from '@/components/ui/ButtonComponent.vue'
 import { IconPlus } from '@tabler/icons-vue'
 import { useEnhedStore } from '@/stores/enhedStore'
-import { enhederConfig } from '@/configs/enhederConfig'
+import { processEnheder } from '@/utils/labelHelpers'
 
 const router = useRouter()
 const enhedStore = useEnhedStore()
 
-// Helper functions to get labels
-const getLocationLabel = (value) => {
-  const option = enhederConfig.locations.find(opt => opt.value === value)
-  return option ? option.label : value
-}
-
-const getTypeLabel = (value) => {
-  const option = enhederConfig.types.find(opt => opt.value === value)
-  return option ? option.label : value
-}
-// Process checklist data to include labels
-const processedEnheder = computed(() => {
-  return enhedStore.enheder.map(item => ({
-    ...item,
-    type: getTypeLabel(item.type),
-    location: getLocationLabel(item.location)
-  }))
-})
+// Process enheder data to include labels
+const processedEnheder = computed(() => processEnheder(enhedStore.enheder))
 
 // Define columns for this view with formatters
 const columns = [

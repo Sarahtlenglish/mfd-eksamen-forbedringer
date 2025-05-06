@@ -6,14 +6,13 @@ import { IconX } from '@tabler/icons-vue'
 import { useEgenkontrolStore } from '@/stores/egenkontrolStore'
 import WizardFormComponent from '@/components/forms/WizardFormComponent.vue'
 import { getWizardConfig, prepareDetailItem } from '@/components/forms/WizardFormConfig.js'
-import { egenkontrolFormData } from '@/mock/data/egenkontrol'
-import { brugerStore } from '@/stores/brugerStore'
+import { useBrugerStore } from '@/stores/brugerStore'
 import { useEnhedStore } from '@/stores/enhedStore'
 import { useTjeklisteStore } from '@/stores/tjeklisteStore'
 
 const router = useRouter()
 const egenkontrolStore = useEgenkontrolStore()
-const brugereStore = brugerStore()
+const brugerStore = useBrugerStore()
 const enhedStore = useEnhedStore()
 const tjeklisteStore = useTjeklisteStore()
 
@@ -21,7 +20,7 @@ const tjeklisteStore = useTjeklisteStore()
 const context = 'egenkontroller'
 
 onMounted(() => {
-  brugereStore.fetchBrugere()
+  brugerStore.fetchBrugere()
   enhedStore.fetchEnheder()
   tjeklisteStore.fetchTjeklister()
 })
@@ -29,13 +28,13 @@ onMounted(() => {
 const dynamicOptions = computed(() => ({
   checklistOptions: tjeklisteStore.tjeklister.map(t => ({ value: t.id, label: t.tjeklisteNavn || t.type || t.id })),
   locationOptions: enhedStore.enheder.map(e => ({ value: e.id, label: e.name || e.location || e.id })),
-  responsibleOptions: brugereStore.brugere.map(b => ({ value: b.id, label: b.fuldeNavn || b.id })),
-  brugerOptions: brugereStore.brugere.map(b => ({ value: b.id, label: b.fuldeNavn || b.id }))
+  responsibleOptions: brugerStore.brugere.map(b => ({ value: b.id, label: b.fuldeNavn || b.id })),
+  brugerOptions: brugerStore.brugere.map(b => ({ value: b.id, label: b.fuldeNavn || b.id }))
 }))
 
 const config = computed(() =>
   getWizardConfig(context, {
-    mockData: { egenkontroller: egenkontrolFormData },
+    data: { egenkontroller: formData },
     dropdownOptions: dynamicOptions.value
   })
 )

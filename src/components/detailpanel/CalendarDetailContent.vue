@@ -4,8 +4,7 @@ import { useEgenkontrolStore } from '@/stores/egenkontrolStore'
 import CalendarDayTask from '@/components/calendar/CalendarDayTask.vue'
 import BannerComponent from '@/components/ui/BannerComponent.vue'
 import ButtonComponent from '@/components/ui/ButtonComponent.vue'
-import { IconInfoCircle, IconAlertTriangle, IconChevronLeft, IconPencil, IconCheck } from '@tabler/icons-vue'
-import { calendarTaskData, exampleDateTasks } from '@/mock/index'
+import { IconChevronLeft, IconPencil, IconCheck } from '@tabler/icons-vue'
 
 const props = defineProps({
   item: {
@@ -25,26 +24,25 @@ watch(() => props.item, () => {
 // Hent store og tasks for valgt dato
 const egenkontrolStore = useEgenkontrolStore()
 const tasksForSelectedDate = computed(() => {
+  if (props.item && Array.isArray(props.item.tasks)) {
+    console.log('DetailPanel received tasks:', props.item.tasks)
+    return props.item.tasks
+  }
   if (!props.item || !props.item.date) return []
   const dateKey = props.item.date.toISOString().split('T')[0]
   const tasks = egenkontrolStore.getCalendarTasks()[dateKey] || []
-  return tasks.map(task => task.originalTask).filter(Boolean)
-})
-
-// Check om det er den 2. eller 3. marts
-const isExampleDate = computed(() => {
-  if (!props.item.date) return false
-  const date = props.item.date
-  return (date.getDate() === 2 || date.getDate() === 3) && date.getMonth() === 2
+  return tasks
 })
 
 // Maps status values to the format expected by CalendarDayTask
 const mapStatus = (status) => {
   switch (status) {
-    case 'afvigelse': return 'warning'
-    case 'error': return 'error'
-    case 'warning': return 'warning'
-    default: return 'normal'
+    case 'afvigelse': return 'afvigelse'
+    case 'overskredet': return 'overskredet'
+    case 'udført': return 'udført'
+    case 'aktiv': return 'aktiv'
+    case 'inaktiv': return 'inaktiv'
+    default: return 'inaktiv'
   }
 }
 
@@ -58,35 +56,20 @@ const goBackToList = () => {
   selectedTask.value = null
 }
 
-// Simuler at klikke på en task med korrekt mockdata baseret på typen
-const handleMockTaskClick = (title) => {
-  selectedTask.value = calendarTaskData[title] || null
-}
-
-// Beregn hvilket banner der skal vises baseret på task status - skal matche farven i kalenderen
+// Beregn hvilket banner der skal vises baseret på task status
 const bannerType = computed(() => {
   if (!selectedTask.value) return null
 
   // Hvis opgaven er markeret som udført, vis grønt banner
-  if (selectedTask.value.completed) {
+  if (selectedTask.value.status === 'udført') {
     return 'completed'
   }
 
-  // Brug den originale status direkte (ikke den mappede) for at sikre konsistens
-  const originalStatus = selectedTask.value.status
-
-  // Vælg banner baseret på original status
-  if (originalStatus === 'afvigelse' || originalStatus === 'error') {
-    return 'deviation' // Rød banner for afvigelser og fejl
-  } else if (originalStatus === 'warning') {
-    return 'overdue' // Gult banner for advarsler/overskredet deadline
-  } else if (originalStatus === 'normal' && selectedTask.value.startDate) {
-    const taskDate = new Date(selectedTask.value.startDate)
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    if (taskDate < today) {
-      return 'completed' // Grønt banner for udførte opgaver
-    }
+  // Vælg banner baseret på status
+  if (selectedTask.value.status === 'afvigelse') {
+    return 'deviation' // Rød banner for afvigelser
+  } else if (selectedTask.value.status === 'overskredet') {
+    return 'overdue' // Gult banner for overskredet deadline
   }
 
   // Hvis ingen af ovenstående - ingen banner
@@ -128,28 +111,10 @@ const responsibleUsersString = computed(() => {
           @click="handleTaskClick(task)"
         >
           <CalendarDayTask
-            :title="task.name"
-            :details="task.location"
+            :title="task.title || task.navn"
+            :details="task.details"
             :status="mapStatus(task.status)"
           />
-        </div>
-      </div>
-
-      <!-- Hvis vi er på 2. eller 3. marts, vis mockup data -->
-      <div v-else-if="isExampleDate">
-        <div
-          v-for="task in exampleDateTasks"
-          :key="task.title"
-          class="inspection-item"
-          :class="{ 'warning': task.status === 'warning' }"
-          @click="handleMockTaskClick(task.title)"
-        >
-          <h3 class="inspection-title">{{ task.title }}</h3>
-          <div class="inspection-location">{{ task.location }}</div>
-          <div class="status-icon" :class="task.status">
-            <IconInfoCircle v-if="task.status === 'normal'" />
-            <IconAlertTriangle v-else />
-          </div>
         </div>
       </div>
 
@@ -165,7 +130,7 @@ const responsibleUsersString = computed(() => {
         <button class="back-button" @click="goBackToList">
           <IconChevronLeft />
         </button>
-        <h2 class="task-title">{{ selectedTask.name }}</h2>
+        <h2 class="task-title">{{ selectedTask.title || selectedTask.navn || selectedTask.name }}</h2>
         <button class="edit-button">
           <IconPencil />
         </button>
@@ -173,8 +138,8 @@ const responsibleUsersString = computed(() => {
 
       <div class="task-content">
         <!-- Beskrivelse og indhold - nu kommer beskrivelsen INDEN bannere -->
-        <p v-if="selectedTask.description" class="task-description">
-          {{ selectedTask.description }}
+        <p v-if="selectedTask.description || selectedTask.beskrivelse" class="task-description">
+          {{ selectedTask.description || selectedTask.beskrivelse }}
         </p>
 
         <!-- Bannere baseret på status - nu vises de EFTER beskrivelsen -->

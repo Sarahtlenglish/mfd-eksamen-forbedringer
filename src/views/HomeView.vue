@@ -1,12 +1,13 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import CalendarComponent from '../components/calendar/CalendarComponent.vue'
 import ButtonComponent from '../components/ui/ButtonComponent.vue'
 import DetailPanel from '../components/ui/panels/DetailPanelComponent.vue'
 import { IconPlus } from '@tabler/icons-vue'
 import { useRouter } from 'vue-router'
 import { useEgenkontrolStore } from '../stores/egenkontrolStore'
-import { defaultCalendarDate } from '@/mock/index'
+import { useEnhedStore } from '@/stores/enhedStore'
+import { processEnheder } from '@/utils/labelHelpers'
 
 // Get store
 const egenkontrolStore = useEgenkontrolStore()
@@ -15,38 +16,45 @@ const egenkontrolStore = useEgenkontrolStore()
 const calendarTasks = ref({})
 const selectedItem = ref(null)
 const router = useRouter()
+const enhedStore = useEnhedStore()
 
-// Brug defaultCalendarDate fra mock data
-const defaultDate = defaultCalendarDate
+// Process checklist data to include labels
+const processedEnheder = computed(() => processEnheder(enhedStore.enheder))
 
 // Prepare calendar tasks based on store data
-onMounted(() => {
-  // Get tasks from store and format them for the calendar component
-  calendarTasks.value = egenkontrolStore.getCalendarTasks()
+onMounted(async () => {
+  // Fetch egenkontroller and get calendar tasks
+  await egenkontrolStore.fetchEgenkontroller()
+  calendarTasks.value = await egenkontrolStore.getCalendarTasks()
+  console.log('Calendar tasks in HomeView:', calendarTasks.value)
 })
+
+// Helper to format date as YYYY-MM-DD (Danish compatible, but always ISO)
+function formatDateToISO(date) {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
 
 // Handle calendar date clicks
 const handleDateClick = (date) => {
-  // Format the date as ISO string to match the calendar task keys
-  const dateKey = date.toISOString().split('T')[0]
-  // Check if there are tasks for this date
-  const tasksForDate = calendarTasks.value[dateKey] || []
-  if (tasksForDate.length > 0) {
-    // If there are tasks for this date, show the first one
-    // Get the original task data for the detail panel
-    const originalTask = tasksForDate[0].originalTask
-    // Show full task data in the detail panel
-    selectedItem.value = {
-      ...originalTask,
-      date: date
+  const dateKey = formatDateToISO(date)
+  // Find alle tasks for dagen
+  const tasks = (calendarTasks.value[dateKey] || []).map((task) => {
+    // Find enhed i processedEnheder med samme id/location
+    const enhed = processedEnheder.value.find(
+      e => e.id === task.details || e.id === task.lokation || e.id === task.location
+        || e.location === task.details || e.location === task.lokation || e.location === task.location
+    )
+    return {
+      ...task,
+      details: enhed ? enhed.location : (task.details || task.lokation || task.location)
     }
-  } else {
-    // If no tasks, just show the date
-    selectedItem.value = {
-      date: date,
-      name: 'Egenkontrol for ' + date.toLocaleDateString('da-DK'),
-      type: 'Egenkontrol'
-    }
+  })
+  selectedItem.value = {
+    date,
+    tasks
   }
 }
 
@@ -59,14 +67,12 @@ const handleEdit = (item) => {
   console.log('Edit item:', item)
 }
 
-const handleDelete = (item) => {
-  // Handle delete
-  console.log('Delete item:', item)
+const handleDelete = async (item) => {
   if (item.id) {
-    egenkontrolStore.deleteEgenkontrol(item.id)
+    await egenkontrolStore.deleteEgenkontrol(item.id)
     selectedItem.value = null
     // Update calendar tasks after deletion
-    calendarTasks.value = egenkontrolStore.getCalendarTasks()
+    calendarTasks.value = await egenkontrolStore.getCalendarTasks()
   }
 }
 
@@ -95,7 +101,6 @@ const createEgenkontrol = () => {
         <CalendarComponent
           @date-click="handleDateClick"
           :customTasks="calendarTasks"
-          :initialDate="defaultDate"
         />
       </div>
       <DetailPanel

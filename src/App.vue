@@ -1,9 +1,36 @@
 <script setup>
+import { onMounted } from 'vue'
 import SideNavigation from '@/components/navigation/SideNavigationComponent.vue'
 import Header from '@/components/navigation/HeaderComponent.vue'
 import { useRoute } from 'vue-router'
+import { useEgenkontrolStore } from '@/stores/egenkontrolStore'
+import { useBrugerStore } from '@/stores/brugerStore'
+import { useEnhedStore } from '@/stores/enhedStore'
+import { useTjeklisteStore } from '@/stores/tjeklisteStore'
 
 const route = useRoute()
+
+// Initialiser stores
+const egenkontrolStore = useEgenkontrolStore()
+const brugerStore = useBrugerStore()
+const enhedStore = useEnhedStore()
+const tjeklisteStore = useTjeklisteStore()
+
+// Hent alt nødvendigt data når applikationen starter
+onMounted(async () => {
+  try {
+    // Hent data parallelt for bedre performance
+    await Promise.all([
+      egenkontrolStore.fetchEgenkontroller(),
+      brugerStore.fetchBrugere(),
+      enhedStore.fetchEnheder(),
+      tjeklisteStore.fetchTjeklister()
+    ])
+    console.log('All initial data loaded successfully')
+  } catch (error) {
+    console.error('Error loading initial data:', error)
+  }
+})
 
 // Tjekker om den aktuelle rute er /components eller /styleguide
 const shouldHideNavigation = () => {

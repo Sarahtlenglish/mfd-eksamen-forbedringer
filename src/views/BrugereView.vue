@@ -6,25 +6,14 @@ import ButtonComponent from '@/components/ui/ButtonComponent.vue'
 import GruppePanelComponent from '@/components/ui/panels/GruppePanelComponent.vue'
 import { IconPlus } from '@tabler/icons-vue'
 import DetailPanelComponent from '@/components/ui/panels/DetailPanelComponent.vue'
-import { brugerStore } from '@/stores/brugerStore'
-import { brugerConfig } from '@/configs/brugerConfig'
+import { useBrugerStore } from '@/stores/brugerStore'
+import { processBrugere } from '@/utils/labelHelpers'
 
 const router = useRouter()
-const brugerStoreInstance = brugerStore()
-
-// Helper functions to get labels
-const getRoleLabel = (value) => {
-  const option = brugerConfig.fieldDefinitions.rolle.options.find(opt => opt.value === value)
-  return option ? option.label : value
-}
+const brugerStore = useBrugerStore()
 
 // Process checklist data to include labels
-const processedBrugere = computed(() => {
-  return brugerStoreInstance.brugere.map(item => ({
-    ...item,
-    rolle: getRoleLabel(item.rolle)
-  }))
-})
+const processedBrugere = computed(() => processBrugere(brugerStore.brugere))
 
 // Define columns for this view
 const columns = [
@@ -55,7 +44,7 @@ const handleEdit = (item) => {
 const handleDelete = async (item) => {
   if (confirm(`Er du sikker på, at du vil slette ${item.fuldeNavn}?`)) {
     try {
-      await brugerStoreInstance.deleteBruger(item.id)
+      await brugerStore.deleteBruger(item.id)
       selectedItem.value = null
     } catch (error) {
       console.error('Error deleting bruger:', error)
@@ -74,9 +63,9 @@ onMounted(async () => {
   loading.value = true
   try {
     // Initial fetch
-    await brugerStoreInstance.fetchBrugere()
+    await brugerStore.fetchBrugere()
     // Set up real-time listener
-    unsubscribe = brugerStoreInstance.setupBrugereListener()
+    unsubscribe = brugerStore.setupBrugereListener()
   } catch (error) {
     console.error('Error setting up brugere:', error)
   } finally {

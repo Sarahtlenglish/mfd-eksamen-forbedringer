@@ -5,11 +5,11 @@ import DetailPanel from '@/components/ui/panels/DetailPanelComponent.vue'
 import { IconX } from '@tabler/icons-vue'
 import WizardFormComponent from '@/components/forms/WizardFormComponent.vue'
 import { getWizardConfig } from '@/components/forms/WizardFormConfig.js'
-import { brugerStore } from '@/stores/brugerStore'
+import { useBrugerStore } from '@/stores/brugerStore'
 import { brugerConfig, getRoleLabel } from '@/configs/brugerConfig'
 
 const router = useRouter()
-const brugerStoreInstance = brugerStore()
+const brugerStore = useBrugerStore()
 const wizardRef = ref(null)
 
 // Force re-create wizard when needed
@@ -41,7 +41,7 @@ const leaderOptions = computed(() => {
     { value: 'bruger_er_chef', label: 'Denne bruger er chef' }
   ]
   // Add existing users as options
-  brugerStoreInstance.brugere.forEach((bruger) => {
+  brugerStore.brugere.forEach((bruger) => {
     options.push({
       value: bruger.id,
       label: bruger.fuldeNavn
@@ -119,7 +119,7 @@ const handleComplete = async () => {
 
     // Add user to Firestore through store
     try {
-      await brugerStoreInstance.addBruger(newBruger)
+      await brugerStore.addBruger(newBruger)
       console.log('New user added to store:', newBruger)
 
       // Navigate back to users overview
@@ -142,7 +142,7 @@ const handleCancel = () => {
 // Fetch users when component mounts
 onMounted(async () => {
   try {
-    await brugerStoreInstance.fetchBrugere()
+    await brugerStore.fetchBrugere()
   } catch (error) {
     console.error('Error fetching users:', error)
   }

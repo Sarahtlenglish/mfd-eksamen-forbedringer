@@ -3,6 +3,7 @@ import { ref, computed, inject } from 'vue'
 import { IconPlus, IconX } from '@tabler/icons-vue'
 import InputComponent from '@/components/ui/InputComponent.vue'
 import ButtonComponent from '@/components/ui/ButtonComponent.vue'
+import { getLocationLabel } from '@/utils/labelHelpers'
 
 const props = defineProps({
   modelValue: {
@@ -56,13 +57,7 @@ function generateLocationCode(baseLocation, index) {
 // Generate location label
 function generateLocationLabel(baseLocation, locationCode) {
   if (!baseLocation) return ''
-
-  let baseLabel = ''
-  if (baseLocation === 'bygningA') baseLabel = 'Bygning A'
-  else if (baseLocation === 'bygningB') baseLabel = 'Bygning B'
-  else if (baseLocation === 'bygningC') baseLabel = 'Bygning C'
-
-  return locationCode || baseLabel
+  return getLocationLabel(baseLocation) + (locationCode ? ` - ${locationCode}` : '')
 }
 
 // Opret underenheder baseret på antal

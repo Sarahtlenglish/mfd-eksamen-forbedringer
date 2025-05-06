@@ -1,6 +1,14 @@
 <script setup>
 import { computed } from 'vue'
-import { IconAlertCircle, IconInfoCircle, IconAlertTriangle } from '@tabler/icons-vue'
+import { IconAlertCircle, IconAlertTriangle } from '@tabler/icons-vue'
+import { useEnhedStore } from '@/stores/enhedStore'
+
+const enhedStore = useEnhedStore()
+
+const getEnhedLocation = (id) => {
+  const enhed = enhedStore.getEnhedById(id)
+  return enhed ? enhed.location : id
+}
 
 const props = defineProps({
   title: {
@@ -14,8 +22,8 @@ const props = defineProps({
   },
   status: {
     type: String,
-    default: 'normal',
-    validator: value => ['normal', 'warning', 'error'].includes(value)
+    default: 'inaktiv',
+    validator: value => ['aktiv', 'inaktiv', 'udført', 'afvigelse', 'overskredet'].includes(value)
   }
 })
 
@@ -23,12 +31,15 @@ const hasDetails = computed(() => !!props.details)
 
 const getStatusIcon = computed(() => {
   switch (props.status) {
-    case 'normal':
-      return IconInfoCircle
-    case 'warning':
+    case 'aktiv':
+      return null
+    case 'udført':
+      return null
+    case 'afvigelse':
       return IconAlertTriangle
-    case 'error':
+    case 'overskredet':
       return IconAlertCircle
+    case 'inaktiv':
     default:
       return null
   }
@@ -49,7 +60,7 @@ const getStatusIconClass = computed(() => {
   >
     <div class="task-content">
       <div class="task-title">{{ title }}</div>
-      <div class="task-details" v-if="hasDetails">{{ details }}</div>
+      <div class="task-details" v-if="hasDetails">{{ getEnhedLocation(details) }}</div>
     </div>
     <div class="task-icon-container">
       <component :is="getStatusIcon" class="task-icon" :class="getStatusIconClass" />
@@ -77,8 +88,9 @@ const getStatusIconClass = computed(() => {
   transition: $transition-base;
 
   // Status variants
-  &.status-normal {
+  &.status-aktiv {
     background-color: $secondary-100;
+    border: 1px solid $secondary-200;
 
     &:hover {
       background-color: $secondary-200;
@@ -89,19 +101,34 @@ const getStatusIconClass = computed(() => {
     }
   }
 
-  &.status-warning {
-    background-color: $warning-100;
+  &.status-inaktiv {
+    background-color: $secondary-100;
+    border: 1px solid $secondary-300;
 
     &:hover {
-      background-color: $warning-200;
+      background-color: $secondary-200;
     }
 
     &:active {
-      background-color: $warning-300;
+      background-color: $neutral-300;
     }
   }
 
-  &.status-error {
+  &.status-udført {
+    background-color: $secondary-100;
+    border: 1px solid $secondary-200;
+    opacity: $opacity-64;
+
+    &:hover {
+      background-color: $secondary-200;
+    }
+
+    &:active {
+      background-color: $secondary-300;
+    }
+  }
+
+  &.status-afvigelse {
     background-color: $error-100;
 
     &:hover {
@@ -110,6 +137,18 @@ const getStatusIconClass = computed(() => {
 
     &:active {
       background-color: $error-300;
+    }
+  }
+
+  &.status-overskredet {
+    background-color: $warning-100;
+
+    &:hover {
+      background-color: $warning-200;
+    }
+
+    &:active {
+      background-color: $warning-300;
     }
   }
 }
@@ -121,7 +160,7 @@ const getStatusIconClass = computed(() => {
   flex-direction: column;
   gap: 4px;
   margin-right: 4px;
-  max-width: calc(100% - 20px);
+  max-width: calc(100% - 2px);
   overflow: hidden;
 }
 
@@ -155,16 +194,24 @@ const getStatusIconClass = computed(() => {
   width: 20px;
   height: 20px;
 
-  &.status-icon-normal {
+  &.status-icon-aktiv {
     color: $secondary-500;
   }
 
-  &.status-icon-warning {
-    color: $warning-base;
+  &.status-icon-inaktiv {
+    color: $secondary-100;
   }
 
-  &.status-icon-error {
+  &.status-icon-udført {
+    color: $success-base;
+  }
+
+  &.status-icon-afvigelse {
     color: $error-base;
+  }
+
+  &.status-icon-overskredet {
+    color: $warning-base;
   }
 }
 </style>

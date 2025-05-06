@@ -8,7 +8,6 @@ import InputComponent from '@/components/ui/InputComponent.vue'
 import DropdownComponent from '@/components/ui/DropdownComponent.vue'
 import DatePickerComponent from '@/components/ui/DatePickerComponent.vue'
 import UnderenhederListComponent from '@/components/forms/UnderenhederListComponent.vue'
-import { egenkontrolFormData } from '@/mock/data/egenkontrol'
 import { egenkontrolConfig } from '@/config/egenkontrolConfig'
 
 /**
@@ -364,9 +363,10 @@ export function getWizardConfig(context, options = {}) {
  * Konverterer formulardata til et format til visning i DetailPanel
  * @param {string} context - Formulartype
  * @param {Object} formData - Brugerinput fra formularen
+ * @param {Object} dropdownOptions - Dropdown-options for at finde labels
  * @returns {Object} Formateret objekt til DetailPanel
  */
-export function prepareDetailItem(context, formData) {
+export function prepareDetailItem(context, formData, dropdownOptions = {}) {
   // Find label baseret på værdi fra dropdown-options
   const findLabel = (options, value) => {
     if (!options || !value) return value || 'Ikke valgt'
@@ -409,7 +409,7 @@ export function prepareDetailItem(context, formData) {
         tjekliste: formData.navn || 'Ny tjekliste',
         type: formData.type || 'Standard',
         status: 'normal',
-        frequency: findLabel(egenkontrolFormData.frekvensOptions, formData.frekvens) || 'Ikke valgt'
+        frequency: findLabel((dropdownOptions.frekvensOptions || []), formData.frekvens) || 'Ikke valgt'
       }
     }
 

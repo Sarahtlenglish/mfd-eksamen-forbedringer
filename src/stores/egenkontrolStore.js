@@ -1,14 +1,48 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
-import { formatTasksForCalendar } from '@/mock/index'
 import { db } from '@/configs/firebase'
-import { collection, addDoc, deleteDoc, doc, getDocs, onSnapshot, getDoc } from 'firebase/firestore'
+import { collection, addDoc, deleteDoc, doc, getDocs, onSnapshot, getDoc, updateDoc } from 'firebase/firestore'
 
 export const useEgenkontrolStore = defineStore('egenkontrol', () => {
   // State
   const egenkontrollerData = ref([])
   const loading = ref(false)
   const error = ref(null)
+
+  // Helper to update status in Firestore
+  const updateStatusInFirebase = async (taskId, newStatus) => {
+    try {
+      await updateDoc(doc(db, 'Egenkontrol', taskId), { status: newStatus })
+    } catch (err) {
+      console.error('Error updating status in Firestore:', err)
+    }
+  }
+
+  // Update statuses based on date and rules, and sync to Firestore
+  const updateStatusesBasedOnDate = async () => {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    for (const task of egenkontrollerData.value) {
+      const taskDate = new Date(task.startDato || task.startDate)
+      taskDate.setHours(0, 0, 0, 0)
+      let newStatus = task.status
+      if (task.status === 'udført') {
+        newStatus = 'udført'
+      } else if (task.status === 'afvigelse' && taskDate < today) {
+        newStatus = 'afvigelse'
+      } else if (taskDate < today && task.status !== 'udført') {
+        newStatus = 'overskredet'
+      } else if (taskDate.getTime() === today.getTime()) {
+        newStatus = 'aktiv'
+      } else {
+        newStatus = 'inaktiv'
+      }
+      if (task.status !== newStatus) {
+        task.status = newStatus
+        await updateStatusInFirebase(task.id, newStatus)
+      }
+    }
+  }
 
   // Fetch all egenkontroller
   const fetchEgenkontroller = async () => {
@@ -20,6 +54,7 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
         ...doc.data()
       }))
       egenkontrollerData.value = egenkontroller
+      await updateStatusesBasedOnDate()
     } catch (err) {
       console.error('Error fetching egenkontroller:', err)
       error.value = err
@@ -103,12 +138,64 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
     }
   }
 
+  // Format tasks for calendar display
+  const formatTasksForCalendar = (tasks) => {
+    const calendarTasks = {}
+
+    tasks.forEach((task) => {
+      // Brug startDato eller startDate som dato
+      const date = task.startDato || task.startDate
+      if (!date) {
+        console.log('No date found for task:', task)
+        return
+      }
+
+      // Formatér dato til ISO string (YYYY-MM-DD)
+      const dateKey = date.split('T')[0]
+
+      // Opret array for denne dato hvis den ikke findes
+      if (!calendarTasks[dateKey]) {
+        calendarTasks[dateKey] = []
+      }
+
+      // Tilføj task til kalenderen
+      calendarTasks[dateKey].push({
+        id: task.id,
+        title: task.navn || task.name || 'Egenkontrol',
+        details: task.lokation || task.location || '',
+        status: task.status || 'normal',
+        originalTask: task // Gem hele task objektet for detaljeret visning
+      })
+    })
+
+    console.log('Formatted calendar tasks:', calendarTasks)
+    return calendarTasks
+  }
+
   // Get calendar tasks with resolved references
   const getCalendarTasks = async () => {
-    const resolvedEgenkontroller = await Promise.all(
-      egenkontrollerData.value.map(resolveReferences)
-    )
-    return formatTasksForCalendar(resolvedEgenkontroller)
+    try {
+      // Ensure we have the latest data
+      if (egenkontrollerData.value.length === 0) {
+        await fetchEgenkontroller()
+      }
+
+      // Resolve references for all egenkontroller
+      const resolvedEgenkontroller = await Promise.all(
+        egenkontrollerData.value.map(resolveReferences)
+      )
+
+      // Update statuses after resolving references
+      await updateStatusesBasedOnDate()
+
+      // Format tasks for calendar
+      const formattedTasks = formatTasksForCalendar(resolvedEgenkontroller)
+
+      return formattedTasks
+    } catch (err) {
+      console.error('Error getting calendar tasks:', err)
+      return {}
+    }
   }
 
   return {
@@ -120,6 +207,7 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
     addEgenkontrol,
     deleteEgenkontrol,
     resolveReferences,
-    getCalendarTasks
+    getCalendarTasks,
+    updateStatusesBasedOnDate
   }
 })

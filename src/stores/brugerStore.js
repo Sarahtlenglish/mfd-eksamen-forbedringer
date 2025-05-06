@@ -3,10 +3,10 @@ import { ref } from 'vue'
 import { db } from '@/configs/firebase'
 import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, onSnapshot } from 'firebase/firestore'
 
-export const brugerStore = defineStore('bruger', () => {
+export const useBrugerStore = defineStore('bruger', () => {
   // State
   const brugere = ref([])
-  const brugerNavne = ref({}) // Map of user IDs to names
+  const brugerNavne = ref({})
   const historyItems = ref([])
   const loading = ref(false)
   const error = ref(null)

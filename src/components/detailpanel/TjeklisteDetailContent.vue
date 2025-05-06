@@ -1,8 +1,8 @@
 <script setup>
-import { tjeklisteConfig } from '@/config/tjeklisteConfig'
+import { getTypeLabel, getFrekvensLabel } from '@/utils/labelHelpers'
 
 // Use script setup for Composition API
-const props = defineProps({
+defineProps({
   context: {
     type: String,
     required: true
@@ -13,18 +13,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['close', 'edit', 'delete', 'microcopy'])
-
-// Helper functions to get labels from values
-const getTypeLabel = (value) => {
-  const option = tjeklisteConfig.typeOptions.find(opt => opt.value === value)
-  return option ? option.label : value
-}
-
-const getFrekvensLabel = (value) => {
-  const option = tjeklisteConfig.frekvensOptions.find(opt => opt.value === value)
-  return option ? option.label : value
-}
+defineEmits(['close', 'edit', 'delete', 'microcopy'])
 </script>
 
 <template>
