@@ -4,7 +4,7 @@ import CalendarHeader from './CalendarHeader.vue'
 import WeekDaysHeader from './WeekDaysHeader.vue'
 import CalendarGrid from './CalendarGrid.vue'
 import CalendarDayTask from './CalendarDayTask.vue'
-import { useEgenkontrolStore } from '@/stores/egenkontrolStore'
+import { formatDateToISO } from '@/utils/dateHelpers'
 
 const props = defineProps({
   customTasks: {
@@ -22,14 +22,9 @@ const emit = defineEmits(['date-click'])
 const currentDate = ref(new Date())
 const selectedDate = ref(new Date())
 
-const egenkontrolStore = useEgenkontrolStore()
-const calendarTasks = ref({})
-
-// Sæt initialDate når komponenten monteres og hent kalender tasks
-onMounted(async () => {
+onMounted(() => {
   currentDate.value = new Date(props.initialDate)
   selectedDate.value = new Date(props.initialDate)
-  calendarTasks.value = await egenkontrolStore.getCalendarTasks()
 })
 
 const currentMonth = computed(() => currentDate.value.getMonth())
@@ -52,18 +47,10 @@ const selectDate = (date) => {
   emit('date-click', date)
 }
 
-// Hjælpefunktion til at formatere dato til ISO string
-const formatDateToISO = (date) => {
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
-  return `${year}-${month}-${day}`
-}
-
-// Brug det formatterede kalender-objekt til at få tasks for en specifik dato
+// Hjælpefunktion til at formatere dato til ISO string - brug vores fælles funktion
 const getTasksForDate = (date) => {
   const dateKey = formatDateToISO(date)
-  return calendarTasks.value[dateKey] || []
+  return props.customTasks[dateKey] || []
 }
 </script>
 

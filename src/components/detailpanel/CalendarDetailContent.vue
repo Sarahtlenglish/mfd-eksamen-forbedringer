@@ -1,10 +1,14 @@
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useEgenkontrolStore } from '@/stores/egenkontrolStore'
-import CalendarDayTask from '@/components/calendar/CalendarDayTask.vue'
+import { useBrugerStore } from '@/stores/brugerStore'
+import { useEnhedStore } from '@/stores/enhedStore'
+import { useTjeklisteStore } from '@/stores/tjeklisteStore'
+import { getDaysOverdue } from '@/utils/dateHelpers'
 import BannerComponent from '@/components/ui/BannerComponent.vue'
 import ButtonComponent from '@/components/ui/ButtonComponent.vue'
-import { IconChevronLeft, IconPencil, IconCheck } from '@tabler/icons-vue'
+import { IconCheck } from '@tabler/icons-vue'
+import { getBannerType, getUserName, getEnhedName, getTjeklisteName, getFrekvensLabel, getTidspunktLabel } from '@/utils/labelHelpers'
 
 const props = defineProps({
   item: {
@@ -13,137 +17,89 @@ const props = defineProps({
   }
 })
 
-// State for visning
+// State
 const selectedTask = ref(null)
+const calendarTasksCache = ref({})
 
-// Nulstil selectedTask når item (dagen) ændres
+// Stores
+const egenkontrolStore = useEgenkontrolStore()
+const brugerStore = useBrugerStore()
+const enhedStore = useEnhedStore()
+const tjeklisteStore = useTjeklisteStore()
+
+// Load calendar tasks on mount
+onMounted(async () => {
+  calendarTasksCache.value = await egenkontrolStore.getCalendarTasks()
+})
+
+// Reset selectedTask when date changes
 watch(() => props.item, () => {
   selectedTask.value = null
 }, { deep: true })
 
-// Hent store og tasks for valgt dato
-const egenkontrolStore = useEgenkontrolStore()
-const tasksForSelectedDate = computed(() => {
-  if (props.item && Array.isArray(props.item.tasks)) {
-    console.log('DetailPanel received tasks:', props.item.tasks)
-    return props.item.tasks
+// Update cache only when store data changes
+watch(() => egenkontrolStore.egenkontrollerData, async (newEgenkontroller) => {
+  if (newEgenkontroller && newEgenkontroller.length > 0) {
+    try {
+      const storeTasks = await egenkontrolStore.getCalendarTasks()
+      calendarTasksCache.value = storeTasks
+    } catch (error) {
+      console.error('Error updating calendar tasks:', error)
+    }
   }
-  if (!props.item || !props.item.date) return []
-  const dateKey = props.item.date.toISOString().split('T')[0]
-  const tasks = egenkontrolStore.getCalendarTasks()[dateKey] || []
-  return tasks
-})
+}, { deep: true })
 
-// Maps status values to the format expected by CalendarDayTask
-const mapStatus = (status) => {
-  switch (status) {
-    case 'afvigelse': return 'afvigelse'
-    case 'overskredet': return 'overskredet'
-    case 'udført': return 'udført'
-    case 'aktiv': return 'aktiv'
-    case 'inaktiv': return 'inaktiv'
-    default: return 'inaktiv'
-  }
-}
-
-// Håndter klik på task
-const handleTaskClick = (task) => {
-  selectedTask.value = task
-}
-
-// Gå tilbage til task-listen
-const goBackToList = () => {
-  selectedTask.value = null
-}
-
-// Beregn hvilket banner der skal vises baseret på task status
+// Banner type based on task status
 const bannerType = computed(() => {
-  if (!selectedTask.value) return null
-
-  // Hvis opgaven er markeret som udført, vis grønt banner
-  if (selectedTask.value.status === 'udført') {
-    return 'completed'
-  }
-
-  // Vælg banner baseret på status
-  if (selectedTask.value.status === 'afvigelse') {
-    return 'deviation' // Rød banner for afvigelser
-  } else if (selectedTask.value.status === 'overskredet') {
-    return 'overdue' // Gult banner for overskredet deadline
-  }
-
-  // Hvis ingen af ovenstående - ingen banner
-  return null
+  if (!props.item) return null
+  return getBannerType(props.item.status)
 })
 
-// Send påmindelse til ansvarlige (dummy funktion)
-const sendReminder = () => {
-  alert('Påmindelse sendt til ansvarlige brugere')
+// Action handlers
+const sendReminder = () => alert('Påmindelse sendt til ansvarlige brugere')
+const performInspection = async () => {
+  try {
+    // Opdater status til 'udført' i storen
+    await egenkontrolStore.updateEgenkontrolStatus(props.item.id, 'udført')
+    // Opdater den lokale cache
+    const storeTasks = await egenkontrolStore.getCalendarTasks()
+    calendarTasksCache.value = storeTasks
+  } catch (error) {
+    console.error('Fejl ved opdatering af egenkontrol status:', error)
+    alert('Der opstod en fejl ved opdatering af egenkontrol status')
+  }
 }
+const createDeviationTask = () => alert('Opgave for afvigelse oprettet')
 
-// Udfør egenkontrol (dummy funktion)
-const performInspection = () => {
-  alert('Egenkontrol markeret som udført')
-}
+watch(selectedTask, () => {})
 
-// Opret opgave for afvigelse (dummy funktion)
-const createDeviationTask = () => {
-  alert('Opgave for afvigelse oprettet')
-}
-
-// Formatér ansvarlige brugere som string
-const responsibleUsersString = computed(() => {
-  if (!selectedTask.value || !selectedTask.value.responsibleUsers) return ''
-  return selectedTask.value.responsibleUsers.join(', ')
+const overdueDays = computed(() => {
+  if (!props.item || !props.item.startDato) return 0
+  return getDaysOverdue(props.item.startDato)
 })
 </script>
 
 <template>
   <div class="calendar-detail-content">
-    <!-- Liste over tasks -->
-    <div v-if="!selectedTask" class="task-list">
-      <!-- Hvis vi har tasks fra store, vis dem -->
-      <div v-if="tasksForSelectedDate.length > 0">
-        <div
-          v-for="task in tasksForSelectedDate"
-          :key="task.id"
-          class="task-item"
-          @click="handleTaskClick(task)"
-        >
-          <CalendarDayTask
-            :title="task.title || task.navn"
-            :details="task.details"
-            :status="mapStatus(task.status)"
-          />
-        </div>
-      </div>
-
-      <!-- Hvis ingen tasks, vis en tom state -->
-      <div v-else class="no-tasks">
-        <p>Ingen egenkontroller planlagt denne dag</p>
-      </div>
-    </div>
-
-    <!-- Detaljeret visning af valgt task -->
-    <div v-else class="task-detail-view">
-      <div class="task-header">
-        <button class="back-button" @click="goBackToList">
-          <IconChevronLeft />
-        </button>
-        <h2 class="task-title">{{ selectedTask.title || selectedTask.navn || selectedTask.name }}</h2>
-        <button class="edit-button">
-          <IconPencil />
-        </button>
-      </div>
-
+    <!-- Task detail view -->
+    <div class="task-detail-view">
       <div class="task-content">
-        <!-- Beskrivelse og indhold - nu kommer beskrivelsen INDEN bannere -->
-        <p v-if="selectedTask.description || selectedTask.beskrivelse" class="task-description">
-          {{ selectedTask.description || selectedTask.beskrivelse }}
+        <div class="detail-section">
+        <!-- Description -->
+        <p v-if="props.item.description || props.item.beskrivelse" class="task-description">
+          {{ props.item.description || props.item.beskrivelse }}
         </p>
-
-        <!-- Bannere baseret på status - nu vises de EFTER beskrivelsen -->
-        <!-- Advarselsbanner ved overskredet deadline (gul) -->
+        <!-- Deadline info -->
+        <div class="detail-section" v-if="bannerType === 'overdue'">
+          <div class="deadline-info">
+            <div class="detail-row">
+              <span class="detail-label">
+                Deadline - overskredet {{ overdueDays }} dag{{ overdueDays === 1 ? '' : 'e' }}
+              </span>
+            </div>
+          </div>
+        </div>
+        <!-- Status banners -->
         <BannerComponent
           v-if="bannerType === 'overdue'"
           variant="warning"
@@ -153,8 +109,6 @@ const responsibleUsersString = computed(() => {
           :link-break="true"
           @click:link="sendReminder"
         />
-
-        <!-- Afvigelsesbanner for opgaver med afvigelser (rød) -->
         <BannerComponent
           v-if="bannerType === 'deviation'"
           variant="error"
@@ -164,95 +118,13 @@ const responsibleUsersString = computed(() => {
           :link-break="true"
           @click:link="createDeviationTask"
         />
-
-        <!-- Udført banner for gennemførte kontroller (grøn) -->
         <BannerComponent
           v-if="bannerType === 'completed'"
           variant="success"
           text="Egenkontrol udført d. 6 Marts af Børge Jakobsen"
         />
-
-        <!-- Deadline information - kun for overskredet deadline -->
-        <div class="detail-section" v-if="bannerType === 'overdue'">
-          <div class="deadline-info">
-            <div class="detail-row">
-              <span class="detail-label">Deadline - overskredet 3 dage</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Standard og specifikation -->
-        <div v-if="selectedTask.standard" class="detail-section">
-          <div class="detail-row">
-            <span class="detail-label">{{ selectedTask.standard }} - {{ selectedTask.standardTitle }}</span>
-          </div>
-          <div class="detail-row">
-            <span>{{ selectedTask.name }}</span>
-          </div>
-          <div class="detail-row">
-            <span>{{ selectedTask.location }}</span>
-          </div>
-        </div>
-
-        <!-- Detaljer for brugere -->
-        <div class="detail-section user-section">
-          <div class="location-info" v-if="selectedTask.location">
-            <div class="detail-row">
-              <span class="detail-label">{{ selectedTask.type === 'Branddør' ? 'Branddøre (Kvartalsvis)' : selectedTask.type }}</span>
-            </div>
-            <div class="detail-row">
-              <span>{{ selectedTask.location }}</span>
-            </div>
-          </div>
-
-          <div class="detail-row">
-            <span class="detail-label">Ansvarlige brugere:</span>
-          </div>
-          <div class="detail-row">
-            <span>{{ responsibleUsersString }}</span>
-          </div>
-        </div>
-
-        <!-- Påmindelser -->
-        <div class="detail-section">
-          <div class="detail-row">
-            <span class="detail-label">Påmindelse - 1 dag før, kl. 09.00</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">Påmidelse - dagligt kl. 09.00 efter overskredet deadline</span>
-          </div>
-        </div>
-
-        <!-- Notifikationsinfomation -->
-        <div v-if="selectedTask.deadlineNotifications" class="detail-section">
-          <div v-for="(notification, index) in selectedTask.deadlineNotifications" :key="index" class="detail-row notification-row">
-            <span class="detail-label">{{ notification.recipient }} {{ notification.description }}</span>
-          </div>
-        </div>
-
-        <!-- FORHÅNDSVISNING for brandtrappe-inspektion -->
-        <div v-if="selectedTask.name && selectedTask.name.includes('Brandtrappe')" class="detail-section">
-          <div class="detail-row">
-            <span class="detail-label">FORHÅNDSVISNING</span>
-          </div>
-          <div class="checklist-preview">
-            <div class="checklist-item">
-              <span class="checklist-label">Brandtrappen er fri af genstande og farefri indgang?</span>
-              <div class="checkbox-placeholder"></div>
-            </div>
-            <div class="checklist-item">
-              <span class="checklist-label">Flugtvejsskilte er intakte og fungerende?</span>
-              <div class="checkbox-placeholder"></div>
-            </div>
-            <div class="checklist-item">
-              <span class="checklist-label">Selve brandtrappens konstruktion er stabil?</span>
-              <div class="checkbox-placeholder"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- "Udfør egenkontrol" knap - kun vis hvis ikke allerede udført -->
-        <div class="action-button-container" v-if="bannerType !== 'completed'">
+        <!-- Action button -->
+        <div class="action-button-container" v-if="bannerType === 'active' || bannerType === 'overdue'">
           <ButtonComponent
             variant="secondary"
             @click="performInspection"
@@ -263,6 +135,61 @@ const responsibleUsersString = computed(() => {
             </template>
             Udfør egenkontrol
           </ButtonComponent>
+        </div>
+      </div>
+        <!-- Rest of details sections -->
+        <!-- Standard og specifikation -->
+        <div v-if="props.item.standard" class="detail-section">
+          <div class="detail-row">
+            <span class="detail-label">{{ props.item.standard }} - {{ props.item.standardTitle }}</span>
+          </div>
+          <div class="detail-row">
+            <span>{{ props.item.name }}</span>
+          </div>
+          <div class="detail-row">
+            <span>{{ props.item.location }}</span>
+          </div>
+        </div>
+        <!-- Tjekliste og enhed -->
+        <div v-if="props.item.checkliste || props.item.lokation" class="detail-section">
+          <div v-if="props.item.checkliste" class="detail-row">
+            <strong>{{ getTjeklisteName(props.item.checkliste, tjeklisteStore) }}</strong>
+          </div>
+          <div v-if="props.item.lokation" class="detail-row">
+            <span>{{ getEnhedName(props.item.lokation, enhedStore) }}</span>
+          </div>
+        </div>
+        <!-- Users -->
+        <div v-if="props.item.ansvarligeBrugere?.length" class="detail-section">
+          <div class="detail-row">
+            <span class="detail-label">Ansvarlige brugere:</span>
+          </div>
+          <div class="detail-row user-row">
+            <span v-for="(bruger, idx) in props.item.ansvarligeBrugere" :key="idx">
+              {{ getUserName(bruger, brugerStore) }}
+            </span>
+          </div>
+        </div>
+        <!-- Påmindelser -->
+        <div v-if="props.item.påmindelser?.length" class="detail-section">
+          <div v-for="(påmindelse, idx) in props.item.påmindelser" :key="idx" class="detail-row">
+            <span class="detail-label">
+              Påmindelse -
+              {{ getFrekvensLabel(påmindelse.frekvens) }}
+              kl. {{ getTidspunktLabel(påmindelse.tidspunkt) }}
+              <template v-if="idx === 1">efter overskredet deadline</template>
+            </span>
+          </div>
+        </div>
+        <!-- Notifikationsmodtagere -->
+        <div v-if="props.item.modtagere?.length" class="detail-section">
+          <div v-for="(modtager, idx) in props.item.modtagere" :key="idx" class="detail-row">
+            <span class="detail-label">
+              {{ getUserName(modtager, brugerStore) }}
+              <template v-if="idx === 0">modtager kvittering</template>
+              <template v-else-if="idx === 1">modtager besked om afvigelser</template>
+            </span>
+          </div>
         </div>
       </div>
     </div>
@@ -354,7 +281,7 @@ const responsibleUsersString = computed(() => {
   gap: $spacing-medium;
 }
 
-.task-header {
+.task-actions {
   display: flex;
   align-items: center;
   gap: $spacing-small;
@@ -370,19 +297,11 @@ const responsibleUsersString = computed(() => {
     align-items: center;
     justify-content: center;
   }
-  .task-title {
-    flex: 1;
-    font-size: 18px;
-    font-weight: $subtitle-1-font-weight;
-    margin: 0;
-    color: $neutral-900;
-  }
 }
 
 .task-content {
   display: flex;
   flex-direction: column;
-  gap: $spacing-large;
 }
 
 .task-description {

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import CalendarComponent from '../components/calendar/CalendarComponent.vue'
 import ButtonComponent from '../components/ui/ButtonComponent.vue'
 import DetailPanel from '../components/ui/panels/DetailPanelComponent.vue'
@@ -7,54 +7,66 @@ import { IconPlus } from '@tabler/icons-vue'
 import { useRouter } from 'vue-router'
 import { useEgenkontrolStore } from '../stores/egenkontrolStore'
 import { useEnhedStore } from '@/stores/enhedStore'
-import { processEnheder } from '@/utils/labelHelpers'
+import { formatDateToISO } from '@/utils/dateHelpers'
+import { processCalendarTasks } from '@/utils/labelHelpers'
 
-// Get store
+// Get stores
 const egenkontrolStore = useEgenkontrolStore()
-
-// Calendar state management
-const calendarTasks = ref({})
-const selectedItem = ref(null)
-const router = useRouter()
 const enhedStore = useEnhedStore()
 
-// Process checklist data to include labels
-const processedEnheder = computed(() => processEnheder(enhedStore.enheder))
+// Calendar state management
+const calendarTasks = computed(() => {
+  const raw = egenkontrolStore.getCalendarTasksSync()
+  return Object.fromEntries(
+    Object.entries(raw).map(([date, tasks]) => [
+      date,
+      processCalendarTasks(tasks)
+    ])
+  )
+})
+
+watch(calendarTasks, (val) => {
+  console.log('calendarTasks changed:', val)
+})
+
+const selectedItem = ref(null)
+const selectedTaskId = ref(null)
+const selectedTask = computed(() => {
+  if (!selectedTaskId.value) return null
+  // Find task i alle datoer
+  return Object.values(calendarTasks.value)
+    .flat()
+    .find(task => task.id === selectedTaskId.value) || null
+})
+const detailPanelRef = ref(null)
+const router = useRouter()
+
+let unsubscribe = null
 
 // Prepare calendar tasks based on store data
 onMounted(async () => {
   // Fetch egenkontroller and get calendar tasks
   await egenkontrolStore.fetchEgenkontroller()
-  calendarTasks.value = await egenkontrolStore.getCalendarTasks()
+  unsubscribe = egenkontrolStore.setupEgenkontrollerListener()
+  await enhedStore.fetchEnheder()
   console.log('Calendar tasks in HomeView:', calendarTasks.value)
 })
 
-// Helper to format date as YYYY-MM-DD (Danish compatible, but always ISO)
-function formatDateToISO(date) {
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
-  return `${year}-${month}-${day}`
-}
+onUnmounted(() => {
+  if (unsubscribe) unsubscribe()
+})
 
-// Handle calendar date clicks
+// Handle calendar date clicks - send både dato og tasks
 const handleDateClick = (date) => {
   const dateKey = formatDateToISO(date)
-  // Find alle tasks for dagen
-  const tasks = (calendarTasks.value[dateKey] || []).map((task) => {
-    // Find enhed i processedEnheder med samme id/location
-    const enhed = processedEnheder.value.find(
-      e => e.id === task.details || e.id === task.lokation || e.id === task.location
-        || e.location === task.details || e.location === task.lokation || e.location === task.location
-    )
-    return {
-      ...task,
-      details: enhed ? enhed.location : (task.details || task.lokation || task.location)
-    }
-  })
+  const tasks = calendarTasks.value[dateKey] || []
+
   selectedItem.value = {
     date,
     tasks
+  }
+  if (detailPanelRef.value?.resetSelectedTaskMode) {
+    detailPanelRef.value.resetSelectedTaskMode()
   }
 }
 
@@ -71,14 +83,16 @@ const handleDelete = async (item) => {
   if (item.id) {
     await egenkontrolStore.deleteEgenkontrol(item.id)
     selectedItem.value = null
-    // Update calendar tasks after deletion
-    calendarTasks.value = await egenkontrolStore.getCalendarTasks()
   }
 }
 
 // Handle create egenkontrol button click
 const createEgenkontrol = () => {
   router.push('/egenkontrol/opret')
+}
+
+function toggleSelectedTask(task = null) {
+  selectedTaskId.value = task?.id || null
 }
 </script>
 
@@ -105,9 +119,12 @@ const createEgenkontrol = () => {
       </div>
       <DetailPanel
         v-if="selectedItem"
+        ref="detailPanelRef"
         context="calendar"
         :item="selectedItem"
+        :selectedTask="selectedTask"
         :showDeleteButton="false"
+        @select-task="toggleSelectedTask"
         @close="closeDetailPanel"
         @edit="handleEdit"
         @delete="handleDelete"

@@ -2,12 +2,13 @@
 import { computed } from 'vue'
 import { IconAlertCircle, IconAlertTriangle } from '@tabler/icons-vue'
 import { useEnhedStore } from '@/stores/enhedStore'
+import { getLocationLabel } from '@/utils/labelHelpers'
 
 const enhedStore = useEnhedStore()
 
 const getEnhedLocation = (id) => {
   const enhed = enhedStore.getEnhedById(id)
-  return enhed ? enhed.location : id
+  return enhed ? getLocationLabel(enhed.location) : id
 }
 
 const props = defineProps({

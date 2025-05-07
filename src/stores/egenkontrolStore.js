@@ -2,6 +2,8 @@ import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { db } from '@/configs/firebase'
 import { collection, addDoc, deleteDoc, doc, getDocs, onSnapshot, getDoc, updateDoc } from 'firebase/firestore'
+import { formatDateToISO } from '@/utils/dateHelpers'
+import { getLocationLabel } from '@/utils/labelHelpers'
 
 export const useEgenkontrolStore = defineStore('egenkontrol', () => {
   // State
@@ -12,9 +14,20 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
   // Helper to update status in Firestore
   const updateStatusInFirebase = async (taskId, newStatus) => {
     try {
-      await updateDoc(doc(db, 'Egenkontrol', taskId), { status: newStatus })
+      const taskRef = doc(db, 'Egenkontrol', taskId)
+      await updateDoc(taskRef, { status: newStatus })
+
+      // Opdater den lokale state direkte
+      const index = egenkontrollerData.value.findIndex(task => task.id === taskId)
+      if (index !== -1) {
+        egenkontrollerData.value[index] = {
+          ...egenkontrollerData.value[index],
+          status: newStatus
+        }
+      }
     } catch (err) {
       console.error('Error updating status in Firestore:', err)
+      throw err
     }
   }
 
@@ -71,6 +84,7 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
           id: doc.id,
           ...doc.data()
         }))
+        console.log('Firestore listener fired!', egenkontroller)
         egenkontrollerData.value = egenkontroller
       },
       (err) => {
@@ -150,8 +164,8 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
         return
       }
 
-      // Formatér dato til ISO string (YYYY-MM-DD)
-      const dateKey = date.split('T')[0]
+      // Formatér dato til ISO string (YYYY-MM-DD) med vores hjælperfunktion
+      const dateKey = formatDateToISO(date)
 
       // Opret array for denne dato hvis den ikke findes
       if (!calendarTasks[dateKey]) {
@@ -160,11 +174,11 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
 
       // Tilføj task til kalenderen
       calendarTasks[dateKey].push({
+        ...task,
         id: task.id,
         title: task.navn || task.name || 'Egenkontrol',
-        details: task.lokation || task.location || '',
-        status: task.status || 'normal',
-        originalTask: task // Gem hele task objektet for detaljeret visning
+        details: getLocationLabel(task.lokation || task.location || ''),
+        status: task.status || 'normal'
       })
     })
 
@@ -180,22 +194,18 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
         await fetchEgenkontroller()
       }
 
-      // Resolve references for all egenkontroller
-      const resolvedEgenkontroller = await Promise.all(
-        egenkontrollerData.value.map(resolveReferences)
-      )
-
-      // Update statuses after resolving references
-      await updateStatusesBasedOnDate()
-
-      // Format tasks for calendar
-      const formattedTasks = formatTasksForCalendar(resolvedEgenkontroller)
-
+      // Format tasks for calendar without resolving references
+      const formattedTasks = formatTasksForCalendar(egenkontrollerData.value)
       return formattedTasks
     } catch (err) {
       console.error('Error getting calendar tasks:', err)
       return {}
     }
+  }
+
+  // Synchronous version for computed property
+  const getCalendarTasksSync = () => {
+    return formatTasksForCalendar(egenkontrollerData.value)
   }
 
   return {
@@ -208,6 +218,8 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
     deleteEgenkontrol,
     resolveReferences,
     getCalendarTasks,
-    updateStatusesBasedOnDate
+    getCalendarTasksSync,
+    updateStatusesBasedOnDate,
+    updateEgenkontrolStatus: updateStatusInFirebase
   }
 })

@@ -2,7 +2,7 @@
 import { useBrugerStore } from '@/stores/brugerStore'
 import { useEnhedStore } from '@/stores/enhedStore'
 import { useTjeklisteStore } from '@/stores/tjeklisteStore'
-import { getFrekvensLabel, getTidspunktLabel } from '@/utils/labelHelpers'
+import { getFrekvensLabel, getTidspunktLabel, getUserName, getEnhedName, getTjeklisteName, getTjeklisteFrekvens } from '@/utils/labelHelpers'
 
 const props = defineProps({
   item: {
@@ -14,36 +14,6 @@ const props = defineProps({
 const brugerStore = useBrugerStore()
 const enhedStore = useEnhedStore()
 const tjeklisteStore = useTjeklisteStore()
-
-// Helper: find user name by ID
-const getUserName = (id) => {
-  const bruger = brugerStore.getBrugerById(id)
-  return bruger ? bruger.fuldeNavn : id
-}
-// Helper: find enhed name by ID
-const getEnhedName = (id) => {
-  const enhed = enhedStore.getEnhedById(id)
-  return enhed ? enhed.name : id
-}
-// Helper: find tjekliste name by ID
-const getTjeklisteName = (id) => {
-  const tjekliste = tjeklisteStore.tjeklister.find(t => t.id === id)
-  return tjekliste ? tjekliste.navn || tjekliste.tjeklisteNavn : id
-}
-
-// Hjælper til at tjekke om en værdi er gyldig - ikke tom og ikke "Ikke valgt"
-function isValid(value) {
-  return value && value !== '' && value !== 'Ikke valgt' && !value.includes('Ikke valgt')
-}
-
-const getTjeklisteFrekvens = (id) => {
-  const tjekliste = tjeklisteStore.tjeklister.find(t => t.id === id)
-  // Hvis tjekliste har et felt 'frekvens', brug label hvis muligt
-  if (tjekliste && tjekliste.frekvens) {
-    return getFrekvensLabel(tjekliste.frekvens)
-  }
-  return ''
-}
 </script>
 
 <template>
@@ -57,7 +27,7 @@ const getTjeklisteFrekvens = (id) => {
     <div class="detail-section">
       <div class="detail-row">
         <span class="detail-label">
-          Udføres {{ getTjeklisteFrekvens(props.item.checkliste) || '-' }}
+          Udføres {{ getTjeklisteFrekvens(props.item.checkliste, tjeklisteStore) || '-' }}
         </span>
       </div>
       <div v-if="props.item.startDato" class="detail-row">
@@ -66,29 +36,29 @@ const getTjeklisteFrekvens = (id) => {
     </div>
 
     <!-- Tjekliste og enhed -->
-    <div v-if="isValid(props.item.checkliste) || isValid(props.item.lokation)" class="detail-section">
-      <div v-if="isValid(props.item.checkliste)" class="detail-row">
-        <strong>{{ getTjeklisteName(props.item.checkliste) }}</strong>
+    <div v-if="props.item.checkliste || props.item.lokation" class="detail-section">
+      <div v-if="props.item.checkliste" class="detail-row">
+        <strong>{{ getTjeklisteName(props.item.checkliste, tjeklisteStore) }}</strong>
       </div>
-      <div v-if="isValid(props.item.lokation)" class="detail-row">
-        <span>{{ getEnhedName(props.item.lokation) }}</span>
+      <div v-if="props.item.lokation" class="detail-row">
+        <span>{{ getEnhedName(props.item.lokation, enhedStore) }}</span>
       </div>
     </div>
 
     <!-- Ansvarlige -->
-    <div v-if="props.item.ansvarligeBrugere?.length && isValid(props.item.ansvarligeBrugere[0])" class="detail-section">
+    <div v-if="props.item.ansvarligeBrugere?.length" class="detail-section">
       <div class="detail-row">
         <span class="detail-label">Ansvarlige brugere</span>
       </div>
       <div class="detail-row user-row">
-        <span v-for="(bruger, idx) in props.item.ansvarligeBrugere" :key="idx">{{ getUserName(bruger) }}</span>
+        <span v-for="(bruger, idx) in props.item.ansvarligeBrugere" :key="idx">{{ getUserName(bruger, brugerStore) }}</span>
       </div>
     </div>
 
     <!-- Påmindelser -->
     <div v-if="props.item.påmindelser?.length" class="detail-section">
       <div v-for="(påmindelse, idx) in props.item.påmindelser" :key="idx" class="detail-row">
-        <span v-if="isValid(påmindelse.frekvens) || isValid(påmindelse.tidspunkt)" class="detail-label">
+        <span class="detail-label">
           Påmindelse -
           {{ getFrekvensLabel(påmindelse.frekvens) }}
           kl. {{ getTidspunktLabel(påmindelse.tidspunkt) }}
@@ -100,8 +70,8 @@ const getTjeklisteFrekvens = (id) => {
     <!-- Notifikationsmodtagere -->
     <div v-if="props.item.modtagere?.length" class="detail-section">
       <div v-for="(modtager, idx) in props.item.modtagere" :key="idx" class="detail-row">
-        <span v-if="isValid(modtager)" class="detail-label">
-          {{ getUserName(modtager) }}
+        <span class="detail-label">
+          {{ getUserName(modtager, brugerStore) }}
           <template v-if="idx === 0">modtager kvittering</template>
           <template v-else-if="idx === 1">modtager besked om afvigelser</template>
         </span>

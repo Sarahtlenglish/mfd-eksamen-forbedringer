@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, nextTick } from 'vue'
 import { IconChevronLeft, IconX, IconPencil, IconTrash } from '@tabler/icons-vue'
 import BasePanel from '@/components/ui/panels/BasePanelComponent.vue'
 import EgenkontrolDetailContent from '@/components/detailpanel/EgenkontrolDetailContent.vue'
@@ -7,6 +7,7 @@ import EnhederDetailContent from '@/components/detailpanel/EnhederDetailContent.
 import EnhederHistoryContent from '@/components/detailpanel/EnhederHistoryContent.vue'
 import TjeklisteDetailContent from '@/components/detailpanel/TjeklisteDetailContent.vue'
 import CalendarDetailContent from '@/components/detailpanel/CalendarDetailContent.vue'
+import CalendarListContent from '@/components/detailpanel/CalendarListContent.vue'
 import BrugerDetailContent from '@/components/detailpanel/BrugerDetailContent.vue'
 
 const props = defineProps({
@@ -16,6 +17,10 @@ const props = defineProps({
     validator: value => ['calendar', 'egenkontroller', 'enheder', 'tjeklister', 'brugere'].includes(value)
   },
   item: {
+    type: Object,
+    default: null
+  },
+  selectedTask: {
     type: Object,
     default: null
   },
@@ -46,23 +51,28 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['close', 'edit', 'delete', 'back', 'history-toggle'])
+const emit = defineEmits(['close', 'edit', 'delete', 'back', 'history-toggle', 'select-task'])
 
 // State
 const isHistoryMode = ref(false)
+const isSelectedTaskMode = ref(false)
 const previousItems = ref([])
 
 // Computed properties
 const panelTitle = computed(() => {
   if (!props.item) return ''
 
-  // Use custom title if provided
   if (props.customTitle) return props.customTitle
 
-  // For calendar context, use date formatting
   if (props.context === 'calendar') {
+    // Hvis item har en selectedTask, brug dens titel
+    if (props.selectedTask && props.selectedTask.title) return props.selectedTask.title
+    // Ellers brug title/navn/name direkte
+    if (props.item.title) return props.item.title
+    if (props.item.navn) return props.item.navn
+    if (props.item.name) return props.item.name
+    // Ellers vis datoen (listevisning)
     if (props.item.date) {
-      // Format date as "2. marts 2025" or "3. marts 2025"
       return props.item.date.toLocaleDateString('da-DK', {
         day: 'numeric',
         month: 'long',
@@ -96,7 +106,7 @@ const panelTitle = computed(() => {
 
 // Computed property for styling classes
 const titleClasses = computed(() => {
-  if (props.context === 'calendar') {
+  if (props.context === 'calendar' && !isSelectedTaskMode.value) {
     return 'detail-title calendar-title'
   }
   return 'detail-title'
@@ -109,7 +119,11 @@ const canEdit = computed(() => {
 })
 
 const shouldShowEditButton = computed(() => {
-  // Use the showEditButton prop if provided, otherwise fall back to canEdit
+  if (props.context === 'calendar') {
+    // Vis kun edit-knap i selectedTaskMode (altså når en task er valgt)
+    return isSelectedTaskMode.value
+  }
+  // Brug eksisterende logik for andre kontekster
   return props.showEditButton !== null ? props.showEditButton : canEdit.value
 })
 
@@ -127,35 +141,37 @@ const shouldShowDeleteButton = computed(() => {
 })
 
 // Methods
-const toggleHistoryMode = () => {
-  isHistoryMode.value = !isHistoryMode.value
-  // Emit an event so parent components can react if needed
-  emit('history-toggle', isHistoryMode.value)
+function toggleHistoryMode(val) {
+  isHistoryMode.value = val !== undefined ? val : !isHistoryMode.value
 }
-
 function resetHistoryMode() {
   isHistoryMode.value = false
 }
+function toggleSelectedTaskMode(val) {
+  isSelectedTaskMode.value = val !== undefined ? val : !isSelectedTaskMode.value
+}
+function resetSelectedTaskMode() {
+  isSelectedTaskMode.value = false
+}
 
-// Make sure to expose it
 defineExpose({
-  resetHistoryMode
+  resetHistoryMode,
+  resetSelectedTaskMode
 })
 
 function handleBackClick() {
-  // First check if we're in history mode
   if (isHistoryMode.value) {
-    // If in history mode, go back to normal view
-    isHistoryMode.value = false
+    resetHistoryMode()
     return
   }
-
-  // If not in history mode, use the previous behavior
+  if (isSelectedTaskMode.value) {
+    resetSelectedTaskMode()
+    emit('select-task', null)
+    return
+  }
   if (previousItems.value.length > 0) {
-    // Go back to the previous item in the detail panel
     emit('back', previousItems.value.pop())
   } else {
-    // Nothing to go back to – close the detail panel
     handleClose()
   }
 }
@@ -171,6 +187,19 @@ const handleEdit = () => {
 const handleDelete = () => {
   emit('delete', props.item)
 }
+
+function handleSelectTask(task) {
+  if (isSelectedTaskMode.value) {
+    resetSelectedTaskMode()
+    nextTick(() => {
+      emit('select-task', task)
+      toggleSelectedTaskMode(true)
+    })
+  } else {
+    emit('select-task', task)
+    toggleSelectedTaskMode(true)
+  }
+}
 </script>
 
 <template>
@@ -179,9 +208,9 @@ const handleDelete = () => {
     <template #header>
       <div class="detail-panel-header"
         :class="{
-          'calendar-header': context === 'calendar',
+          'calendar-header': context === 'calendar' && !isSelectedTaskMode,
           'bruger-header': context === 'brugere'
-         }">
+        }">
         <div v-if="shouldShowBackButton" class="back-button-container">
           <button @click="handleBackClick" class="back-button">
             <IconChevronLeft/>
@@ -203,19 +232,24 @@ const handleDelete = () => {
 
     <!-- Main content -->
     <template #default>
-      <!-- Calendar Detail -->
-      <CalendarDetailContent
-        v-if="context === 'calendar'"
-        :item="item"
-      />
-
+      <!-- Kalender: Vis liste eller detalje -->
+      <template v-if="context === 'calendar'">
+        <CalendarListContent
+          v-if="!isSelectedTaskMode"
+          :item="item"
+          @select-task="handleSelectTask"
+        />
+        <CalendarDetailContent
+          v-else
+          :item="selectedTask"
+          @back="() => { emit('select-task', null); resetSelectedTaskMode(); }"
+        />
+      </template>
       <!-- Egenkontrol Detail -->
       <EgenkontrolDetailContent
         v-else-if="context === 'egenkontroller'"
         :item="item"
       />
-
-      <!-- Enheder - Content (Detail or History based on isHistoryMode) -->
       <template v-else-if="context === 'enheder'">
         <EnhederDetailContent
           v-if="!isHistoryMode"
@@ -229,20 +263,15 @@ const handleDelete = () => {
           :history-items="historyItems"
         />
       </template>
-
-      <!-- Tjeklister Detail -->
       <TjeklisteDetailContent
         v-else-if="context === 'tjeklister'"
         :context="context"
         :item="item"
       />
-
-      <!-- Brugere Detail -->
       <BrugerDetailContent
         v-else-if="context === 'brugere'"
         :item="item"
       />
-
     </template>
 
     <!-- Footer -->
