@@ -44,7 +44,6 @@ const handleRowClick = async (item) => {
 }
 
 const createEgenkontrol = () => {
-  // Naviger til opret egenkontrol-view
   router.push('/egenkontrol/opret')
 }
 

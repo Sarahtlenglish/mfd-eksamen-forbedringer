@@ -29,10 +29,7 @@ const columns = [
 // Use store data
 const enhederData = ref([])
 const historyItems = ref([])
-
-// State for selected item
 const selectedItem = ref(null)
-// Track panel state
 const detailPanelRef = ref(null)
 
 // Update your handleRowClick function

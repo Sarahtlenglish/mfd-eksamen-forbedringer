@@ -83,7 +83,6 @@ const { handleDelete } = useDeleteHandler({
   onDeleted: () => selectedItem.value = null
 })
 
-// Handle create egenkontrol button click
 const createEgenkontrol = () => {
   router.push('/egenkontrol/opret')
 }
