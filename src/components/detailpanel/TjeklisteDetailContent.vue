@@ -2,6 +2,7 @@
 import { getTypeLabel, getFrekvensLabel } from '@/utils/labelHelpers'
 
 // Use script setup for Composition API
+
 defineProps({
   context: {
     type: String,
