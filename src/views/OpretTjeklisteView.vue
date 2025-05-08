@@ -1,12 +1,12 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import { reactive, computed, onMounted } from 'vue'
-import DetailPanel from '@/components/ui/panels/DetailPanelComponent.vue'
+import DetailPanel from '@/components/panels/DetailPanelComponent.vue'
 import { IconX } from '@tabler/icons-vue'
 import { useTjeklisteStore } from '@/stores/tjeklisteStore'
 import WizardFormComponent from '@/components/forms/WizardFormComponent.vue'
 import { getWizardConfig } from '@/components/forms/WizardFormConfig.js'
-import { tjeklisteConfig } from '@/config/tjeklisteConfig'
+import { tjeklisteConfig } from '@/configs/tjeklisteConfig'
 
 const router = useRouter()
 const tjeklisteStore = useTjeklisteStore()

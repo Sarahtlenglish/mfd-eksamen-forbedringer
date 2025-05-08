@@ -3,9 +3,9 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import TablesComponent from '@/components/ui/TablesComponent.vue'
 import ButtonComponent from '@/components/ui/ButtonComponent.vue'
-import DetailPanel from '@/components/ui/panels/DetailPanelComponent.vue'
+import DetailPanel from '@/components/panels/DetailPanelComponent.vue'
 import { IconPlus } from '@tabler/icons-vue'
-import { useEgenkontrolStore } from '../stores/egenkontrolStore'
+import { useEgenkontrolStore } from '@/stores/egenkontrolStore'
 import { useDeleteHandler } from '@/composables/useDeleteHandler'
 
 // Get store og router

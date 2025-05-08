@@ -2,7 +2,7 @@
 import { ref, onMounted, onUnmounted, watch, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import TablesComponent from '@/components/ui/TablesComponent.vue'
-import DetailPanel from '@/components/ui/panels/DetailPanelComponent.vue'
+import DetailPanel from '@/components/panels/DetailPanelComponent.vue'
 import ButtonComponent from '@/components/ui/ButtonComponent.vue'
 import { IconPlus } from '@tabler/icons-vue'
 import { useEnhedStore } from '@/stores/enhedStore'

@@ -1,5 +1,5 @@
 <script setup>
-import BasePanel from '@/components/ui/panels/BasePanelComponent.vue'
+import BasePanel from '@/components/panels/BasePanelComponent.vue'
 import ButtonComponent from '@/components/ui/ButtonComponent.vue'
 import FilterButtonComponent from '@/components/ui/FilterButtonComponent.vue'
 import { IconPlus } from '@tabler/icons-vue'

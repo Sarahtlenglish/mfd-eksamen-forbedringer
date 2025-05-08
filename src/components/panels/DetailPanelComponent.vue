@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { IconChevronLeft, IconX, IconPencil, IconTrash } from '@tabler/icons-vue'
-import BasePanel from '@/components/ui/panels/BasePanelComponent.vue'
+import BasePanel from '@/components/panels/BasePanelComponent.vue'
 import EgenkontrolDetailContent from '@/components/detailpanel/EgenkontrolDetailContent.vue'
 import EnhederDetailContent from '@/components/detailpanel/EnhederDetailContent.vue'
 import EnhederHistoryContent from '@/components/detailpanel/EnhederHistoryContent.vue'
