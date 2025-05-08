@@ -8,6 +8,8 @@ import { IconPlus } from '@tabler/icons-vue'
 import { useEnhedStore } from '@/stores/enhedStore'
 import { processEnheder } from '@/utils/labelHelpers'
 import { useDeleteHandler } from '@/composables/useDeleteHandler'
+import { useEditHandler } from '@/composables/useEditHandler'
+import { useCloseDetailPanelHandler } from '@/composables/useCloseDetailPanelHandler'
 
 const router = useRouter()
 const enhedStore = useEnhedStore()
@@ -51,15 +53,12 @@ const createEnhed = () => {
 }
 
 // Event handlers
-const closeDetailPanel = () => {
-  selectedItem.value = null
-  historyItems.value = []
-}
+const { closeDetailPanel } = useCloseDetailPanelHandler({
+  selectedItem,
+  historyItems
+})
 
-const handleEdit = (item) => {
-  console.log('Edit item:', item)
-  alert(`Redigering af ${item.name} - denne funktionalitet er ikke implementeret endnu`)
-}
+const { handleEdit } = useEditHandler()
 
 const { handleDelete } = useDeleteHandler({
   store: { delete: enhedStore.deleteEnhed },

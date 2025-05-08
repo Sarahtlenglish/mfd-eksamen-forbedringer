@@ -7,6 +7,8 @@ import DetailPanel from '@/components/panels/DetailPanelComponent.vue'
 import { IconPlus } from '@tabler/icons-vue'
 import { useEgenkontrolStore } from '@/stores/egenkontrolStore'
 import { useDeleteHandler } from '@/composables/useDeleteHandler'
+import { useEditHandler } from '@/composables/useEditHandler'
+import { useCloseDetailPanelHandler } from '@/composables/useCloseDetailPanelHandler'
 
 // Get store og router
 const egenkontrolStore = useEgenkontrolStore()
@@ -46,15 +48,9 @@ const createEgenkontrol = () => {
   router.push('/egenkontrol/opret')
 }
 
-const closeDetailPanel = () => {
-  selectedItem.value = null
-}
+const { closeDetailPanel } = useCloseDetailPanelHandler({ selectedItem })
 
-const handleEdit = (item) => {
-  console.log('Edit item:', item)
-  // Here you would typically open an edit form or dialog
-  alert(`Redigering af ${item.name} - denne funktionalitet er ikke implementeret endnu`)
-}
+const { handleEdit } = useEditHandler()
 
 const { handleDelete } = useDeleteHandler({
   store: { delete: egenkontrolStore.deleteEgenkontrol },

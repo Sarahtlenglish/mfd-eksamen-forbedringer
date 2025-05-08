@@ -8,6 +8,8 @@ import { IconPlus } from '@tabler/icons-vue'
 import { useTjeklisteStore } from '@/stores/tjeklisteStore'
 import { processTjeklister } from '@/utils/labelHelpers'
 import { useDeleteHandler } from '@/composables/useDeleteHandler'
+import { useEditHandler } from '@/composables/useEditHandler'
+import { useCloseDetailPanelHandler } from '@/composables/useCloseDetailPanelHandler'
 
 // Get store og router
 const tjeklisteStore = useTjeklisteStore()
@@ -42,15 +44,9 @@ const createTjekliste = () => {
   router.push('/tjeklister/opret')
 }
 
-const closeDetailPanel = () => {
-  selectedItem.value = null
-}
+const { closeDetailPanel } = useCloseDetailPanelHandler({ selectedItem })
 
-const handleEdit = (item) => {
-  console.log('Edit item:', item)
-  // Here you would typically open an edit form or dialog
-  alert(`Redigering af ${item.tjeklisteNavn} - denne funktionalitet er ikke implementeret endnu`)
-}
+const { handleEdit } = useEditHandler()
 
 // Set up real-time listener when component mounts
 let unsubscribe

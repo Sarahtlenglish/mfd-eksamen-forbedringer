@@ -10,6 +10,8 @@ import { useEnhedStore } from '@/stores/enhedStore'
 import { formatDateToISO } from '@/utils/dateHelpers'
 import { processCalendarTasks } from '@/utils/labelHelpers'
 import { useDeleteHandler } from '@/composables/useDeleteHandler'
+import { useEditHandler } from '@/composables/useEditHandler'
+import { useCloseDetailPanelHandler } from '@/composables/useCloseDetailPanelHandler'
 
 // Get stores
 const egenkontrolStore = useEgenkontrolStore()
@@ -71,14 +73,9 @@ const handleDateClick = (date) => {
   }
 }
 
-const closeDetailPanel = () => {
-  selectedItem.value = null
-}
+const { closeDetailPanel } = useCloseDetailPanelHandler({ selectedItem })
 
-const handleEdit = (item) => {
-  // Handle edit
-  console.log('Edit item:', item)
-}
+const { handleEdit } = useEditHandler()
 
 const { handleDelete } = useDeleteHandler({
   store: { delete: egenkontrolStore.deleteEgenkontrol },
