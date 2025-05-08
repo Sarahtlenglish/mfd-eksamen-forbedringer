@@ -1,6 +1,6 @@
 <!-- EnhederDetailContent.vue -->
 <script setup>
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import { IconPrinter, IconUpload, IconFileText } from '@tabler/icons-vue'
 import ButtonComponent from '@/components/ui/ButtonComponent.vue'
 

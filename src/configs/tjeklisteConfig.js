@@ -3,6 +3,7 @@ export const tjeklisteConfig = {
     { value: '', label: 'Vælg type' },
     { value: 'br18', label: 'BR18' },
     { value: 'iso9001', label: 'ISO 9001' },
+    { value: 'dkv', label: 'DKV' },
     { value: 'custom', label: 'Brugerdefineret' }
   ],
   frekvensOptions: [
@@ -12,5 +13,4 @@ export const tjeklisteConfig = {
     { value: 'kvartal', label: 'Kvartal' },
     { value: 'årligt', label: 'Årligt' }
   ]
-
 }

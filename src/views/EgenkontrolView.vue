@@ -3,10 +3,12 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import TablesComponent from '@/components/ui/TablesComponent.vue'
 import ButtonComponent from '@/components/ui/ButtonComponent.vue'
-import DetailPanel from '@/components/ui/panels/DetailPanelComponent.vue'
+import DetailPanel from '@/components/panels/DetailPanelComponent.vue'
 import { IconPlus } from '@tabler/icons-vue'
-import { useEgenkontrolStore } from '../stores/egenkontrolStore'
+import { useEgenkontrolStore } from '@/stores/egenkontrolStore'
 import { useDeleteHandler } from '@/composables/useDeleteHandler'
+import { useEditHandler } from '@/composables/useEditHandler'
+import { useCloseDetailPanelHandler } from '@/composables/useCloseDetailPanelHandler'
 
 // Get store og router
 const egenkontrolStore = useEgenkontrolStore()
@@ -42,19 +44,12 @@ const handleRowClick = async (item) => {
 }
 
 const createEgenkontrol = () => {
-  // Naviger til opret egenkontrol-view
   router.push('/egenkontrol/opret')
 }
 
-const closeDetailPanel = () => {
-  selectedItem.value = null
-}
+const { closeDetailPanel } = useCloseDetailPanelHandler({ selectedItem })
 
-const handleEdit = (item) => {
-  console.log('Edit item:', item)
-  // Here you would typically open an edit form or dialog
-  alert(`Redigering af ${item.name} - denne funktionalitet er ikke implementeret endnu`)
-}
+const { handleEdit } = useEditHandler()
 
 const { handleDelete } = useDeleteHandler({
   store: { delete: egenkontrolStore.deleteEgenkontrol },

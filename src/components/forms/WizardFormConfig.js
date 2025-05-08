@@ -8,7 +8,7 @@ import InputComponent from '@/components/ui/InputComponent.vue'
 import DropdownComponent from '@/components/ui/DropdownComponent.vue'
 import DatePickerComponent from '@/components/ui/DatePickerComponent.vue'
 import UnderenhederListComponent from '@/components/forms/UnderenhederListComponent.vue'
-import { egenkontrolConfig } from '@/config/egenkontrolConfig'
+import { egenkontrolConfig } from '@/configs/egenkontrolConfig'
 
 /**
  * Henter konfiguration for den specificerede formulartype

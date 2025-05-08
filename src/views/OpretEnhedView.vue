@@ -1,7 +1,7 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import { reactive, ref, computed, watch, provide } from 'vue'
-import DetailPanel from '@/components/ui/panels/DetailPanelComponent.vue'
+import DetailPanel from '@/components/panels/DetailPanelComponent.vue'
 import { IconX } from '@tabler/icons-vue'
 import WizardFormComponent from '@/components/forms/WizardFormComponent.vue'
 import { getWizardConfig, prepareDetailItem } from '@/components/forms/WizardFormConfig.js'

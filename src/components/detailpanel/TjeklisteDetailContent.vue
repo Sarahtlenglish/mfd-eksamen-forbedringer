@@ -2,7 +2,7 @@
 import { getTypeLabel, getFrekvensLabel } from '@/utils/labelHelpers'
 
 // Use script setup for Composition API
-defineProps({
+const props = defineProps({
   context: {
     type: String,
     required: true
@@ -25,10 +25,10 @@ defineEmits(['close', 'edit', 'delete', 'microcopy'])
 
       <div class="detail-body">
         <p class="body-1-semibold">
-          {{ getTypeLabel(item.type) || 'Type ikke angivet' }}
+          {{ getTypeLabel(props.item.type) || 'Type ikke angivet' }}
         </p>
         <p class="body-1-semibold">
-          {{ getFrekvensLabel(item.frekvens) || 'Frekvens ikke angivet' }}
+          {{ getFrekvensLabel(props.item.frekvens) || 'Frekvens ikke angivet' }}
         </p>
       </div>
 

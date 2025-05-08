@@ -57,7 +57,7 @@ export const useEnhedStore = defineStore('enhedStore', () => {
     return enheder.value.find(enhed => enhed.id === id)
   }
 
-  const getHistoryForEnhed = (_enhedId) => {
+  const getHistoryForEnhed = () => {
     // Return mock data for prototype
     return mockHistoryItems
   }

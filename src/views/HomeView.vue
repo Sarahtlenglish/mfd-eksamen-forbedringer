@@ -1,15 +1,17 @@
 <script setup>
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
-import CalendarComponent from '../components/calendar/CalendarComponent.vue'
-import ButtonComponent from '../components/ui/ButtonComponent.vue'
-import DetailPanel from '../components/ui/panels/DetailPanelComponent.vue'
+import CalendarComponent from '@/components/calendar/CalendarComponent.vue'
+import ButtonComponent from '@/components/ui/ButtonComponent.vue'
+import DetailPanel from '@/components/panels/DetailPanelComponent.vue'
 import { IconPlus } from '@tabler/icons-vue'
 import { useRouter } from 'vue-router'
-import { useEgenkontrolStore } from '../stores/egenkontrolStore'
+import { useEgenkontrolStore } from '@/stores/egenkontrolStore'
 import { useEnhedStore } from '@/stores/enhedStore'
 import { formatDateToISO } from '@/utils/dateHelpers'
 import { processCalendarTasks } from '@/utils/labelHelpers'
 import { useDeleteHandler } from '@/composables/useDeleteHandler'
+import { useEditHandler } from '@/composables/useEditHandler'
+import { useCloseDetailPanelHandler } from '@/composables/useCloseDetailPanelHandler'
 
 // Get stores
 const egenkontrolStore = useEgenkontrolStore()
@@ -71,14 +73,9 @@ const handleDateClick = (date) => {
   }
 }
 
-const closeDetailPanel = () => {
-  selectedItem.value = null
-}
+const { closeDetailPanel } = useCloseDetailPanelHandler({ selectedItem })
 
-const handleEdit = (item) => {
-  // Handle edit
-  console.log('Edit item:', item)
-}
+const { handleEdit } = useEditHandler()
 
 const { handleDelete } = useDeleteHandler({
   store: { delete: egenkontrolStore.deleteEgenkontrol },
@@ -86,7 +83,6 @@ const { handleDelete } = useDeleteHandler({
   onDeleted: () => selectedItem.value = null
 })
 
-// Handle create egenkontrol button click
 const createEgenkontrol = () => {
   router.push('/egenkontrol/opret')
 }

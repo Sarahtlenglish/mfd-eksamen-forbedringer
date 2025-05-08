@@ -2,12 +2,14 @@
 import { ref, onMounted, onUnmounted, watch, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import TablesComponent from '@/components/ui/TablesComponent.vue'
-import DetailPanel from '@/components/ui/panels/DetailPanelComponent.vue'
+import DetailPanel from '@/components/panels/DetailPanelComponent.vue'
 import ButtonComponent from '@/components/ui/ButtonComponent.vue'
 import { IconPlus } from '@tabler/icons-vue'
 import { useEnhedStore } from '@/stores/enhedStore'
 import { processEnheder } from '@/utils/labelHelpers'
 import { useDeleteHandler } from '@/composables/useDeleteHandler'
+import { useEditHandler } from '@/composables/useEditHandler'
+import { useCloseDetailPanelHandler } from '@/composables/useCloseDetailPanelHandler'
 
 const router = useRouter()
 const enhedStore = useEnhedStore()
@@ -27,10 +29,7 @@ const columns = [
 // Use store data
 const enhederData = ref([])
 const historyItems = ref([])
-
-// State for selected item
 const selectedItem = ref(null)
-// Track panel state
 const detailPanelRef = ref(null)
 
 // Update your handleRowClick function
@@ -51,15 +50,12 @@ const createEnhed = () => {
 }
 
 // Event handlers
-const closeDetailPanel = () => {
-  selectedItem.value = null
-  historyItems.value = []
-}
+const { closeDetailPanel } = useCloseDetailPanelHandler({
+  selectedItem,
+  historyItems
+})
 
-const handleEdit = (item) => {
-  console.log('Edit item:', item)
-  alert(`Redigering af ${item.name} - denne funktionalitet er ikke implementeret endnu`)
-}
+const { handleEdit } = useEditHandler()
 
 const { handleDelete } = useDeleteHandler({
   store: { delete: enhedStore.deleteEnhed },

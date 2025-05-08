@@ -1,4 +1,8 @@
-// src/utils/labelHelpers.js
+// Domænespecifikke helpers (importér dine configs her)
+import { enhederConfig } from '@/configs/enhederConfig'
+import { egenkontrolConfig } from '@/configs/egenkontrolConfig'
+import { tjeklisteConfig } from '@/configs/tjeklisteConfig'
+import { rolleOptions } from '@/configs/brugerConfig'
 
 // Generisk label-finder
 export function findLabel(options, value) {
@@ -6,12 +10,6 @@ export function findLabel(options, value) {
   const option = options.find(opt => opt.value === value)
   return option ? option.label : value
 }
-
-// Domænespecifikke helpers (importér dine configs her)
-import { enhederConfig } from '@/configs/enhederConfig'
-import { egenkontrolConfig } from '@/config/egenkontrolConfig'
-import { tjeklisteConfig } from '@/config/tjeklisteConfig'
-import { rolleOptions } from '@/configs/brugerConfig'
 
 // Enheder
 export const getLocationLabel = value => findLabel(enhederConfig.locations, value)

@@ -1,7 +1,7 @@
 <script setup>
 import { IconMessage, IconClipboardList, IconFileText, IconTool, IconClipboardCheck } from '@tabler/icons-vue'
 
-const props = defineProps({
+defineProps({
   item: {
     type: Object,
     required: true

@@ -3,12 +3,14 @@ import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import TablesComponent from '@/components/ui/TablesComponent.vue'
 import ButtonComponent from '@/components/ui/ButtonComponent.vue'
-import GruppePanelComponent from '@/components/ui/panels/GruppePanelComponent.vue'
+import GruppePanelComponent from '@/components/panels/GruppePanelComponent.vue'
 import { IconPlus } from '@tabler/icons-vue'
-import DetailPanelComponent from '@/components/ui/panels/DetailPanelComponent.vue'
+import DetailPanelComponent from '@/components/panels/DetailPanelComponent.vue'
 import { useBrugerStore } from '@/stores/brugerStore'
 import { processBrugere } from '@/utils/labelHelpers'
 import { useDeleteHandler } from '@/composables/useDeleteHandler'
+import { useEditHandler } from '@/composables/useEditHandler'
+import { useCloseDetailPanelHandler } from '@/composables/useCloseDetailPanelHandler'
 
 const router = useRouter()
 const brugerStore = useBrugerStore()
@@ -39,14 +41,9 @@ const handleRowClick = (item) => {
 }
 
 // Handle panel actions
-const closeDetailPanel = () => {
-  selectedItem.value = null
-}
+const { closeDetailPanel } = useCloseDetailPanelHandler({ selectedItem })
 
-const handleEdit = (item) => {
-  console.log('Edit item:', item)
-  // Implement edit functionality
-}
+const { handleEdit } = useEditHandler()
 
 const createBruger = () => {
   router.push('/brugere/opret')

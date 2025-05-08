@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { IconChevronLeft, IconX, IconPencil, IconTrash } from '@tabler/icons-vue'
-import BasePanel from '@/components/ui/panels/BasePanelComponent.vue'
+import BasePanel from '@/components/panels/BasePanelComponent.vue'
 import EgenkontrolDetailContent from '@/components/detailpanel/EgenkontrolDetailContent.vue'
 import EnhederDetailContent from '@/components/detailpanel/EnhederDetailContent.vue'
 import EnhederHistoryContent from '@/components/detailpanel/EnhederHistoryContent.vue'
@@ -85,7 +85,7 @@ const panelTitle = computed(() => {
 
   // Context-specific title properties
   if (props.context === 'tjeklister' && props.item.tjeklisteNavn) {
-    return props.item.tjeklisteNavn + ' - Tjekliste'
+    return props.item.tjeklisteNavn
   }
 
   if (props.context === 'egenkontroller' && props.item.navn) {
