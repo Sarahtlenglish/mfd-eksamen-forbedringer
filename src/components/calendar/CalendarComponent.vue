@@ -84,6 +84,8 @@ const getTasksForDate = (date) => {
               :key="task.id"
               :title="task.title || task.name"
               :status="task.status"
+              :historik="task.historik"
+              :dato="task.dato"
             />
           </div>
         </template>

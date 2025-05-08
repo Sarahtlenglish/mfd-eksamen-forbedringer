@@ -25,13 +25,22 @@ const props = defineProps({
     type: String,
     default: 'inaktiv',
     validator: value => ['aktiv', 'inaktiv', 'udført', 'afvigelse', 'overskredet'].includes(value)
+  },
+  historik: {
+    type: Array,
+    default: () => []
+  },
+  dato: {
+    type: String,
+    default: ''
   }
 })
 
 const hasDetails = computed(() => !!props.details)
 
 const getStatusIcon = computed(() => {
-  switch (props.status) {
+  const status = props.historik?.find(entry => entry.dato === props.dato)?.status || props.status
+  switch (status) {
     case 'aktiv':
       return null
     case 'udført':
@@ -47,7 +56,8 @@ const getStatusIcon = computed(() => {
 })
 
 const getStatusIconClass = computed(() => {
-  return `status-icon status-icon-${props.status}`
+  const status = props.historik?.find(entry => entry.dato === props.dato)?.status || props.status
+  return `status-icon status-icon-${status}`
 })
 </script>
 
@@ -55,7 +65,7 @@ const getStatusIconClass = computed(() => {
   <div
     class="calendar-day-task"
     :class="[
-      `status-${status}`,
+      `status-${props.historik?.find(entry => entry.dato === props.dato)?.status || props.status}`,
       { 'has-details': hasDetails }
     ]"
   >

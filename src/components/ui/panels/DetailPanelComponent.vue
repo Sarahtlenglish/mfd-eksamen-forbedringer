@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, nextTick } from 'vue'
+import { ref, computed } from 'vue'
 import { IconChevronLeft, IconX, IconPencil, IconTrash } from '@tabler/icons-vue'
 import BasePanel from '@/components/ui/panels/BasePanelComponent.vue'
 import EgenkontrolDetailContent from '@/components/detailpanel/EgenkontrolDetailContent.vue'
@@ -57,6 +57,7 @@ const emit = defineEmits(['close', 'edit', 'delete', 'back', 'history-toggle', '
 const isHistoryMode = ref(false)
 const isSelectedTaskMode = ref(false)
 const previousItems = ref([])
+const selectedTaskRef = ref(null)
 
 // Computed properties
 const panelTitle = computed(() => {
@@ -66,12 +67,7 @@ const panelTitle = computed(() => {
 
   if (props.context === 'calendar') {
     // Hvis item har en selectedTask, brug dens titel
-    if (props.selectedTask && props.selectedTask.title) return props.selectedTask.title
-    // Ellers brug title/navn/name direkte
-    if (props.item.title) return props.item.title
-    if (props.item.navn) return props.item.navn
-    if (props.item.name) return props.item.name
-    // Ellers vis datoen (listevisning)
+    if (isSelectedTaskMode.value && selectedTaskRef.value && selectedTaskRef.value.navn) return selectedTaskRef.value.navn
     if (props.item.date) {
       return props.item.date.toLocaleDateString('da-DK', {
         day: 'numeric',
@@ -137,7 +133,7 @@ const shouldShowBackButton = computed(() => {
 // Determine when to show delete button
 const shouldShowDeleteButton = computed(() => {
   // If we're in history mode, show the delete button regardless of prop
-  return props.showDeleteButton
+  return isSelectedTaskMode.value || props.showDeleteButton
 })
 
 // Methods
@@ -146,9 +142,6 @@ function toggleHistoryMode(val) {
 }
 function resetHistoryMode() {
   isHistoryMode.value = false
-}
-function toggleSelectedTaskMode(val) {
-  isSelectedTaskMode.value = val !== undefined ? val : !isSelectedTaskMode.value
 }
 function resetSelectedTaskMode() {
   isSelectedTaskMode.value = false
@@ -185,20 +178,16 @@ const handleEdit = () => {
 }
 
 const handleDelete = () => {
-  emit('delete', props.item)
+  if (isSelectedTaskMode.value) {
+    emit('delete', selectedTaskRef.value)
+  } else {
+    emit('delete', props.item)
+  }
 }
 
 function handleSelectTask(task) {
-  if (isSelectedTaskMode.value) {
-    resetSelectedTaskMode()
-    nextTick(() => {
-      emit('select-task', task)
-      toggleSelectedTaskMode(true)
-    })
-  } else {
-    emit('select-task', task)
-    toggleSelectedTaskMode(true)
-  }
+  selectedTaskRef.value = task
+  isSelectedTaskMode.value = true
 }
 </script>
 
@@ -241,8 +230,8 @@ function handleSelectTask(task) {
         />
         <CalendarDetailContent
           v-else
-          :item="selectedTask"
-          @back="() => { emit('select-task', null); resetSelectedTaskMode(); }"
+          :item="selectedTaskRef"
+          @back="() => { selectedTaskRef.value = null; isSelectedTaskMode.value = false; }"
         />
       </template>
       <!-- Egenkontrol Detail -->

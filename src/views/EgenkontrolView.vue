@@ -6,6 +6,7 @@ import ButtonComponent from '@/components/ui/ButtonComponent.vue'
 import DetailPanel from '@/components/ui/panels/DetailPanelComponent.vue'
 import { IconPlus } from '@tabler/icons-vue'
 import { useEgenkontrolStore } from '../stores/egenkontrolStore'
+import { useDeleteHandler } from '@/composables/useDeleteHandler'
 
 // Get store og router
 const egenkontrolStore = useEgenkontrolStore()
@@ -55,12 +56,11 @@ const handleEdit = (item) => {
   alert(`Redigering af ${item.name} - denne funktionalitet er ikke implementeret endnu`)
 }
 
-const handleDelete = (item) => {
-  console.log('Delete item:', item)
-  // Delete the item from the store
-  egenkontrolStore.deleteEgenkontrol(item.id)
-  selectedItem.value = null
-}
+const { handleDelete } = useDeleteHandler({
+  store: { delete: egenkontrolStore.deleteEgenkontrol },
+  getName: item => item.navn || item.name || 'egenkontrol',
+  onDeleted: () => selectedItem.value = null
+})
 
 </script>
 

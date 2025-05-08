@@ -7,6 +7,7 @@ import ButtonComponent from '@/components/ui/ButtonComponent.vue'
 import { IconPlus } from '@tabler/icons-vue'
 import { useTjeklisteStore } from '@/stores/tjeklisteStore'
 import { processTjeklister } from '@/utils/labelHelpers'
+import { useDeleteHandler } from '@/composables/useDeleteHandler'
 
 // Get store og router
 const tjeklisteStore = useTjeklisteStore()
@@ -26,6 +27,12 @@ const columns = [
 const selectedItem = ref(null)
 const loading = ref(true)
 
+const { handleDelete } = useDeleteHandler({
+  store: { delete: tjeklisteStore.deleteTjekliste },
+  getName: item => item.tjeklisteNavn || item.name || 'tjekliste',
+  onDeleted: () => selectedItem.value = null
+})
+
 // Event handlers
 const handleRowClick = (item) => {
   selectedItem.value = item
@@ -43,18 +50,6 @@ const handleEdit = (item) => {
   console.log('Edit item:', item)
   // Here you would typically open an edit form or dialog
   alert(`Redigering af ${item.tjeklisteNavn} - denne funktionalitet er ikke implementeret endnu`)
-}
-
-const handleDelete = async (item) => {
-  if (confirm(`Er du sikker på, at du vil slette ${item.tjeklisteNavn}?`)) {
-    try {
-      await tjeklisteStore.deleteTjekliste(item.id)
-      selectedItem.value = null
-    } catch (error) {
-      console.error('Error deleting tjekliste:', error)
-      alert('Der opstod en fejl under sletningen af tjeklisten.')
-    }
-  }
 }
 
 // Set up real-time listener when component mounts

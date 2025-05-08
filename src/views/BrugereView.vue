@@ -8,6 +8,7 @@ import { IconPlus } from '@tabler/icons-vue'
 import DetailPanelComponent from '@/components/ui/panels/DetailPanelComponent.vue'
 import { useBrugerStore } from '@/stores/brugerStore'
 import { processBrugere } from '@/utils/labelHelpers'
+import { useDeleteHandler } from '@/composables/useDeleteHandler'
 
 const router = useRouter()
 const brugerStore = useBrugerStore()
@@ -26,6 +27,12 @@ const loading = ref(false)
 
 const selectedItem = ref(null)
 
+const { handleDelete } = useDeleteHandler({
+  store: { delete: brugerStore.deleteBruger },
+  getName: item => item.fuldeNavn || item.name || 'bruger',
+  onDeleted: () => selectedItem.value = null
+})
+
 // Handle row click
 const handleRowClick = (item) => {
   selectedItem.value = item
@@ -39,18 +46,6 @@ const closeDetailPanel = () => {
 const handleEdit = (item) => {
   console.log('Edit item:', item)
   // Implement edit functionality
-}
-
-const handleDelete = async (item) => {
-  if (confirm(`Er du sikker på, at du vil slette ${item.fuldeNavn}?`)) {
-    try {
-      await brugerStore.deleteBruger(item.id)
-      selectedItem.value = null
-    } catch (error) {
-      console.error('Error deleting bruger:', error)
-      alert('Der opstod en fejl under sletningen af brugeren.')
-    }
-  }
 }
 
 const createBruger = () => {

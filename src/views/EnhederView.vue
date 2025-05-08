@@ -7,6 +7,7 @@ import ButtonComponent from '@/components/ui/ButtonComponent.vue'
 import { IconPlus } from '@tabler/icons-vue'
 import { useEnhedStore } from '@/stores/enhedStore'
 import { processEnheder } from '@/utils/labelHelpers'
+import { useDeleteHandler } from '@/composables/useDeleteHandler'
 
 const router = useRouter()
 const enhedStore = useEnhedStore()
@@ -60,15 +61,11 @@ const handleEdit = (item) => {
   alert(`Redigering af ${item.name} - denne funktionalitet er ikke implementeret endnu`)
 }
 
-const handleDelete = async (item) => {
-  try {
-    await enhedStore.deleteEnhed(item.id)
-    selectedItem.value = null
-  } catch (error) {
-    console.error('Error deleting item:', error)
-    // Handle error (show notification, etc.)
-  }
-}
+const { handleDelete } = useDeleteHandler({
+  store: { delete: enhedStore.deleteEnhed },
+  getName: item => item.name || 'enhed',
+  onDeleted: () => selectedItem.value = null
+})
 
 // Watch for changes in store's enheder
 watch(() => enhedStore.enheder, (newEnheder) => {

@@ -37,6 +37,8 @@ const tasksForSelectedDate = computed(() => {
             :title="task.title"
             :details="task.enhedId"
             :status="task.status"
+            :historik="task.historik"
+            :dato="task.dato"
           />
         </div>
       </div>

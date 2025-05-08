@@ -9,6 +9,7 @@ import { useEgenkontrolStore } from '../stores/egenkontrolStore'
 import { useEnhedStore } from '@/stores/enhedStore'
 import { formatDateToISO } from '@/utils/dateHelpers'
 import { processCalendarTasks } from '@/utils/labelHelpers'
+import { useDeleteHandler } from '@/composables/useDeleteHandler'
 
 // Get stores
 const egenkontrolStore = useEgenkontrolStore()
@@ -79,19 +80,19 @@ const handleEdit = (item) => {
   console.log('Edit item:', item)
 }
 
-const handleDelete = async (item) => {
-  if (item.id) {
-    await egenkontrolStore.deleteEgenkontrol(item.id)
-    selectedItem.value = null
-  }
-}
+const { handleDelete } = useDeleteHandler({
+  store: { delete: egenkontrolStore.deleteEgenkontrol },
+  getName: item => item.navn || item.name || 'egenkontrol',
+  onDeleted: () => selectedItem.value = null
+})
 
 // Handle create egenkontrol button click
 const createEgenkontrol = () => {
   router.push('/egenkontrol/opret')
 }
 
-function toggleSelectedTask(task = null) {
+function onSelectTask(task) {
+  selectedItem.value = task
   selectedTaskId.value = task?.id || null
 }
 </script>
@@ -124,7 +125,7 @@ function toggleSelectedTask(task = null) {
         :item="selectedItem"
         :selectedTask="selectedTask"
         :showDeleteButton="false"
-        @select-task="toggleSelectedTask"
+        @select-task="onSelectTask"
         @close="closeDetailPanel"
         @edit="handleEdit"
         @delete="handleDelete"

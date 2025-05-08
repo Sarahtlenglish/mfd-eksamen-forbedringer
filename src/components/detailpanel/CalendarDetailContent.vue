@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
+import { computed } from 'vue'
 import { useEgenkontrolStore } from '@/stores/egenkontrolStore'
 import { useBrugerStore } from '@/stores/brugerStore'
 import { useEnhedStore } from '@/stores/enhedStore'
@@ -17,53 +17,30 @@ const props = defineProps({
   }
 })
 
-// State
-const selectedTask = ref(null)
-const calendarTasksCache = ref({})
-
-// Stores
 const egenkontrolStore = useEgenkontrolStore()
 const brugerStore = useBrugerStore()
 const enhedStore = useEnhedStore()
 const tjeklisteStore = useTjeklisteStore()
 
-// Load calendar tasks on mount
-onMounted(async () => {
-  calendarTasksCache.value = await egenkontrolStore.getCalendarTasks()
-})
-
-// Reset selectedTask when date changes
-watch(() => props.item, () => {
-  selectedTask.value = null
-}, { deep: true })
-
-// Update cache only when store data changes
-watch(() => egenkontrolStore.egenkontrollerData, async (newEgenkontroller) => {
-  if (newEgenkontroller && newEgenkontroller.length > 0) {
-    try {
-      const storeTasks = await egenkontrolStore.getCalendarTasks()
-      calendarTasksCache.value = storeTasks
-    } catch (error) {
-      console.error('Error updating calendar tasks:', error)
-    }
-  }
-}, { deep: true })
-
-// Banner type based on task status
-const bannerType = computed(() => {
+// Always get the latest task from the store for live updates
+const selectedTask = computed(() => {
   if (!props.item) return null
-  return getBannerType(props.item.status)
+  const allTasks = egenkontrolStore.getCalendarTasksSync()
+  const dateKey = props.item.dato
+  if (!allTasks[dateKey]) return null
+  return allTasks[dateKey].find(t => t.id === props.item.id)
 })
 
-// Action handlers
+const bannerType = computed(() => {
+  if (!selectedTask.value) return null
+  return getBannerType(selectedTask.value.status)
+})
+
 const sendReminder = () => alert('Påmindelse sendt til ansvarlige brugere')
 const performInspection = async () => {
   try {
-    // Opdater status til 'udført' i storen
-    await egenkontrolStore.updateEgenkontrolStatus(props.item.id, 'udført')
-    // Opdater den lokale cache
-    const storeTasks = await egenkontrolStore.getCalendarTasks()
-    calendarTasksCache.value = storeTasks
+    if (!selectedTask.value) return
+    await egenkontrolStore.updateEgenkontrolStatus(selectedTask.value.id, 'udført', selectedTask.value.dato)
   } catch (error) {
     console.error('Fejl ved opdatering af egenkontrol status:', error)
     alert('Der opstod en fejl ved opdatering af egenkontrol status')
@@ -71,23 +48,21 @@ const performInspection = async () => {
 }
 const createDeviationTask = () => alert('Opgave for afvigelse oprettet')
 
-watch(selectedTask, () => {})
-
 const overdueDays = computed(() => {
-  if (!props.item || !props.item.startDato) return 0
-  return getDaysOverdue(props.item.startDato)
+  if (!selectedTask.value || selectedTask.value.status !== 'overskredet') return 0
+  return getDaysOverdue(selectedTask.value.dato)
 })
 </script>
 
 <template>
   <div class="calendar-detail-content">
     <!-- Task detail view -->
-    <div class="task-detail-view">
+    <div class="task-detail-view" v-if="selectedTask">
       <div class="task-content">
         <div class="detail-section">
         <!-- Description -->
-        <p v-if="props.item.description || props.item.beskrivelse" class="task-description">
-          {{ props.item.description || props.item.beskrivelse }}
+        <p v-if="selectedTask.description || selectedTask.beskrivelse" class="task-description">
+          {{ selectedTask.description || selectedTask.beskrivelse }}
         </p>
         <!-- Deadline info -->
         <div class="detail-section" v-if="bannerType === 'overdue'">
@@ -121,7 +96,7 @@ const overdueDays = computed(() => {
         <BannerComponent
           v-if="bannerType === 'completed'"
           variant="success"
-          text="Egenkontrol udført d. 6 Marts af Børge Jakobsen"
+          :text="`Egenkontrol udført d. ${new Date(selectedTask.dato).toLocaleDateString('da-DK')} af ${selectedTask.afsluttetAf || 'Ukendt'}`"
         />
         <!-- Action button -->
         <div class="action-button-container" v-if="bannerType === 'active' || bannerType === 'overdue'">
@@ -139,40 +114,40 @@ const overdueDays = computed(() => {
       </div>
         <!-- Rest of details sections -->
         <!-- Standard og specifikation -->
-        <div v-if="props.item.standard" class="detail-section">
+        <div v-if="selectedTask.standard" class="detail-section">
           <div class="detail-row">
-            <span class="detail-label">{{ props.item.standard }} - {{ props.item.standardTitle }}</span>
+            <span class="detail-label">{{ selectedTask.standard }} - {{ selectedTask.standardTitle }}</span>
           </div>
           <div class="detail-row">
-            <span>{{ props.item.name }}</span>
+            <span>{{ selectedTask.name }}</span>
           </div>
           <div class="detail-row">
-            <span>{{ props.item.location }}</span>
+            <span>{{ selectedTask.location }}</span>
           </div>
         </div>
         <!-- Tjekliste og enhed -->
-        <div v-if="props.item.checkliste || props.item.lokation" class="detail-section">
-          <div v-if="props.item.checkliste" class="detail-row">
-            <strong>{{ getTjeklisteName(props.item.checkliste, tjeklisteStore) }}</strong>
+        <div v-if="selectedTask.checkliste || selectedTask.lokation" class="detail-section">
+          <div v-if="selectedTask.checkliste" class="detail-row">
+            <strong>{{ getTjeklisteName(selectedTask.checkliste, tjeklisteStore) }}</strong>
           </div>
-          <div v-if="props.item.lokation" class="detail-row">
-            <span>{{ getEnhedName(props.item.lokation, enhedStore) }}</span>
+          <div v-if="selectedTask.lokation" class="detail-row">
+            <span>{{ getEnhedName(selectedTask.lokation, enhedStore) }}</span>
           </div>
         </div>
         <!-- Users -->
-        <div v-if="props.item.ansvarligeBrugere?.length" class="detail-section">
+        <div v-if="selectedTask.ansvarligeBrugere?.length" class="detail-section">
           <div class="detail-row">
             <span class="detail-label">Ansvarlige brugere:</span>
           </div>
           <div class="detail-row user-row">
-            <span v-for="(bruger, idx) in props.item.ansvarligeBrugere" :key="idx">
+            <span v-for="(bruger, idx) in selectedTask.ansvarligeBrugere" :key="idx">
               {{ getUserName(bruger, brugerStore) }}
             </span>
           </div>
         </div>
         <!-- Påmindelser -->
-        <div v-if="props.item.påmindelser?.length" class="detail-section">
-          <div v-for="(påmindelse, idx) in props.item.påmindelser" :key="idx" class="detail-row">
+        <div v-if="selectedTask.påmindelser?.length" class="detail-section">
+          <div v-for="(påmindelse, idx) in selectedTask.påmindelser" :key="idx" class="detail-row">
             <span class="detail-label">
               Påmindelse -
               {{ getFrekvensLabel(påmindelse.frekvens) }}
@@ -182,8 +157,8 @@ const overdueDays = computed(() => {
           </div>
         </div>
         <!-- Notifikationsmodtagere -->
-        <div v-if="props.item.modtagere?.length" class="detail-section">
-          <div v-for="(modtager, idx) in props.item.modtagere" :key="idx" class="detail-row">
+        <div v-if="selectedTask.modtagere?.length" class="detail-section">
+          <div v-for="(modtager, idx) in selectedTask.modtagere" :key="idx" class="detail-row">
             <span class="detail-label">
               {{ getUserName(modtager, brugerStore) }}
               <template v-if="idx === 0">modtager kvittering</template>

@@ -99,15 +99,20 @@ export const getBannerType = (status) => {
 
 export const processCalendarTasks = (tasks) => {
   if (!tasks) return []
-  return tasks.map(task => ({
-    ...task,
-    location: getLocationLabel(task.location),
-    type: getTypeLabel(task.type),
-    status: task.status,
-    statusLabel: getStatusLabel(task.status),
-    enhedId: task.enhedId || task.details,
-    ansvarligeBrugere: task.ansvarligeBrugere
-  }))
+  return tasks.map((task) => {
+    // Find the history entry for the current date
+    const historyEntry = task.historik?.find(entry => entry.dato === task.dato)
+    const status = historyEntry?.status || 'inaktiv'
+    return {
+      ...task,
+      location: getLocationLabel(task.location),
+      type: getTypeLabel(task.type),
+      status: status,
+      statusLabel: getStatusLabel(status),
+      enhedId: task.enhedId || task.details,
+      ansvarligeBrugere: task.ansvarligeBrugere
+    }
+  })
 }
 
 export const getTjeklisteFrekvens = (id, tjeklisteStore) => {
