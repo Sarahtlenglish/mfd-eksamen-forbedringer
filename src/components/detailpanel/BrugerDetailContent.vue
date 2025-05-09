@@ -27,10 +27,18 @@ const addressDisplay = computed(() => {
   return 'Ikke angivet'
 })
 
-// Check if user is chef
 const isBrugerChef = computed(() => {
-  return !props.item.brugereRef
+  // Bruger er chef hvis "Denne bruger er chef" er valgt explicit
+  // Eller for eksisterende brugere (ikke preview), hvis brugereRef er tom
+  if (props.item.id === 'preview') {
+    // For nye brugere: kun vis "er chef" hvis det er explicit valgt
+    return props.item.brugereRef === 'bruger_er_chef'
+  } else {
+    // For eksisterende brugere: tom brugereRef betyder de er chef
+    return !props.item.brugereRef
+  }
 })
+
 </script>
 
 <template>
@@ -45,14 +53,18 @@ const isBrugerChef = computed(() => {
         <div class="role-value">{{ item.rolle || 'Ikke angivet' }}</div>
       </div>
 
-      <div class="detail-row" v-if="item.brugereRef">
+      <div v-if="isBrugerChef" class="detail-row">
+        <div class="value chef-status">Denne bruger er chef</div>
+      </div>
+      <div v-else-if="item.brugereRef" class="detail-row">
         <div class="label">Nærmeste leder</div>
         <div class="separator">-</div>
-        <div class="value">{{ item.lederNavn || item.brugereRef }}</div>
+        <div class="value">{{ item.lederNavn || item.brugereRef || 'Ikke angivet' }}</div>
       </div>
-
-      <div class="detail-row" v-if="isBrugerChef">
-        <div class="value chef-status">Denne bruger er chef</div>
+      <div v-else class="detail-row">
+        <div class="label">Nærmeste leder</div>
+        <div class="separator">-</div>
+        <div class="value">Leder er ikke valgt</div>
       </div>
     </div>
 
@@ -149,11 +161,6 @@ const isBrugerChef = computed(() => {
 
   .value {
     color: $neutral-900;
-  }
-
-  .chef-status {
-    font-weight: 600;
-    color: $primary-600;
   }
 }
 
