@@ -61,28 +61,24 @@ export function getWizardConfig(context, options = {}) {
       options: 'responsibleOptions'
     },
     reminderFrekvens: {
-      label: 'Frekvens',
       placeholder: 'Vælg frekvens',
       required: false,
       component: DropdownComponent,
       options: 'frekvensOptions'
     },
     reminderTidspunkt: {
-      label: 'Tidspunkt',
       placeholder: 'Vælg tidspunkt',
       required: false,
       component: DropdownComponent,
       options: 'tidspunktOptions'
     },
     deadlineFrekvens: {
-      label: 'Frekvens',
       placeholder: 'Vælg frekvens',
       required: false,
       component: DropdownComponent,
       options: 'frekvensOptions'
     },
     deadlineTidspunkt: {
-      label: 'Tidspunkt',
       placeholder: 'Vælg tidspunkt',
       required: false,
       component: DropdownComponent,
@@ -341,7 +337,7 @@ export function getWizardConfig(context, options = {}) {
       },
       fieldDefinitions,
       dropdownOptions: options.dropdownOptions || {
-        roleOptions: [
+        rolleOptions: [
           { value: 'service_bruger', label: 'Service Bruger' },
           { value: 'facility_manager', label: 'Facility Manager' },
           { value: 'administrator', label: 'Administrator' },

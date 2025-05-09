@@ -71,11 +71,9 @@ watch(() => formData.location, (newValue, oldValue) => {
 const config = computed(() => {
   const context = 'enheder'
   const mockOptions = {
-    mockData: {
-      enheder: {
-        locationOptions: enhederConfig.locations,
-        enhedTypeOptions: enhederConfig.types
-      }
+    dropdownOptions: {
+      locationOptions: enhederConfig.locations,
+      enhedTypeOptions: enhederConfig.types
     }
   }
 
@@ -86,7 +84,20 @@ const config = computed(() => {
     // Opdater konfiguration for gruppe
     return {
       ...wizardConfig,
-      steps: enhederConfig.defaults.gruppe.steps
+      steps: [
+        {
+          title: enhederConfig.defaults.gruppe.steps[0].title,
+          heading: enhederConfig.defaults.gruppe.steps[0].heading
+        },
+        {
+          title: 'Underenheder',
+          heading: 'Opret underenheder for gruppen'
+        }
+      ],
+      fields: {
+        step1: ['enhedType', 'gruppeTitel', 'gruppeBeskrivelse', 'location'],
+        step2: ['underenheder']
+      }
     }
   } else {
     // Konfiguration for enkelt enhed

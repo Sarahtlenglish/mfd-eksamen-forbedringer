@@ -138,7 +138,7 @@ export const useEnhedStore = defineStore('enhedStore', () => {
 
   const deleteEnhed = async (id) => {
     try {
-      await deleteDoc(doc(db, 'enheder', id))
+      await deleteDoc(doc(db, 'Enheder', id))
       // Update local state
       enheder.value = enheder.value.filter(enhed => enhed.id !== id)
     } catch (err) {

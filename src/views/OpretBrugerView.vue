@@ -53,24 +53,24 @@ const leaderOptions = computed(() => {
 // Get configuration for the wizard
 const config = computed(() => {
   const context = 'brugere'
-  const mockOptions = {
-    mockData: {
-      brugere: {
-        rolleOptions: brugerConfig.fieldDefinitions.rolle.options,
-        brugereRefOptions: leaderOptions.value
-      }
+  const options = {
+    dropdownOptions: {
+      // Use the role options from the brugerConfig
+      rolleOptions: brugerConfig.fieldDefinitions.rolle.options,
+      // Use the computed leaderOptions that contains real users from the database
+      brugereRefOptions: leaderOptions.value
     }
   }
 
-  const baseConfig = getWizardConfig(context, mockOptions)
+  const baseConfig = getWizardConfig(context, options)
 
   return {
     ...baseConfig,
+    // Use fields that match your formData property names
     fields: {
-      ...baseConfig.fields,
-      step1: brugerConfig.steps[0].fields,
-      step2: brugerConfig.steps[1].fields,
-      step3: brugerConfig.steps[2].fields
+      step1: ['fuldeNavn', 'rolle', 'brugereRef'],
+      step2: ['adresse', 'postnummer', 'by'],
+      step3: ['email', 'telefon']
     }
   }
 })
@@ -85,7 +85,7 @@ const detailItem = computed(() => {
     id: 'preview',
     fuldeNavn: formData.fuldeNavn || 'Ny Bruger',
     rolle: getRoleLabel(formData.rolle) || 'Ikke valgt',
-    brugereRef: formData.brugereRef === 'bruger_er_chef' ? '' : formData.brugereRef,
+    brugereRef: formData.brugereRef || '',
     lederNavn: selectedLeader ? selectedLeader.label : '',
     adresse: formData.adresse || 'Ikke angivet',
     postnummer: formData.postnummer || '',

@@ -62,24 +62,5 @@ export const brugerConfig = {
       label: 'Telefon',
       placeholder: 'Indtast telefonnummer'
     }
-  },
-
-  // Form steps configuration
-  steps: [
-    {
-      title: 'Arbejdsfunktioner',
-      heading: 'Udfyld brugerens arbejdsfunktioner',
-      fields: ['fuldeNavn', 'rolle', 'brugereRef']
-    },
-    {
-      title: 'Personlige oplysninger',
-      heading: 'Udfyld brugerens personlige oplysninger',
-      fields: ['adresse', 'postnummer', 'by']
-    },
-    {
-      title: 'Kontakt oplysninger',
-      heading: 'Udfyld brugerens kontaktoplysninger',
-      fields: ['email', 'telefon']
-    }
-  ]
+  }
 }

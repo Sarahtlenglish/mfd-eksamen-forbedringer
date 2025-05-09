@@ -29,7 +29,6 @@
   padding: $detail-panel-padding;
   width: 100%;
   box-sizing: border-box;
-  height: 100%;
   min-height: 823px;
 
     .panel-content {

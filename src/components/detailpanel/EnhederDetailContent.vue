@@ -53,7 +53,7 @@ const underenhederCount = computed(() => {
       </div>
     </div>
 
-    <div v-if="isGruppe && hasUnderenheder" class="underenheder-section">
+    <div v-if="isGruppe && hasUnderenheder" class="underenheder-section detail-section">
       <div class="underenheder-count">{{ underenhederCount }} underenheder</div>
 
       <div class="underenheder-table">
@@ -63,14 +63,14 @@ const underenhederCount = computed(() => {
         </div>
         <div class="table-body">
           <div v-for="(enhed, index) in item.underenheder" :key="index" class="table-row">
-            <div class="cell">{{ enhed.navn || `Branddør ${index + 1}` }}</div>
+            <div class="cell">{{ item.name }}</div>
             <div class="cell">{{ enhed.lokation || 'Ikke valgt' }}</div>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="detail-section" v-if="item.qrCode">
+    <div class="detail-section" v-if="!isGruppe">
       <div class="detail-section-header">
         <h4>QR KODE</h4>
         <span class="detail-section-header-and-button">
@@ -83,7 +83,7 @@ const underenhederCount = computed(() => {
       </div>
     </div>
 
-    <div class="detail-section" v-if="item.files && item.files.length > 0">
+    <div class="detail-section">
       <div class="detail-section-header">
         <h4>FILER</h4>
         <span class="detail-section-header-and-button">
@@ -92,11 +92,14 @@ const underenhederCount = computed(() => {
         </span>
       </div>
       <div class="files-list">
-        <div v-for="(file, index) in item.files" :key="index" class="file-item">
+        <div v-if="item.files && item.files.length" class="file-item">
           <span class="file-icon">
             <IconFileText/>
           </span>
           <span class="file-name">{{ file.name }}</span>
+        </div>
+        <div v-else class="no-files-message">
+          Der er endnu ikke uploadet nogle filer på denne enhed
         </div>
       </div>
     </div>
