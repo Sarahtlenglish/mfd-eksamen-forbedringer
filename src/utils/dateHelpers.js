@@ -58,7 +58,7 @@ export function getNextDateByFrequency(currentDate, frequency) {
     case 'ugentligt':
       nextDate.setDate(nextDate.getDate() + 7)
       break
-    case 'månedligt':
+    case 'manedligt':
       nextDate.setMonth(nextDate.getMonth() + 1)
       break
     case 'kvartal':

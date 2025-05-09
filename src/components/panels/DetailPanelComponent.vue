@@ -206,7 +206,9 @@ function handleSelectTask(task) {
           </button>
         </div>
         <div class="detail-title-container" :class="{ 'no-back-button': !shouldShowBackButton }">
-          <h2 :class="titleClasses">{{ panelTitle }}</h2>
+          <h2 :class="titleClasses">{{ panelTitle }}
+            <span v-if="context === 'enheder' && item.type === 'Gruppe'" class="group-indicator">(Gruppe)</span>
+          </h2>
         </div>
         <div class="detail-actions">
           <button v-if="shouldShowEditButton" @click="handleEdit" class="edit-button">

@@ -63,7 +63,7 @@ const underenhederCount = computed(() => {
         </div>
         <div class="table-body">
           <div v-for="(enhed, index) in item.underenheder" :key="index" class="table-row">
-            <div class="cell">{{ enhed.navn || `Branddør ${index + 1}` }}</div>
+            <div class="cell">{{ item.name }}</div>
             <div class="cell">{{ enhed.lokation || 'Ikke valgt' }}</div>
           </div>
         </div>

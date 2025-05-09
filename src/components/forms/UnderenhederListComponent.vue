@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, inject } from 'vue'
+import { ref, computed, inject, watch } from 'vue'
 import { IconPlus, IconX } from '@tabler/icons-vue'
 import InputComponent from '@/components/ui/InputComponent.vue'
 import ButtonComponent from '@/components/ui/ButtonComponent.vue'
@@ -38,6 +38,11 @@ const underenheder = computed({
   set: value => emit('update:modelValue', value)
 })
 
+const gruppeNavn = computed(() => {
+  // Korrekt check: Brug gruppeTitel for gruppeenheder
+  return formData.gruppeTitel || 'enhed'
+})
+
 // Helper function to generate location codes based on selected location and index
 function generateLocationCode(baseLocation, index) {
   // Map the base location to the first letter
@@ -74,7 +79,7 @@ const opretUnderenheder = () => {
     const locationCode = generateLocationCode(baseLocation, i)
     nyeUnderenheder.push({
       id: Date.now() + i,
-      navn: `Branddør ${i}`,
+      navn: `${gruppeNavn.value} ${i}`,
       lokation: locationCode,
       // Use the function that's causing the lint error
       lokationLabel: generateLocationLabel(baseLocation, locationCode)
@@ -89,6 +94,19 @@ const opretUnderenheder = () => {
 const removeUnderenhed = (id) => {
   underenheder.value = underenheder.value.filter(item => item.id !== id)
 }
+
+// Generer nye underenheder hvis gruppenavnet ændrer sig
+watch(() => gruppeNavn.value, (newName, oldName) => {
+  if (newName !== oldName && underenheder.value.length > 0) {
+    // Opdater navnene på eksisterende underenheder
+    underenheder.value = underenheder.value.map((enhed, index) => {
+      return {
+        ...enhed,
+        id: `${newName} ${index + 1}`
+      }
+    })
+  }
+})
 </script>
 
 <template>
@@ -207,8 +225,12 @@ const removeUnderenhed = (id) => {
   border-bottom: 1px solid $neutral-300;
 }
 
-.header-cell, .table-cell {
+.header-cell {
   padding: $spacing-small $spacing-medium;
+  flex: 1;
+}
+
+.table-cell {
   flex: 1;
 }
 

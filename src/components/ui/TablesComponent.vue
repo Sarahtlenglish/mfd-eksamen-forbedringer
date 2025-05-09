@@ -73,7 +73,13 @@ const handleRowClick = (item) => {
         >
           <td v-for="column in columns" :key="column.key">
             <slot :name="`cell-${column.key}`" :item="item" :column="column">
-              {{ item[column.key] }}
+              <!-- Viser (gruppe) efter navnet hvis typen er 'Gruppe' og kolonnen er 'name' -->
+              <template v-if="column.key === 'name' && item.type === 'Gruppe'">
+                {{ item[column.key] }} <span class="group-indicator">(Gruppe)</span>
+              </template>
+              <template v-else>
+                {{ item[column.key] }}
+              </template>
             </slot>
           </td>
         </tr>
@@ -105,7 +111,7 @@ const handleRowClick = (item) => {
   overflow: hidden;
   background-color: white;
   border: 1px solid $neutral-300;
-  width: 100%;
+  width: 100%
 }
 
 .data-table {
