@@ -147,12 +147,12 @@ onUnmounted(() => {
 
   .gruppe-panel-section {
     width: 25%;
-    height: 100%;
+    min-height: 100%;
   }
 
   .detail-panel-section {
     width: 25%;
-    height: 100%;
+    min-height: 100%;
   }
 }
 

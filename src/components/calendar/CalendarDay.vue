@@ -55,7 +55,7 @@ const dayNumber = computed(() => props.date.getDate())
 @use '@/assets/variables' as *;
 
 .calendar-day {
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 10 / 8;
   background-color: $neutral-200;
   position: relative;
   cursor: pointer;

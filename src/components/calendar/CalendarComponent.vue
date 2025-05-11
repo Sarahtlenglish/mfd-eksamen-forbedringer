@@ -104,6 +104,7 @@ const getTasksForDate = (date) => {
   border: 1px solid $neutral-300;
   display: flex;
   flex-direction: column;
+  height: 100%;
 }
 
 .calendar {
