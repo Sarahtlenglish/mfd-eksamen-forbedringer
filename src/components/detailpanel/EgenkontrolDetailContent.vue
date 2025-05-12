@@ -27,7 +27,7 @@ const tjeklisteStore = useTjeklisteStore()
     <div class="detail-section">
       <div class="detail-row">
         <span class="detail-label">
-          Udføres {{ getTjeklisteFrekvens(props.item.checkliste, tjeklisteStore) || '-' }}
+          Udføres {{ getTjeklisteFrekvens(props.item.checkliste, tjeklisteStore) || 'Ny egenkontrol' }}
         </span>
       </div>
       <div v-if="props.item.startDato" class="detail-row">
@@ -38,7 +38,7 @@ const tjeklisteStore = useTjeklisteStore()
     <!-- Tjekliste og enhed -->
     <div v-if="props.item.checkliste || props.item.lokation" class="detail-section">
       <div v-if="props.item.checkliste" class="detail-row">
-        <strong>{{ getTjeklisteName(props.item.checkliste, tjeklisteStore) }}</strong>
+        <span class="detail-label">{{ getTjeklisteName(props.item.checkliste, tjeklisteStore) }}</span>
       </div>
       <div v-if="props.item.lokation" class="detail-row">
         <span>{{ getEnhedName(props.item.lokation, enhedStore) }}</span>
@@ -61,7 +61,7 @@ const tjeklisteStore = useTjeklisteStore()
         <span class="detail-label">
           Påmindelse -
           {{ getFrekvensLabel(påmindelse.frekvens) }}
-          kl. {{ getTidspunktLabel(påmindelse.tidspunkt) }}
+          kl. {{ getTidspunktLabel(påmindelse.tidspunkt) || 'ikke angivet' }}
           <template v-if="idx === 1">efter overskredet deadline</template>
         </span>
       </div>
@@ -71,7 +71,7 @@ const tjeklisteStore = useTjeklisteStore()
     <div v-if="props.item.modtagere?.length" class="detail-section">
       <div v-for="(modtager, idx) in props.item.modtagere" :key="idx" class="detail-row">
         <span class="detail-label">
-          {{ getUserName(modtager, brugerStore) }}
+          {{ getUserName(modtager, brugerStore) || 'Bruger ikke angivet' }}
           <template v-if="idx === 0">modtager kvittering</template>
           <template v-else-if="idx === 1">modtager besked om afvigelser</template>
         </span>

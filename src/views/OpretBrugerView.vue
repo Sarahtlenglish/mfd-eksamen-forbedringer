@@ -84,14 +84,14 @@ const detailItem = computed(() => {
   return {
     id: 'preview',
     fuldeNavn: formData.fuldeNavn || 'Ny Bruger',
-    rolle: getRoleLabel(formData.rolle) || 'Ikke valgt',
+    rolle: getRoleLabel(formData.rolle) || 'Rolle ikke angivet',
     brugereRef: formData.brugereRef || '',
     lederNavn: selectedLeader ? selectedLeader.label : '',
-    adresse: formData.adresse || 'Ikke angivet',
-    postnummer: formData.postnummer || '',
-    by: formData.by || 'Ikke angivet',
-    email: formData.email || 'Ikke angivet',
-    telefon: formData.telefon || 'Ikke angivet'
+    adresse: formData.adresse || 'Adresse ikke angivet',
+    postnummer: formData.postnummer || 'By ikke angivet',
+    by: formData.by || '',
+    email: formData.email || 'Email ikke angivet',
+    telefon: formData.telefon || 'Telefonnummer ikke angivet'
   }
 })
 

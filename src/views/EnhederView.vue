@@ -20,10 +20,7 @@ const processedEnheder = computed(() => processEnheder(enhedStore.enheder))
 // Define columns for this view with formatters
 const columns = [
   { key: 'name', label: 'Enhed' },
-  {
-    key: 'location',
-    label: 'Lokation'
-  }
+  { key: 'location', label: 'Lokation' }
 ]
 
 // Use store data

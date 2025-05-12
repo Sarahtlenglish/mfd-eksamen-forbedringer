@@ -118,18 +118,17 @@ const config = computed(() => {
 
 // Live preview af enhed i detail panel
 const detailItem = computed(() => {
-  // Brug prepareDetailItem for at få et standardiseret objekt baseret på formData
   const item = prepareDetailItem('enheder', formData)
 
   // Sikrer at vi viser korrekt titel i detail panel uanset type
   if (enhedType.value === 'single') {
-    item.title = formData.enhedNavn || 'Ny enhed'
     item.name = formData.enhedNavn || 'Ny enhed'
     item.description = formData.beskrivelse || 'Ingen beskrivelse angivet'
+    item.location = formData.location || 'Lokation ikke angivet'
   } else {
-    item.title = formData.gruppeTitel || 'Ny gruppeenhed'
     item.name = formData.gruppeTitel || 'Ny gruppeenhed'
     item.description = formData.gruppeBeskrivelse || 'Ingen beskrivelse angivet'
+    item.location = formData.location || 'Lokation ikke angivet'
   }
 
   return item

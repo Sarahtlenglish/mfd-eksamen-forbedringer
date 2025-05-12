@@ -50,7 +50,7 @@ const isBrugerChef = computed(() => {
       <div class="detail-row">
         <div class="label">Rolle</div>
         <div class="separator">-</div>
-        <div class="role-value">{{ item.rolle || 'Ikke angivet' }}</div>
+        <div class="role-value">{{ item.rolle }}</div>
       </div>
 
       <div v-if="isBrugerChef" class="detail-row">
@@ -59,7 +59,7 @@ const isBrugerChef = computed(() => {
       <div v-else-if="item.brugereRef" class="detail-row">
         <div class="label">Nærmeste leder</div>
         <div class="separator">-</div>
-        <div class="value">{{ item.lederNavn || item.brugereRef || 'Ikke angivet' }}</div>
+        <div class="value">{{ item.lederNavn || item.brugereRef }}</div>
       </div>
       <div v-else class="detail-row">
         <div class="label">Nærmeste leder</div>
@@ -88,7 +88,7 @@ const isBrugerChef = computed(() => {
       <div class="detail-row">
         <div class="label">Adresse</div>
         <div class="separator">-</div>
-        <div class="value">{{ item.adresse || 'Ikke angivet' }}</div>
+        <div class="value">{{ item.adresse }}</div>
       </div>
 
       <!-- Always show the By (city) field -->
@@ -148,10 +148,6 @@ const isBrugerChef = computed(() => {
 
   &:last-child {
     margin-bottom: 0;
-  }
-
-  .label {
-    color: $neutral-700;
   }
 
   .separator {
