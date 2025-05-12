@@ -44,7 +44,7 @@ export function getDaysOverdue(fromDate, toDate = new Date()) {
 /**
  * Beregn næste dato baseret på frekvens
  * @param {Date} currentDate - Nuværende dato
- * @param {string} frequency - Frekvens ('dagligt'|'ugentlig'|'månedlig'|'kvartal'|'årlig')
+ * @param {string} frequency - Frekvens ('dagligt'|'ugentlig'|'manedlig'|'kvartal'|'årlig')
  * @returns {Date} Næste dato
  */
 export function getNextDateByFrequency(currentDate, frequency) {

@@ -29,11 +29,9 @@ const formData = reactive({
 // Computed property for detail panel
 const detailItem = computed(() => ({
   tjeklisteNavn: formData.navn || 'Ny tjekliste',
-  beskrivelse: formData.beskrivelse || '',
-  type: formData.type || 'Ikke valgt',
-  frekvens: formData.frekvens || 'Ikke valgt',
-  tidspunkt: formData.tidspunkt || 'Ikke valgt',
-  opgaver: formData.opgaver || []
+  beskrivelse: formData.beskrivelse || 'Ingen beskrivelse angivet',
+  type: formData.type || 'Type ikke angivet',
+  frekvens: formData.frekvens || 'Frekvens ikke angivet'
 }))
 
 // Definer kontekst og konfiguration

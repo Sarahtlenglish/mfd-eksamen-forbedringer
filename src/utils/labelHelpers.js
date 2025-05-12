@@ -6,7 +6,7 @@ import { rolleOptions } from '@/configs/brugerConfig'
 
 // Generisk label-finder
 export function findLabel(options, value) {
-  if (!options || !value) return value || 'Ikke valgt'
+  if (!options || !value) return value
   const option = options.find(opt => opt.value === value)
   return option ? option.label : value
 }

@@ -3,6 +3,7 @@
 import { computed } from 'vue'
 import { IconPrinter, IconUpload, IconFileText } from '@tabler/icons-vue'
 import ButtonComponent from '@/components/ui/ButtonComponent.vue'
+import { getLocationLabel } from '@/utils/labelHelpers'
 
 const props = defineProps({
   item: {
@@ -36,7 +37,7 @@ const underenhederCount = computed(() => {
 
 <template>
     <div class="detail-section">
-      <div class="location body-1-semibold">{{ item.location }}</div>
+      <div class="location body-1-semibold">{{ getLocationLabel(item.location) }}</div>
 
       <p v-if="item.description" class="description">
         {{ item.description }}
@@ -64,7 +65,7 @@ const underenhederCount = computed(() => {
         <div class="table-body">
           <div v-for="(enhed, index) in item.underenheder" :key="index" class="table-row">
             <div class="cell">{{ item.name }}</div>
-            <div class="cell">{{ enhed.lokation || 'Ikke valgt' }}</div>
+            <div class="cell">{{ enhed.lokation }}</div>
           </div>
         </div>
       </div>

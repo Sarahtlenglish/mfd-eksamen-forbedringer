@@ -362,18 +362,18 @@ export function getWizardConfig(context, options = {}) {
  * @param {Object} dropdownOptions - Dropdown-options for at finde labels
  * @returns {Object} Formateret objekt til DetailPanel
  */
-export function prepareDetailItem(context, formData, dropdownOptions = {}) {
+export function prepareDetailItem(context, formData = {}) {
   // Find label baseret på værdi fra dropdown-options
   const findLabel = (options, value) => {
-    if (!options || !value) return value || 'Ikke valgt'
+    if (!options || !value) return value
     const option = options.find(opt => opt.value === value)
     return option ? option.label : value
   }
 
   // Basis-information til alle typer
   const baseDetailItem = {
-    navn: formData.navn || 'Ny Item',
-    beskrivelse: formData.beskrivelse || 'Ingen beskrivelse angivet',
+    navn: formData.navn,
+    beskrivelse: formData.beskrivelse,
     startDato: formData.startDato ? new Date(formData.startDato).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
   }
 
@@ -383,11 +383,13 @@ export function prepareDetailItem(context, formData, dropdownOptions = {}) {
       // Gem kun rå data for påmindelser og brug danske feltnavne
       return {
         ...baseDetailItem,
+        navn: formData.navn || 'Navn ikke angivet',
+        beskrivelse: formData.beskrivelse || 'Ingen beskrivelse angivet',
         type: 'Egenkontrol',
         status: 'normal',
-        lokation: formData.selectedEnheder || formData.enhed || '',
-        checkliste: formData.selectedCheckliste || formData.tjekliste || '',
-        ansvarligeBrugere: [formData.selectedAnsvarlige || formData.ansvarlige || ''],
+        lokation: formData.selectedEnheder || formData.enhed || 'Enhed ikke angivet',
+        checkliste: formData.selectedCheckliste || formData.tjekliste || 'Tjekliste ikke angivet',
+        ansvarligeBrugere: [formData.selectedAnsvarlige || formData.ansvarlige || 'Bruger ikke angivet'],
         påmindelser: [
           { frekvens: formData.reminderFrekvens, tidspunkt: formData.reminderTidspunkt },
           { frekvens: formData.deadlineFrekvens, tidspunkt: formData.deadlineTidspunkt }
@@ -399,24 +401,14 @@ export function prepareDetailItem(context, formData, dropdownOptions = {}) {
       }
     }
 
-    case 'tjeklister': {
-      return {
-        ...baseDetailItem,
-        tjekliste: formData.navn || 'Ny tjekliste',
-        type: formData.type || 'Standard',
-        status: 'normal',
-        frequency: findLabel((dropdownOptions.frekvensOptions || []), formData.frekvens) || 'Ikke valgt'
-      }
-    }
-
     // Case for enheder
     case 'enheder': {
       // Afhængig af type ('singel' eller 'gruppe')
       if (formData.enhedType === 'gruppe') {
         return {
           ...baseDetailItem,
-          navn: formData.gruppeTitel || 'Ny gruppeenhed',
-          enhedBeskrivelse: formData.gruppeBeskrivelse || 'Ingen beskrivelse angivet',
+          navn: formData.gruppeTitel,
+          enhedBeskrivelse: formData.gruppeBeskrivelse,
           type: 'Gruppe',
           status: 'normal',
           location: findLabel([
@@ -429,8 +421,8 @@ export function prepareDetailItem(context, formData, dropdownOptions = {}) {
       } else {
         return {
           ...baseDetailItem,
-          navn: formData.enhedNavn || 'Ny enhed',
-          enhedBeskrivelse: formData.beskrivelse || 'Ingen beskrivelse angivet',
+          navn: formData.enhedNavn,
+          enhedBeskrivelse: formData.beskrivelse,
           type: 'Enkelt Enhed',
           status: 'normal',
           location: findLabel([
@@ -442,35 +434,6 @@ export function prepareDetailItem(context, formData, dropdownOptions = {}) {
       }
     }
     // Add to prepareDetailItem function:
-    case 'brugere': {
-      return {
-        ...baseDetailItem,
-        navn: formData.navn || 'Ny Bruger',
-        rolle: findLabel([
-          { value: 'service_bruger', label: 'Service Bruger' },
-          { value: 'facility_manager', label: 'Facility Manager' },
-          { value: 'administrator', label: 'Administrator' },
-          { value: 'visnings_bruger', label: 'Visnings Bruger' }
-        ], formData.rolle) || 'Ikke valgt',
-        ansvarlig_for_egenkontrol: findLabel([
-          { value: 'egenkontrol_1', label: 'Egenkontrol 1' },
-          { value: 'egenkontrol_2', label: 'Egenkontrol 2' },
-          { value: 'egenkontrol_3', label: 'Egenkontrol 3' }
-        ], formData.ansvarlig_for_egenkontrol) || '-',
-        leder: findLabel([
-          { value: 'christian_hansen', label: 'Christian Hansen' },
-          { value: 'anders_jensen', label: 'Anders Jensen' },
-          { value: 'tanja_lund', label: 'Tanja Lund' }
-        ], formData.leder) || '-',
-        adresse: formData.adresse || 'Ikke angivet',
-        postnummer: formData.postnummer || '',
-        by: formData.by || '',
-        email: formData.email || 'Ikke angivet',
-        telefon: formData.telefon || 'Ikke angivet',
-        gruppe: 'Tilhører ingen gruppe endnu',
-        status: 'normal'
-      }
-    }
 
     default:
       return baseDetailItem

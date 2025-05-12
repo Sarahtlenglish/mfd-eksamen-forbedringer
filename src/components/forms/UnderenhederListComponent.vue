@@ -139,7 +139,7 @@ watch(() => gruppeNavn.value, (newName, oldName) => {
 
     <!-- Underenheder tabel -->
     <div v-if="underenheder.length > 0" class="underenheder-table-section">
-      <div class="table-label">Underenheder - rediger hvis nødvendigt</div>
+      <div class="table-label">Underenheder</div>
 
       <div class="underenheder-table">
         <div class="table-header">
@@ -223,10 +223,10 @@ watch(() => gruppeNavn.value, (newName, oldName) => {
   background-color: $table-header;
   font-weight: 500;
   border-bottom: 1px solid $neutral-300;
+  padding: $spacing-small $spacing-medium;
 }
 
 .header-cell {
-  padding: $spacing-small $spacing-medium;
   flex: 1;
 }
 
