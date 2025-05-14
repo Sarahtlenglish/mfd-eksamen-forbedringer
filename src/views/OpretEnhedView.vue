@@ -4,7 +4,7 @@ import { reactive, ref, computed, watch, provide } from 'vue'
 import DetailPanel from '@/components/panels/DetailPanelComponent.vue'
 import { IconX } from '@tabler/icons-vue'
 import WizardFormComponent from '@/components/forms/WizardFormComponent.vue'
-import { getWizardConfig, prepareDetailItem } from '@/components/forms/WizardFormConfig.js'
+import { getWizardConfig } from '@/components/forms/WizardFormConfig.js'
 import { useEnhedStore } from '@/stores/enhedStore'
 import { enhederConfig } from '@/configs/enhederConfig'
 
@@ -118,20 +118,24 @@ const config = computed(() => {
 
 // Live preview af enhed i detail panel
 const detailItem = computed(() => {
-  const item = prepareDetailItem('enheder', formData)
-
-  // Sikrer at vi viser korrekt titel i detail panel uanset type
-  if (enhedType.value === 'single') {
-    item.name = formData.enhedNavn || 'Ny enhed'
-    item.description = formData.beskrivelse || 'Ingen beskrivelse angivet'
-    item.location = formData.location || 'Lokation ikke angivet'
+  if (formData.enhedType === 'gruppe') {
+    return {
+      name: formData.gruppeTitel || 'Ny gruppeenhed',
+      description: formData.gruppeBeskrivelse || 'Ingen beskrivelse angivet',
+      type: 'Gruppe',
+      status: 'normal',
+      location: formData.location || 'Lokation ikke angivet',
+      underenheder: formData.underenheder || []
+    }
   } else {
-    item.name = formData.gruppeTitel || 'Ny gruppeenhed'
-    item.description = formData.gruppeBeskrivelse || 'Ingen beskrivelse angivet'
-    item.location = formData.location || 'Lokation ikke angivet'
+    return {
+      name: formData.enhedNavn || 'Ny enhed',
+      description: formData.beskrivelse || 'Ingen beskrivelse angivet',
+      type: 'Enkelt Enhed',
+      status: 'normal',
+      location: formData.location || 'Lokation ikke angivet'
+    }
   }
-
-  return item
 })
 
 // Håndterer opdatering af formular
