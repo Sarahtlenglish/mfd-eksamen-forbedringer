@@ -9,6 +9,7 @@ import { getWizardConfig } from '@/components/forms/WizardFormConfig.js'
 import { useBrugerStore } from '@/stores/brugerStore'
 import { useEnhedStore } from '@/stores/enhedStore'
 import { useTjeklisteStore } from '@/stores/tjeklisteStore'
+import { formatDateToISO } from '@/utils/dateHelpers'
 
 const router = useRouter()
 const egenkontrolStore = useEgenkontrolStore()
@@ -84,7 +85,7 @@ const detailItem = computed(() => ({
     formData.kvitteringModtager || '',
     formData.afvigelseModtager || ''
   ],
-  startDato: formData.startDato || new Date().toISOString().split('T')[0]
+  startDato: formatDateToISO(formData.startDato) || formatDateToISO(new Date())
 }))
 
 // Håndterer opdatering af formular
