@@ -18,6 +18,14 @@ defineProps({
   required: {
     type: Boolean,
     default: false
+  },
+  hasError: {
+    type: Boolean,
+    default: false
+  },
+  errorMessage: {
+    type: String,
+    default: ''
   }
 })
 
@@ -39,7 +47,7 @@ const formatDate = (date) => {
     <label v-if="label" class="input-label">
       {{ label }} <span v-if="required" class="required-mark">*</span>
     </label>
-    <div class="custom-datepicker-wrapper">
+    <div class="custom-datepicker-wrapper" :class="{ 'has-error': hasError }">
       <Datepicker
         :model-value="modelValue"
         @update:model-value="emit('update:modelValue', $event)"
@@ -49,7 +57,8 @@ const formatDate = (date) => {
         locale="da"
         :format="formatDate"
         :text-input="false"
-        position="bottom-start"
+        :teleport="true"
+        teleportTo="body"
         :closeOnScroll="false"
         menuClassName="datepicker-dropdown"
       />
@@ -59,6 +68,7 @@ const formatDate = (date) => {
         </svg>
       </div>
     </div>
+    <div v-if="hasError && errorMessage" class="error-message">{{ errorMessage }}</div>
   </div>
 </template>
 
@@ -68,6 +78,12 @@ const formatDate = (date) => {
 .custom-datepicker-wrapper {
   position: relative;
   width: 100%;
+
+  &.has-error {
+    :deep(.dp__input) {
+      border-color: $error-base !important;
+    }
+  }
 }
 
 .datepicker-icon {
@@ -117,14 +133,9 @@ const formatDate = (date) => {
   color: $error-base;
 }
 
-:deep(.datepicker-dropdown) {
-  margin-top: 2px !important;
-  left: 0 !important;
-  width: 100% !important;
-  max-width: 320px !important;
-  z-index: 100 !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-  border: 1px solid $neutral-300 !important;
-  border-radius: $border-radius-md !important;
+.error-message {
+  color: $error-base;
+  font-size: 0.75rem;
+  margin-top: 3px;
 }
 </style>
