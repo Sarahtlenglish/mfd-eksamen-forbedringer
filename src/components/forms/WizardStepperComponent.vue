@@ -1,5 +1,5 @@
 <script setup>
-import { ref, defineProps, defineEmits, onMounted } from 'vue'
+import { ref, defineProps, defineEmits, onMounted, computed } from 'vue'
 import { FormWizard } from 'vue3-form-wizard'
 import 'vue3-form-wizard/dist/style.css'
 
@@ -11,12 +11,28 @@ const props = defineProps({
   stepIcons: {
     type: Array,
     default: () => []
+  },
+  // These weren't in the original code but appear to be needed based on errors
+  context: {
+    type: String,
+    default: ''
+  },
+  formData: {
+    type: Object,
+    default: () => ({})
+  },
+  config: {
+    type: Object,
+    default: () => ({})
   }
 })
 
 const emit = defineEmits(['update:activeTabIndex', 'next', 'previous', 'complete'])
 
 const formWizard = ref(null)
+
+// Provide fallback for stepIcons to avoid errors
+const safeStepIcons = computed(() => props.stepIcons || [])
 
 // Tjekker om et trin er gennemført baseret på aktivt trin
 const isStepChecked = (index) => {
@@ -61,7 +77,8 @@ const completeWizard = () => {
 defineExpose({
   nextTab,
   prevTab,
-  formWizard
+  formWizard,
+  completeWizard
 })
 
 // Initialiser korrekt trin-status ved opstart
@@ -103,7 +120,7 @@ onMounted(() => {
             'checked': isStepChecked(stepProps.index)
           }">
           <div class="custom-icon-container">
-            <component :is="props.stepIcons[stepProps.index]" v-if="props.stepIcons[stepProps.index]" />
+            <component :is="safeStepIcons[stepProps.index]" v-if="safeStepIcons[stepProps.index]" />
           </div>
           <div class="step-title">{{ stepProps.tab.title }}</div>
         </div>
@@ -247,5 +264,4 @@ onMounted(() => {
 :deep(.wizard-footer-buttons) {
   display: none !important; /* Hide default buttons */
 }
-
 </style>

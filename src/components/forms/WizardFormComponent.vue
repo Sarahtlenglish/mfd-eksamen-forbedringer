@@ -1,10 +1,11 @@
 <script setup>
-import { ref, computed, provide } from 'vue'
+import { ref, computed, provide, reactive, watch } from 'vue'
 import WizardStepperComponent from '@/components/forms/WizardStepperComponent.vue'
 import { TabContent } from 'vue3-form-wizard'
 import 'vue3-form-wizard/dist/style.css'
 import ButtonComponent from '@/components/ui/ButtonComponent.vue'
 import { IconPlus } from '@tabler/icons-vue'
+
 const props = defineProps({
   // Bestemmer hvilken type formular der renderes
   context: {
@@ -33,38 +34,116 @@ const emit = defineEmits(['update:formData', 'next', 'previous', 'complete', 'ca
 const wizardStepper = ref(null)
 const activeTabIndex = ref(0)
 
-// Opdaterer formData med immutable pattern
+// Track validation errors for each field
+const validationErrors = reactive({})
+
+// Updater formData med immutable pattern
 const updateFormValue = (key, value) => {
   const updatedFormData = { ...props.formData, [key]: value }
   emit('update:formData', updatedFormData)
+
+  // Clear validation error when field is updated
+  if (validationErrors[key]) {
+    validationErrors[key] = ''
+  }
 }
 
 // Gør funktionalitet tilgængelig for børnekomponenter
 provide('updateFormValue', updateFormValue)
 provide('formData', props.formData)
 provide('config', props.config)
+provide('validationErrors', validationErrors)
 
 const steps = computed(() => props.config.steps || [])
 const stepIcons = computed(() => props.config.stepIcons || [])
 
-// Wizard navigation
-const handleNextTab = () => {
-  if (activeTabIndex.value < steps.value.length - 1) {
-    wizardStepper.value.nextTab()
-    emit('next')
-  } else {
-    // Afslut wizard og emit complete
-    if (wizardStepper.value && wizardStepper.value.formWizard && wizardStepper.value.formWizard.value) {
-      wizardStepper.value.formWizard.value.isLastStep = true
-      wizardStepper.value.completeWizard()
+// Function to validate required fields for the current step
+const validateCurrentStep = () => {
+  try {
+    const currentStepIndex = activeTabIndex.value + 1
+    const currentStepFields = props.config?.fields?.[`step${currentStepIndex}`] || []
+    let hasErrors = false
+
+    // Reset errors for this step
+    currentStepFields.forEach((fieldKey) => {
+      validationErrors[fieldKey] = ''
+    })
+
+    // Check each field in the current step
+    for (const fieldKey of currentStepFields) {
+      const fieldDef = props.config?.fieldDefinitions?.[fieldKey]
+
+      // Check if field is required and empty
+      if (fieldDef?.required
+        && (props.formData[fieldKey] === undefined
+          || props.formData[fieldKey] === null
+          || props.formData[fieldKey] === '')) {
+        validationErrors[fieldKey] = `${fieldDef.label || fieldKey} er påkrævet`
+        hasErrors = true
+      }
     }
-    emit('complete')
+
+    return !hasErrors
+  } catch (error) {
+    console.error('Error in validateCurrentStep:', error)
+    return true // Default to allowing progression if validation fails
+  }
+}
+
+// Watch for changes in formData to clear validation errors
+watch(() => props.formData, (newVal, oldVal) => {
+  // Find which property changed
+  for (const key in newVal) {
+    if (oldVal[key] !== newVal[key]) {
+      // Clear validation error for this field if it exists
+      if (validationErrors[key]) {
+        validationErrors[key] = ''
+      }
+    }
+  }
+}, { deep: true })
+
+// Wizard navigation with validation
+const handleNextTab = () => {
+  try {
+    // Try to validate, but don't block progression if validation throws an error
+    const isValid = validateCurrentStep()
+
+    if (!isValid) {
+      console.log('Validation failed, showing errors')
+      return // Don't proceed if validation fails
+    }
+
+    console.log('Validation passed, proceeding to next step')
+    if (activeTabIndex.value < steps.value.length - 1) {
+      wizardStepper.value?.nextTab()
+      emit('next')
+    } else {
+      // Final validation before completing the form
+      if (validateCurrentStep()) {
+        // Afslut wizard og emit complete
+        if (wizardStepper.value && wizardStepper.value.formWizard && wizardStepper.value.formWizard.value) {
+          wizardStepper.value.formWizard.value.isLastStep = true
+          wizardStepper.value.completeWizard()
+        }
+        emit('complete')
+      }
+    }
+  } catch (error) {
+    console.error('Error in handleNextTab:', error)
+    // Allow progression if something goes wrong with validation
+    if (wizardStepper.value) {
+      wizardStepper.value.nextTab()
+      emit('next')
+    }
   }
 }
 
 const handlePrevTab = () => {
-  wizardStepper.value.prevTab()
-  emit('previous')
+  if (wizardStepper.value) {
+    wizardStepper.value.prevTab()
+    emit('previous')
+  }
 }
 
 const handleCancel = () => {
@@ -77,7 +156,8 @@ const isLastStep = computed(() => activeTabIndex.value === steps.value.length - 
 defineExpose({
   wizardStepper,
   nextTab: handleNextTab,
-  prevTab: handlePrevTab
+  prevTab: handlePrevTab,
+  validateCurrentStep
 })
 </script>
 
@@ -87,6 +167,9 @@ defineExpose({
       ref="wizardStepper"
       v-model:activeTabIndex="activeTabIndex"
       :stepIcons="stepIcons"
+      :context="context"
+      :formData="formData"
+      :config="config"
       @complete="emit('complete')">
 
       <!-- Wizard indhold for hvert trin -->
@@ -101,22 +184,26 @@ defineExpose({
            <template v-if="context === 'brugere' && index === 2">
             <div class="form-row">
               <div class="form-group">
-                <label class="field-label">Email</label>
                 <component
                   :is="config.fieldDefinitions.email.component"
+                  :label="config.fieldDefinitions.email.label"
                   :placeholder="config.fieldDefinitions.email.placeholder"
                   :required="config.fieldDefinitions.email.required"
                   :modelValue="formData.email"
+                  :hasError="!!validationErrors.email"
+                  :errorMessage="validationErrors.email"
                   @update:modelValue="updateFormValue('email', $event)"
                 />
               </div>
               <div class="form-group">
-                <label class="field-label">Telefon</label>
                 <component
                   :is="config.fieldDefinitions.telefon.component"
+                  :label="config.fieldDefinitions.telefon.label"
                   :placeholder="config.fieldDefinitions.telefon.placeholder"
                   :required="config.fieldDefinitions.telefon.required"
                   :modelValue="formData.telefon"
+                  :hasError="!!validationErrors.telefon"
+                  :errorMessage="validationErrors.telefon"
                   @update:modelValue="updateFormValue('telefon', $event)"
                 />
               </div>
@@ -129,16 +216,15 @@ defineExpose({
               <h3 class="section-label">{{ group.label }}</h3>
               <div class="form-row">
                 <div v-for="fieldKey in group.fields" :key="fieldKey" class="form-group">
-                  <label v-if="config.fieldDefinitions[fieldKey].label" class="field-label">
-                    {{ config.fieldDefinitions[fieldKey].label }}
-                  </label>
                   <component
                     :is="config.fieldDefinitions[fieldKey].component"
-                    v-if="config.fieldDefinitions[fieldKey]"
+                    :label="config.fieldDefinitions[fieldKey].label"
                     :placeholder="config.fieldDefinitions[fieldKey].placeholder"
                     :required="config.fieldDefinitions[fieldKey].required"
                     :options="config.fieldDefinitions[fieldKey].options ? config.dropdownOptions[config.fieldDefinitions[fieldKey].options] : undefined"
                     :modelValue="formData[fieldKey]"
+                    :hasError="!!validationErrors[fieldKey]"
+                    :errorMessage="validationErrors[fieldKey]"
                     @update:modelValue="updateFormValue(fieldKey, $event)"
                   />
                 </div>
@@ -150,13 +236,14 @@ defineExpose({
           <template v-else>
             <div class="form-group" v-for="fieldKey in config.fields[`step${index + 1}`]" :key="fieldKey">
               <component
-                :is="config.fieldDefinitions[fieldKey].component"
-                v-if="config.fieldDefinitions[fieldKey]"
-                :label="config.fieldDefinitions[fieldKey].label"
-                :placeholder="config.fieldDefinitions[fieldKey].placeholder"
-                :required="config.fieldDefinitions[fieldKey].required"
-                :options="config.fieldDefinitions[fieldKey].options ? config.dropdownOptions[config.fieldDefinitions[fieldKey].options] : undefined"
+                :is="config.fieldDefinitions[fieldKey]?.component"
+                :label="config.fieldDefinitions[fieldKey]?.label"
+                :placeholder="config.fieldDefinitions[fieldKey]?.placeholder"
+                :required="config.fieldDefinitions[fieldKey]?.required"
+                :options="config.fieldDefinitions[fieldKey]?.options ? config.dropdownOptions[config.fieldDefinitions[fieldKey].options] : undefined"
                 :modelValue="formData[fieldKey]"
+                :hasError="!!validationErrors[fieldKey]"
+                :errorMessage="validationErrors[fieldKey]"
                 @update:modelValue="updateFormValue(fieldKey, $event)"
               />
             </div>
@@ -228,6 +315,7 @@ defineExpose({
 
 .form-group {
   margin-bottom: $spacing-medium-plus;
+  position: relative;
 }
 
 .section-group {

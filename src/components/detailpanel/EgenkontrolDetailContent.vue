@@ -27,7 +27,7 @@ const tjeklisteStore = useTjeklisteStore()
     <div class="detail-section">
       <div class="detail-row">
         <span class="detail-label">
-          Udføres {{ getTjeklisteFrekvens(props.item.checkliste, tjeklisteStore) || 'Ny egenkontrol' }}
+          Udføres {{ getTjeklisteFrekvens(props.item.checkliste, tjeklisteStore) || 'ikke angivet' }}
         </span>
       </div>
       <div v-if="props.item.startDato" class="detail-row">
