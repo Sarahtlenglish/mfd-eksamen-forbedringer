@@ -10,6 +10,7 @@ import { processEnheder } from '@/utils/labelHelpers'
 import { useDeleteHandler } from '@/composables/useDeleteHandler'
 import { useEditHandler } from '@/composables/useEditHandler'
 import { useCloseDetailPanelHandler } from '@/composables/useCloseDetailPanelHandler'
+import ModalComponent from '@/components/ui/ModalComponent.vue'
 
 const router = useRouter()
 const enhedStore = useEnhedStore()
@@ -52,11 +53,37 @@ const { closeDetailPanel } = useCloseDetailPanelHandler({
   historyItems
 })
 
-const { handleEdit } = useEditHandler()
+const showModal = ref(false)
+const modalTitle = ref('')
+const modalMessage = ref('')
+const modalPrimaryText = ref('OK')
+const modalSecondaryText = ref('Luk')
+const modalPrimaryAction = ref(() => {
+  showModal.value = false
+})
+const modalSecondaryAction = ref(() => {
+  showModal.value = false
+})
+
+function openModal({ title, message, primaryText = 'OK', secondaryText = 'Luk', onPrimary, onSecondary }) {
+  modalTitle.value = title
+  modalMessage.value = message
+  modalPrimaryText.value = primaryText
+  modalSecondaryText.value = secondaryText
+  modalPrimaryAction.value = onPrimary || (() => {
+    showModal.value = false
+  })
+  modalSecondaryAction.value = onSecondary || (() => {
+    showModal.value = false
+  })
+  showModal.value = true
+}
+
+const { handleEdit } = useEditHandler(openModal)
 
 const { handleDelete } = useDeleteHandler({
   store: { delete: enhedStore.deleteEnhed },
-  getName: item => item.name || 'enhed',
+  entityType: 'enhed',
   onDeleted: () => selectedItem.value = null
 })
 
@@ -121,6 +148,15 @@ onUnmounted(() => {
       @delete="handleDelete"
     />
   </div>
+  <ModalComponent
+    :show="showModal"
+    :title="modalTitle"
+    :message="modalMessage"
+    :primaryButtonText="modalPrimaryText"
+    :secondaryButtonText="modalSecondaryText"
+    :onPrimary="modalPrimaryAction"
+    :onSecondary="modalSecondaryAction"
+  />
 </div>
 </template>
 

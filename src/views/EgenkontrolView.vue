@@ -53,7 +53,7 @@ const { handleEdit } = useEditHandler()
 
 const { handleDelete } = useDeleteHandler({
   store: { delete: egenkontrolStore.deleteEgenkontrol },
-  getName: item => item.navn || item.name || 'egenkontrol',
+  entityType: 'egenkontrol',
   onDeleted: () => selectedItem.value = null
 })
 

@@ -31,7 +31,7 @@ const selectedItem = ref(null)
 
 const { handleDelete } = useDeleteHandler({
   store: { delete: brugerStore.deleteBruger },
-  getName: item => item.fuldeNavn || item.name || 'bruger',
+  entityType: 'bruger',
   onDeleted: () => selectedItem.value = null
 })
 

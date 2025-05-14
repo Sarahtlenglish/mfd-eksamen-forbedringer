@@ -7,6 +7,8 @@ import { useEgenkontrolStore } from '@/stores/egenkontrolStore'
 import { useBrugerStore } from '@/stores/brugerStore'
 import { useEnhedStore } from '@/stores/enhedStore'
 import { useTjeklisteStore } from '@/stores/tjeklisteStore'
+import ModalComponent from '@/components/ui/ModalComponent.vue'
+import { useModal } from '@/composables/useModal'
 
 const route = useRoute()
 
@@ -15,6 +17,16 @@ const egenkontrolStore = useEgenkontrolStore()
 const brugerStore = useBrugerStore()
 const enhedStore = useEnhedStore()
 const tjeklisteStore = useTjeklisteStore()
+
+const {
+  showModal,
+  modalTitle,
+  modalMessage,
+  modalPrimaryText,
+  modalSecondaryText,
+  modalPrimaryAction,
+  modalSecondaryAction
+} = useModal()
 
 // Hent alt nødvendigt data når applikationen starter
 onMounted(async () => {
@@ -47,6 +59,15 @@ const shouldHideNavigation = () => {
         <router-view />
       </main>
     </div>
+    <ModalComponent
+      :show="showModal"
+      :title="modalTitle"
+      :message="modalMessage"
+      :primaryButtonText="modalPrimaryText"
+      :secondaryButtonText="modalSecondaryText"
+      :onPrimary="modalPrimaryAction"
+      :onSecondary="modalSecondaryAction"
+    />
   </div>
 </template>
 
