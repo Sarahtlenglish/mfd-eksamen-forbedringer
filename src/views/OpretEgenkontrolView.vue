@@ -5,7 +5,7 @@ import DetailPanel from '@/components/panels/DetailPanelComponent.vue'
 import { IconX } from '@tabler/icons-vue'
 import { useEgenkontrolStore } from '@/stores/egenkontrolStore'
 import WizardFormComponent from '@/components/forms/WizardFormComponent.vue'
-import { getWizardConfig } from '@/components/forms/WizardFormConfig.js'
+import { getWizardConfig, prepareDetailItem } from '@/components/forms/WizardFormConfig.js'
 import { useBrugerStore } from '@/stores/brugerStore'
 import { useEnhedStore } from '@/stores/enhedStore'
 import { useTjeklisteStore } from '@/stores/tjeklisteStore'
@@ -56,24 +56,7 @@ const formData = reactive({
 })
 
 // Live preview af egenkontrol i detail panel
-const detailItem = computed(() => ({
-  navn: formData.navn || 'Ny egenkontrol',
-  beskrivelse: formData.beskrivelse || 'Ingen beskrivelse angivet',
-  type: 'Egenkontrol',
-  status: 'normal',
-  lokation: formData.enhed || 'Enhed ikke angivet',
-  checkliste: formData.tjekliste || 'Tjekliste ikke angivet',
-  ansvarligeBrugere: [formData.ansvarligeBrugere || 'Bruger ikke angivet'],
-  påmindelser: [
-    { frekvens: formData.påmindelseFørFrekvens, tidspunkt: formData.påmindelseFørTidspunkt },
-    { frekvens: formData.påmindelseEfterFrekvens, tidspunkt: formData.påmindelseEfterTidspunkt }
-  ],
-  modtagere: [
-    formData.kvitteringModtager || '',
-    formData.afvigelseModtager || ''
-  ],
-  startDato: formData.startDato || new Date().toISOString().split('T')[0]
-}))
+const detailItem = computed(() => prepareDetailItem(context, formData))
 
 // Håndterer opdatering af formular
 const handleFormUpdate = (newFormData) => {
