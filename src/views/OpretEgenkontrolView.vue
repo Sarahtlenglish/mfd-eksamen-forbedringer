@@ -52,7 +52,14 @@ const formData = reactive({
   påmindelseEfterFrekvens: '',
   påmindelseEfterTidspunkt: '',
   kvitteringModtager: '',
-  afvigelseModtager: ''
+  afvigelseModtager: '',
+  selectedEnheder: '',
+  selectedCheckliste: '',
+  selectedAnsvarlige: '',
+  reminderFrekvens: '',
+  reminderTidspunkt: '',
+  deadlineFrekvens: '',
+  deadlineTidspunkt: ''
 })
 
 // Live preview af egenkontrol i detail panel
@@ -61,12 +68,17 @@ const detailItem = computed(() => ({
   beskrivelse: formData.beskrivelse || 'Ingen beskrivelse angivet',
   type: 'Egenkontrol',
   status: 'normal',
-  lokation: formData.enhed || 'Enhed ikke angivet',
-  checkliste: formData.tjekliste || 'Tjekliste ikke angivet',
-  ansvarligeBrugere: [formData.ansvarligeBrugere || 'Bruger ikke angivet'],
+  lokation: formData.selectedEnheder || formData.enhed || 'Enhed ikke angivet',
+  checkliste: formData.selectedCheckliste || formData.tjekliste || 'Tjekliste ikke angivet',
+  ansvarligeBrugere: [
+    formData.selectedAnsvarlige
+    || formData.ansvarligeBrugere
+    || formData.ansvarlige
+    || 'Bruger ikke angivet'
+  ],
   påmindelser: [
-    { frekvens: formData.påmindelseFørFrekvens, tidspunkt: formData.påmindelseFørTidspunkt },
-    { frekvens: formData.påmindelseEfterFrekvens, tidspunkt: formData.påmindelseEfterTidspunkt }
+    { frekvens: formData.påmindelseFørFrekvens || formData.reminderFrekvens, tidspunkt: formData.påmindelseFørTidspunkt || formData.reminderTidspunkt },
+    { frekvens: formData.påmindelseEfterFrekvens || formData.deadlineFrekvens, tidspunkt: formData.påmindelseEfterTidspunkt || formData.deadlineTidspunkt }
   ],
   modtagere: [
     formData.kvitteringModtager || '',
