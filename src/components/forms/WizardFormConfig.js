@@ -354,3 +354,88 @@ export function getWizardConfig(context, options = {}) {
 
   return configs[context] || configs.egenkontroller
 }
+
+/**
+ * Konverterer formulardata til et format til visning i DetailPanel
+ * @param {string} context - Formulartype
+ * @param {Object} formData - Brugerinput fra formularen
+ * @param {Object} dropdownOptions - Dropdown-options for at finde labels
+ * @returns {Object} Formateret objekt til DetailPanel
+ */
+export function prepareDetailItem(context, formData = {}) {
+  // Find label baseret på værdi fra dropdown-options
+  const findLabel = (options, value) => {
+    if (!options || !value) return value
+    const option = options.find(opt => opt.value === value)
+    return option ? option.label : value
+  }
+
+  // Basis-information til alle typer
+  const baseDetailItem = {
+    navn: formData.navn,
+    beskrivelse: formData.beskrivelse,
+    startDato: formData.startDato ? new Date(formData.startDato).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
+  }
+
+  // Tilføj kontekst-specifik information
+  switch (context) {
+    case 'egenkontroller': {
+      // Gem kun rå data for påmindelser og brug danske feltnavne
+      return {
+        ...baseDetailItem,
+        navn: formData.navn || 'Navn ikke angivet',
+        beskrivelse: formData.beskrivelse || 'Ingen beskrivelse angivet',
+        type: 'Egenkontrol',
+        status: 'normal',
+        lokation: formData.selectedEnheder || formData.enhed || 'Enhed ikke angivet',
+        checkliste: formData.selectedCheckliste || formData.tjekliste || 'Tjekliste ikke angivet',
+        ansvarligeBrugere: [formData.selectedAnsvarlige || formData.ansvarlige || 'Bruger ikke angivet'],
+        påmindelser: [
+          { frekvens: formData.reminderFrekvens, tidspunkt: formData.reminderTidspunkt },
+          { frekvens: formData.deadlineFrekvens, tidspunkt: formData.deadlineTidspunkt }
+        ],
+        modtagere: [
+          formData.kvitteringModtager || '',
+          formData.afvigelseModtager || ''
+        ]
+      }
+    }
+
+    // Case for enheder
+    case 'enheder': {
+      // Afhængig af type ('singel' eller 'gruppe')
+      if (formData.enhedType === 'gruppe') {
+        return {
+          ...baseDetailItem,
+          navn: formData.gruppeTitel,
+          enhedBeskrivelse: formData.gruppeBeskrivelse,
+          type: 'Gruppe',
+          status: 'normal',
+          location: findLabel([
+            { value: 'bygningA', label: 'Bygning A' },
+            { value: 'bygningB', label: 'Bygning B' },
+            { value: 'bygningC', label: 'Bygning C' }
+          ], formData.location),
+          underenheder: formData.underenheder || []
+        }
+      } else {
+        return {
+          ...baseDetailItem,
+          navn: formData.enhedNavn,
+          enhedBeskrivelse: formData.beskrivelse,
+          type: 'Enkelt Enhed',
+          status: 'normal',
+          location: findLabel([
+            { value: 'bygningA', label: 'Bygning A' },
+            { value: 'bygningB', label: 'Bygning B' },
+            { value: 'bygningC', label: 'Bygning C' }
+          ], formData.location)
+        }
+      }
+    }
+    // Add to prepareDetailItem function:
+
+    default:
+      return baseDetailItem
+  }
+}
