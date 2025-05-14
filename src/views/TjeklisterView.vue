@@ -31,7 +31,7 @@ const loading = ref(true)
 
 const { handleDelete } = useDeleteHandler({
   store: { delete: tjeklisteStore.deleteTjekliste },
-  getName: item => item.tjeklisteNavn || item.name || 'tjekliste',
+  entityType: 'tjekliste',
   onDeleted: () => selectedItem.value = null
 })
 
