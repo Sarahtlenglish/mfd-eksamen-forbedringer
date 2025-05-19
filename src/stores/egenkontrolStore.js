@@ -138,7 +138,6 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
     }
   }
 
-  // Set up real-time listener
   const setupEgenkontrollerListener = () => {
     return onSnapshot(collection(db, 'Egenkontrol'),
       (snapshot) => {
