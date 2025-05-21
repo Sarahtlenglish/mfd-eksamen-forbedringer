@@ -38,7 +38,7 @@ const props = defineProps({
   },
   showEditButton: {
     type: Boolean,
-    default: null // Will use canEdit computed property if null
+    default: null
   },
   isCreationMode: {
     type: Boolean,
@@ -59,11 +59,8 @@ const isSelectedTaskMode = ref(false)
 const previousItems = ref([])
 const selectedTaskRef = ref(null)
 
-// Computed properties
 const panelTitle = computed(() => {
   if (!props.item) return ''
-
-  if (props.customTitle) return props.customTitle
 
   if (props.context === 'calendar') {
     // Hvis item har en selectedTask, brug dens titel
@@ -78,12 +75,10 @@ const panelTitle = computed(() => {
     return 'Kalender'
   }
 
-  // Handle history mode title format
   if (isHistoryMode.value && props.context === 'enheder') {
     return `${props.item.name} - ${props.item.location || ''}`
   }
 
-  // Context-specific title properties
   if (props.context === 'tjeklister' && props.item.tjeklisteNavn) {
     return props.item.tjeklisteNavn
   }
@@ -96,7 +91,6 @@ const panelTitle = computed(() => {
     return props.item.fuldeNavn
   }
 
-  // Default to name property
   return props.item.name || ''
 })
 
@@ -193,7 +187,6 @@ function handleSelectTask(task) {
 
 <template>
   <BasePanel v-if="item" :class="{ 'calendar-panel': context === 'calendar' }">
-    <!-- Header - Explicitly in the DetailPanel -->
     <template #header>
       <div class="detail-panel-header"
         :class="{
@@ -223,7 +216,7 @@ function handleSelectTask(task) {
 
     <!-- Main content -->
     <template #default>
-      <!-- Kalender: Vis liste eller detalje -->
+      <!-- Kalender Detail -->
       <template v-if="context === 'calendar'">
         <CalendarListContent
           v-if="!isSelectedTaskMode"

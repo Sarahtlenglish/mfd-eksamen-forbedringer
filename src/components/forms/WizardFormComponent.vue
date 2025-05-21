@@ -7,18 +7,15 @@ import ButtonComponent from '@/components/ui/ButtonComponent.vue'
 import { IconPlus } from '@tabler/icons-vue'
 
 const props = defineProps({
-  // Bestemmer hvilken type formular der renderes
   context: {
     type: String,
     required: true,
     validator: value => ['egenkontroller', 'tjeklister', 'enheder', 'brugere'].includes(value)
   },
-  // Data der opdateres via two-way binding
   formData: {
     type: Object,
     required: true
   },
-  // Wizard konfiguration fra WizardFormConfig.js
   config: {
     type: Object,
     required: true
