@@ -44,7 +44,6 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-  // New prop for custom title
   customTitle: {
     type: String,
     default: null
@@ -94,7 +93,6 @@ const panelTitle = computed(() => {
   return props.item.name || ''
 })
 
-// Computed property for styling classes
 const titleClasses = computed(() => {
   if (props.context === 'calendar' && !isSelectedTaskMode.value) {
     return 'detail-title calendar-title'
@@ -103,34 +101,24 @@ const titleClasses = computed(() => {
 })
 
 const canEdit = computed(() => {
-  // Determine if the current item can be edited based on context
-  // Don't allow editing in history mode
   return ['egenkontroller', 'enheder', 'brugere'].includes(props.context) && !isHistoryMode.value
 })
 
 const shouldShowEditButton = computed(() => {
   if (props.context === 'calendar') {
-    // Vis kun edit-knap i selectedTaskMode (altså når en task er valgt)
     return isSelectedTaskMode.value
   }
-  // Brug eksisterende logik for andre kontekster
   return props.showEditButton !== null ? props.showEditButton : canEdit.value
 })
 
-// Determine when to show back button
 const shouldShowBackButton = computed(() => {
-  // If we're in history mode, show the back button regardless of prop
-  // Otherwise, use the prop value
   return isHistoryMode.value || props.showBackButton
 })
 
-// Determine when to show delete button
 const shouldShowDeleteButton = computed(() => {
-  // If we're in history mode, show the delete button regardless of prop
   return isSelectedTaskMode.value || props.showDeleteButton
 })
 
-// Methods
 function toggleHistoryMode(val) {
   isHistoryMode.value = val !== undefined ? val : !isHistoryMode.value
 }
@@ -214,7 +202,7 @@ function handleSelectTask(task) {
       </div>
     </template>
 
-    <!-- Main content -->
+    <!-- Content -->
     <template #default>
       <!-- Kalender Detail -->
       <template v-if="context === 'calendar'">
@@ -229,12 +217,12 @@ function handleSelectTask(task) {
           @back="() => { selectedTaskRef.value = null; isSelectedTaskMode.value = false; }"
         />
       </template>
-      <!-- Egenkontrol Detail -->
       <EgenkontrolDetailContent
         v-else-if="context === 'egenkontroller'"
         :item="item"
       />
       <template v-else-if="context === 'enheder'">
+        <!-- Enheder Detail -->
         <EnhederDetailContent
           v-if="!isHistoryMode"
           :item="item"
@@ -258,7 +246,6 @@ function handleSelectTask(task) {
       />
     </template>
 
-    <!-- Footer -->
     <template #footer>
       <div v-if="shouldShowDeleteButton && !isHistoryMode" class="detail-actions-bottom">
         <span class="delete-button" @click="handleDelete">
@@ -382,7 +369,6 @@ function handleSelectTask(task) {
   }
 }
 
-/* Special styling for calendar view */
 :deep(.calendar-panel) .detail-content {
   padding-top: 0 !important;
 }

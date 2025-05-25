@@ -26,54 +26,43 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue'])
 
-// Inject formData from parent component to access location
 const formData = inject('formData', {})
 
-// Antal enheder at oprette
-const antalEnheder = ref(4) // Default antal
+const antalEnheder = ref(4)
 
-// Underenheder data
 const underenheder = computed({
   get: () => props.modelValue || [],
   set: value => emit('update:modelValue', value)
 })
 
 const gruppeNavn = computed(() => {
-  // Korrekt check: Brug gruppeTitel for gruppeenheder
   return formData.gruppeTitel || 'enhed'
 })
 
-// Helper function to generate location codes based on selected location and index
 function generateLocationCode(baseLocation, index) {
-  // Map the base location to the first letter
   let prefix = ''
   if (baseLocation === 'bygningA') prefix = 'A'
   else if (baseLocation === 'bygningB') prefix = 'B'
   else if (baseLocation === 'bygningC') prefix = 'C'
   else return ''
 
-  // Create a pattern like A0.15, A1.10, A2.10, A3.10
   const floor = Math.floor(index / 10)
   const room = (index % 10) + 10
 
   return `${prefix}${floor}.${room}`
 }
 
-// Generate location label
 function generateLocationLabel(baseLocation, locationCode) {
   if (!baseLocation) return ''
   return getLocationLabel(baseLocation) + (locationCode ? ` - ${locationCode}` : '')
 }
 
-// Opret underenheder baseret på antal
 const opretUnderenheder = () => {
   const count = parseInt(antalEnheder.value) || 0
   if (count <= 0) return
 
-  // Get the selected location from formData
   const baseLocation = formData.location || ''
 
-  // Create new array of underenheder
   const nyeUnderenheder = []
   for (let i = 1; i <= count; i++) {
     const locationCode = generateLocationCode(baseLocation, i)
@@ -81,24 +70,19 @@ const opretUnderenheder = () => {
       id: Date.now() + i,
       navn: `${gruppeNavn.value} ${i}`,
       lokation: locationCode,
-      // Use the function that's causing the lint error
       lokationLabel: generateLocationLabel(baseLocation, locationCode)
     })
   }
 
-  // Update the model
   underenheder.value = nyeUnderenheder
 }
 
-// Remove an underenhed
 const removeUnderenhed = (id) => {
   underenheder.value = underenheder.value.filter(item => item.id !== id)
 }
 
-// Generer nye underenheder hvis gruppenavnet ændrer sig
 watch(() => gruppeNavn.value, (newName, oldName) => {
   if (newName !== oldName && underenheder.value.length > 0) {
-    // Opdater navnene på eksisterende underenheder
     underenheder.value = underenheder.value.map((enhed, index) => {
       return {
         ...enhed,
@@ -111,7 +95,6 @@ watch(() => gruppeNavn.value, (newName, oldName) => {
 
 <template>
   <div class="underenheder-component">
-    <!-- Antal enheder sektion -->
     <div class="antal-enheder-section">
       <label class="field-label">
         Antal enheder der skal oprettes
@@ -137,7 +120,6 @@ watch(() => gruppeNavn.value, (newName, oldName) => {
       </div>
     </div>
 
-    <!-- Underenheder tabel -->
     <div v-if="underenheder.length > 0" class="underenheder-table-section">
       <div class="table-label">Underenheder</div>
 

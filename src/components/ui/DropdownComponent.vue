@@ -1,3 +1,183 @@
+<script setup>
+import { ref, computed, nextTick, onMounted, onBeforeUnmount } from 'vue'
+import { IconChevronDown, IconChevronUp } from '@tabler/icons-vue'
+
+const props = defineProps({
+  modelValue: {
+    type: [String, Number],
+    default: ''
+  },
+  label: {
+    type: String,
+    default: ''
+  },
+  placeholder: {
+    type: String,
+    default: 'Default'
+  },
+  description: {
+    type: String,
+    default: ''
+  },
+  errorMessage: {
+    type: String,
+    default: 'Error message'
+  },
+  options: {
+    type: Array,
+    default: () => []
+  },
+
+  hasError: {
+    type: Boolean,
+    default: false
+  },
+  disabled: {
+    type: Boolean,
+    default: false
+  },
+  required: {
+    type: Boolean,
+    default: false
+  },
+
+  dropdownId: {
+    type: String,
+    default: () => `dropdown-${Math.random().toString(36).substr(2, 9)}`
+  }
+})
+
+const emit = defineEmits(['update:modelValue', 'change', 'focus', 'blur'])
+
+const isOpen = ref(false)
+const toggleButton = ref(null)
+const optionElements = ref([])
+const activeOptionIndex = ref(-1)
+
+const displayValue = computed(() => {
+  if (!props.modelValue) return props.placeholder
+
+  const selectedOption = props.options.find((option) => {
+    if (typeof option === 'object' && option !== null) {
+      return option.value === props.modelValue
+    }
+    return option === props.modelValue
+  })
+
+  if (selectedOption) {
+    return typeof selectedOption === 'object' && selectedOption !== null
+      ? selectedOption.label
+      : selectedOption
+  }
+
+  return props.placeholder
+})
+
+const toggleDropdown = () => {
+  if (props.disabled) return
+  isOpen.value = !isOpen.value
+
+  if (isOpen.value) {
+    emit('focus')
+
+    const selectedIndex = props.options.findIndex(option => option === props.modelValue)
+    activeOptionIndex.value = selectedIndex >= 0 ? selectedIndex : 0
+
+    nextTick(() => {
+      if (optionElements.value[activeOptionIndex.value]) {
+        optionElements.value[activeOptionIndex.value].focus()
+      }
+    })
+  } else {
+    nextTick(() => {
+      document.activeElement.blur()
+    })
+  }
+}
+
+const selectOption = (option) => {
+  if (props.disabled) return
+
+  const value = typeof option === 'object' && option !== null
+    ? option.value
+    : option
+
+  emit('update:modelValue', value)
+  emit('change', value)
+  closeDropdown()
+}
+
+const getOptionLabel = (option) => {
+  return typeof option === 'object' && option !== null
+    ? option.label
+    : option
+}
+
+const closeDropdown = () => {
+  isOpen.value = false
+  activeOptionIndex.value = -1
+  nextTick(() => {
+    document.activeElement.blur()
+  })
+}
+
+const openDropdown = () => {
+  if (props.disabled || isOpen.value) return
+  isOpen.value = true
+  emit('focus')
+
+  nextTick(() => {
+    if (optionElements.value[0]) {
+      activeOptionIndex.value = 0
+      optionElements.value[0].focus()
+    }
+  })
+}
+
+const navigateOptions = (direction) => {
+  if (!isOpen.value || props.options.length === 0) return
+
+  let newIndex
+  if (direction === 'down') {
+    newIndex = activeOptionIndex.value < props.options.length - 1 ? activeOptionIndex.value + 1 : 0
+  } else {
+    newIndex = activeOptionIndex.value > 0 ? activeOptionIndex.value - 1 : props.options.length - 1
+  }
+
+  activeOptionIndex.value = newIndex
+
+  nextTick(() => {
+    if (optionElements.value[newIndex]) {
+      optionElements.value[newIndex].focus()
+    }
+  })
+}
+
+const handleOutsideClick = (event) => {
+  if (isOpen.value) {
+    const dropdownElement = toggleButton.value?.closest('.dropdown')
+    if (!dropdownElement || !dropdownElement.contains(event.target)) {
+      closeDropdown()
+    }
+  }
+}
+
+const handleBlur = (event) => {
+  const dropdownElement = toggleButton.value?.closest('.dropdown')
+  if (dropdownElement && !dropdownElement.contains(event.relatedTarget)) {
+    emit('blur')
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('click', handleOutsideClick)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleOutsideClick)
+})
+</script>
+
 <template>
 	<div
 		class="dropdown"
@@ -54,208 +234,6 @@
 	</div>
 </template>
 
-<script setup>
-import { ref, computed, nextTick, onMounted, onBeforeUnmount } from 'vue'
-import { IconChevronDown, IconChevronUp } from '@tabler/icons-vue'
-
-const props = defineProps({
-  // Input Value
-  modelValue: {
-    type: [String, Number],
-    default: ''
-  },
-  label: {
-    type: String,
-    default: ''
-  },
-  placeholder: {
-    type: String,
-    default: 'Default'
-  },
-  description: {
-    type: String,
-    default: ''
-  },
-  errorMessage: {
-    type: String,
-    default: 'Error message'
-  },
-  options: {
-    type: Array,
-    default: () => []
-  },
-
-  // States
-  hasError: {
-    type: Boolean,
-    default: false
-  },
-  disabled: {
-    type: Boolean,
-    default: false
-  },
-  required: {
-    type: Boolean,
-    default: false
-  },
-
-  // ID
-  dropdownId: {
-    type: String,
-    default: () => `dropdown-${Math.random().toString(36).substr(2, 9)}`
-  }
-})
-
-const emit = defineEmits(['update:modelValue', 'change', 'focus', 'blur'])
-
-// Internal state
-const isOpen = ref(false)
-const toggleButton = ref(null)
-const optionElements = ref([])
-const activeOptionIndex = ref(-1)
-
-// Handle display value (selected option or placeholder)
-const displayValue = computed(() => {
-  if (!props.modelValue) return props.placeholder
-
-  // Hvis options er objekter med label property
-  const selectedOption = props.options.find((option) => {
-    if (typeof option === 'object' && option !== null) {
-      return option.value === props.modelValue
-    }
-    return option === props.modelValue
-  })
-
-  if (selectedOption) {
-    return typeof selectedOption === 'object' && selectedOption !== null
-      ? selectedOption.label
-      : selectedOption
-  }
-
-  return props.placeholder
-})
-
-// Toggle dropdown visibility
-const toggleDropdown = () => {
-  if (props.disabled) return
-  isOpen.value = !isOpen.value
-
-  if (isOpen.value) {
-    emit('focus')
-
-    // Find and activate the currently selected option
-    const selectedIndex = props.options.findIndex(option => option === props.modelValue)
-    activeOptionIndex.value = selectedIndex >= 0 ? selectedIndex : 0
-
-    // Focus on the active option when dropdown opens
-    nextTick(() => {
-      if (optionElements.value[activeOptionIndex.value]) {
-        optionElements.value[activeOptionIndex.value].focus()
-      }
-    })
-  } else {
-    // When dropdown is closed via toggle, explicitly remove focus
-    nextTick(() => {
-      document.activeElement.blur()
-    })
-  }
-}
-
-// Handle option selection
-const selectOption = (option) => {
-  if (props.disabled) return
-
-  const value = typeof option === 'object' && option !== null
-    ? option.value
-    : option
-
-  emit('update:modelValue', value)
-  emit('change', value)
-  closeDropdown()
-}
-
-// Formatter til at vise option tekst
-const getOptionLabel = (option) => {
-  return typeof option === 'object' && option !== null
-    ? option.label
-    : option
-}
-
-// Close the dropdown
-const closeDropdown = () => {
-  isOpen.value = false
-  activeOptionIndex.value = -1
-  // Reset UI state
-  nextTick(() => {
-    document.activeElement.blur()
-  })
-}
-
-// Open the dropdown
-const openDropdown = () => {
-  if (props.disabled || isOpen.value) return
-  isOpen.value = true
-  emit('focus')
-
-  // Focus on first option when opening with keyboard
-  nextTick(() => {
-    if (optionElements.value[0]) {
-      activeOptionIndex.value = 0
-      optionElements.value[0].focus()
-    }
-  })
-}
-
-// Keyboard navigation between options
-const navigateOptions = (direction) => {
-  if (!isOpen.value || props.options.length === 0) return
-
-  let newIndex
-  if (direction === 'down') {
-    newIndex = activeOptionIndex.value < props.options.length - 1 ? activeOptionIndex.value + 1 : 0
-  } else {
-    newIndex = activeOptionIndex.value > 0 ? activeOptionIndex.value - 1 : props.options.length - 1
-  }
-
-  activeOptionIndex.value = newIndex
-
-  nextTick(() => {
-    if (optionElements.value[newIndex]) {
-      optionElements.value[newIndex].focus()
-    }
-  })
-}
-
-// Close dropdown when clicking outside
-const handleOutsideClick = (event) => {
-  if (isOpen.value) {
-    const dropdownElement = toggleButton.value?.closest('.dropdown')
-    if (!dropdownElement || !dropdownElement.contains(event.target)) {
-      closeDropdown()
-    }
-  }
-}
-
-// Handle blur events
-const handleBlur = (event) => {
-  // Only emit blur if focus is moving outside the dropdown
-  const dropdownElement = toggleButton.value?.closest('.dropdown')
-  if (dropdownElement && !dropdownElement.contains(event.relatedTarget)) {
-    emit('blur')
-  }
-}
-
-// Add click outside listener
-onMounted(() => {
-  document.addEventListener('click', handleOutsideClick)
-})
-
-// Clean up event listener
-onBeforeUnmount(() => {
-  document.removeEventListener('click', handleOutsideClick)
-})
-</script>
-
 <style lang="scss" scoped>
 @use '@/assets/variables' as *;
 @use '@/assets/form-components' as *;
@@ -302,20 +280,17 @@ onBeforeUnmount(() => {
 	box-shadow: 0 0.125rem 0.125rem 0 rgba(33, 37, 41, 0.06);
 	line-height: 1.5;
 
-	// Hover/Focus State
 	&:hover:not(:disabled),
 	&:focus:not(:disabled) {
 		outline: none;
 		background-color: $secondary-50;
 	}
 
-	// Press State
 	&:active:not(:disabled) {
 		border-color: $secondary-500;
 		background-color: $secondary-100;
 	}
 
-	// Disabled State
 	&:disabled {
 		background-color: $neutral-100;
 		color: $neutral-500;
@@ -345,7 +320,6 @@ onBeforeUnmount(() => {
 	transition: transform 0.2s ease;
 }
 
-// Removed active styling, keep only dropdown.opened styling for the icon
 .dropdown.opened .dropdown-icon {
 	color: $secondary-500;
 }

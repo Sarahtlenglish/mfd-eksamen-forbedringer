@@ -17,7 +17,6 @@ const brugerStore = useBrugerStore()
 const enhedStore = useEnhedStore()
 const tjeklisteStore = useTjeklisteStore()
 
-// Initialiser form wizard med kontekst og mockdata
 const context = 'egenkontroller'
 
 onMounted(() => {
@@ -40,7 +39,6 @@ const config = computed(() =>
   })
 )
 
-// Skabelon for form input data
 const formData = reactive({
   titel: '',
   beskrivelse: '',
@@ -63,7 +61,6 @@ const formData = reactive({
   deadlineTidspunkt: ''
 })
 
-// Live preview af egenkontrol i detail panel
 const detailItem = computed(() => ({
   navn: formData.navn || 'Ny egenkontrol',
   beskrivelse: formData.beskrivelse || 'Ingen beskrivelse angivet',
@@ -88,18 +85,15 @@ const detailItem = computed(() => ({
   startDato: formatDateToISO(formData.startDato) || formatDateToISO(new Date())
 }))
 
-// Håndterer opdatering af formular
 const handleFormUpdate = (newFormData) => {
   Object.assign(formData, newFormData)
 }
 
-// Gemmer ny egenkontrol og navigerer tilbage
 const handleComplete = async () => {
   await egenkontrolStore.addEgenkontrol(detailItem.value)
   router.push('/egenkontrol')
 }
 
-// Afbryder oprettelse uden at gemme
 const handleCancel = () => {
   router.push('/egenkontrol')
 }
@@ -115,7 +109,6 @@ const handleCancel = () => {
     </div>
 
     <div class="content-layout">
-      <!-- Wizard formular -->
       <div class="form-container">
         <WizardFormComponent
           :context="context"
@@ -127,7 +120,6 @@ const handleCancel = () => {
         />
       </div>
 
-      <!-- Live preview af den nye egenkontrol -->
       <DetailPanel
         context="egenkontroller"
         :item="detailItem"

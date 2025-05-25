@@ -1,4 +1,3 @@
-// Configuration for enheder module
 export const enhederConfig = {
   locations: [
     { value: 'bygningA', label: 'Bygning A' },
@@ -10,7 +9,6 @@ export const enhederConfig = {
     { value: 'gruppe', label: 'Gruppe' }
   ],
 
-  // Default values
   defaults: {
     single: {
       title: 'Enheds Information',

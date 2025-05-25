@@ -4,14 +4,12 @@ import { db } from '@/configs/firebase'
 import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, onSnapshot } from 'firebase/firestore'
 
 export const useBrugerStore = defineStore('bruger', () => {
-  // State
   const brugere = ref([])
   const brugerNavne = ref({})
   const historyItems = ref([])
   const loading = ref(false)
   const error = ref(null)
 
-  // Getters
   const getBrugereByRole = (rolle) => {
     return brugere.value.filter(bruger => bruger.rolle === rolle)
   }
@@ -28,7 +26,6 @@ export const useBrugerStore = defineStore('bruger', () => {
     return historyItems.value.filter(item => item.brugerId === brugerId)
   }
 
-  // Actions
   const fetchBrugere = async () => {
     loading.value = true
     try {
@@ -38,12 +35,10 @@ export const useBrugerStore = defineStore('bruger', () => {
         ...doc.data()
       }))
 
-      // Create name lookup map
       brugerNavne.value = Object.fromEntries(
         users.map(user => [user.id, user.fuldeNavn])
       )
 
-      // Add leader names to users using the lookup
       brugere.value = users.map(user => ({
         ...user,
         lederNavn: user.brugereRef ? brugerNavne.value[user.brugereRef] : null
@@ -61,9 +56,9 @@ export const useBrugerStore = defineStore('bruger', () => {
       console.log('Adding bruger to Firestore:', bruger)
       const docRef = await addDoc(collection(db, 'Brugere'), {
         adresse: bruger.adresse || '',
-        brugereRef: bruger.brugereRef || '', // Reference to another user (leader)
+        brugereRef: bruger.brugereRef || '',
         by: bruger.by || '',
-        egenkontrolRef: bruger.egenkontrolRef || '', // Reference to egenkontrol
+        egenkontrolRef: bruger.egenkontrolRef || '',
         email: bruger.email || '',
         fuldeNavn: bruger.fuldeNavn || '',
         postnummer: bruger.postnummer || '',
@@ -82,7 +77,6 @@ export const useBrugerStore = defineStore('bruger', () => {
   const updateBruger = async (id, updatedData) => {
     try {
       const updateFields = {}
-      // Only update fields that exist in our schema
       if (updatedData.adresse !== undefined) updateFields.adresse = updatedData.adresse
       if (updatedData.brugereRef !== undefined) updateFields.brugereRef = updatedData.brugereRef
       if (updatedData.by !== undefined) updateFields.by = updatedData.by
@@ -94,7 +88,6 @@ export const useBrugerStore = defineStore('bruger', () => {
       if (updatedData.telefon !== undefined) updateFields.telefon = updatedData.telefon
 
       await updateDoc(doc(db, 'Brugere', id), updateFields)
-      // Update local state
       const index = brugere.value.findIndex(bruger => bruger.id === id)
       if (index !== -1) {
         brugere.value[index] = { ...brugere.value[index], ...updateFields }
@@ -108,7 +101,6 @@ export const useBrugerStore = defineStore('bruger', () => {
   const deleteBruger = async (id) => {
     try {
       await deleteDoc(doc(db, 'Brugere', id))
-      // Update local state
       brugere.value = brugere.value.filter(bruger => bruger.id !== id)
     } catch (err) {
       console.error('Error deleting bruger:', err)
@@ -116,7 +108,6 @@ export const useBrugerStore = defineStore('bruger', () => {
     }
   }
 
-  // Set up real-time listener
   const setupBrugereListener = () => {
     console.log('Setting up brugere listener...')
     return onSnapshot(collection(db, 'Brugere'),
@@ -127,12 +118,10 @@ export const useBrugerStore = defineStore('bruger', () => {
           ...doc.data()
         }))
 
-        // Update name lookup map
         brugerNavne.value = Object.fromEntries(
           users.map(user => [user.id, user.fuldeNavn])
         )
 
-        // Add leader names using the lookup
         brugere.value = users.map(user => ({
           ...user,
           lederNavn: user.brugereRef ? brugerNavne.value[user.brugereRef] : null

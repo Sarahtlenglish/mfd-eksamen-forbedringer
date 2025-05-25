@@ -12,7 +12,6 @@ const props = defineProps({
     type: Array,
     default: () => []
   },
-  // These weren't in the original code but appear to be needed based on errors
   context: {
     type: String,
     default: ''
@@ -31,15 +30,12 @@ const emit = defineEmits(['update:activeTabIndex', 'next', 'previous', 'complete
 
 const formWizard = ref(null)
 
-// Provide fallback for stepIcons to avoid errors
 const safeStepIcons = computed(() => props.stepIcons || [])
 
-// Tjekker om et trin er gennemført baseret på aktivt trin
 const isStepChecked = (index) => {
   return index < props.activeTabIndex
 }
 
-// Synkroniserer aktivt trin med parent component
 const updateActiveTab = () => {
   if (formWizard.value) {
     const newActiveTabIndex = formWizard.value.activeTabIndex
@@ -47,7 +43,6 @@ const updateActiveTab = () => {
   }
 }
 
-// Navigation mellem trin
 const nextTab = () => {
   if (formWizard.value) {
     formWizard.value.nextTab()
@@ -64,7 +59,6 @@ const prevTab = () => {
   }
 }
 
-// Afslutter formularen
 const completeWizard = () => {
   const wizardContainer = document.querySelector('.wizard-navigation-container')
   if (wizardContainer) {
@@ -73,7 +67,6 @@ const completeWizard = () => {
   emit('complete')
 }
 
-// Eksponér metoder til parent component
 defineExpose({
   nextTab,
   prevTab,
@@ -81,7 +74,6 @@ defineExpose({
   completeWizard
 })
 
-// Initialiser korrekt trin-status ved opstart
 onMounted(() => {
   updateActiveTab()
 })
@@ -101,7 +93,6 @@ onMounted(() => {
       backButtonText="Tilbage"
       nextButtonText="Næste"
       finishButtonText="Opret">
-      <!-- Wrapper til navigation og indhold -->
       <template v-slot:wizard="wizardProps">
         <div :class="['wizard-navigation-container', { 'completed': props.activeTabIndex === wizardProps.tabs.length }]">
           <div class="wizard-nav">
@@ -111,7 +102,6 @@ onMounted(() => {
         </div>
       </template>
 
-      <!-- Tilpasset udseende for hvert trin -->
       <template v-slot:step="stepProps">
         <div
           class="custom-step-container"
@@ -126,11 +116,9 @@ onMounted(() => {
         </div>
       </template>
 
-      <!-- Indhold fra parent component -->
       <slot></slot>
     </FormWizard>
 
-    <!-- Footer fra parent component -->
     <slot name="footer"></slot>
   </div>
 </template>
@@ -151,7 +139,6 @@ onMounted(() => {
   min-height: 823px;
 }
 
-/* Grund-styling for wizard */
 :deep(.wizard-card) {
   background-color: transparent;
   box-shadow: none;
@@ -194,7 +181,6 @@ onMounted(() => {
   width: 100% !important;
 }
 
-/* Styling for vores egne step-indikatorer */
 .custom-step-container {
   display: flex;
   flex-direction: column;
@@ -251,7 +237,6 @@ onMounted(() => {
   margin-top: $spacing-xs;
 }
 
-/* Tab content styling */
 :deep(.wizard-tab-content) {
   border-radius: $border-radius-lg;
   margin-bottom: $spacing-medium;
@@ -262,6 +247,6 @@ onMounted(() => {
 }
 
 :deep(.wizard-footer-buttons) {
-  display: none !important; /* Hide default buttons */
+  display: none !important;
 }
 </style>

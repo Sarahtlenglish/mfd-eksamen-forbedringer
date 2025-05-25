@@ -11,12 +11,10 @@ import { tjeklisteConfig } from '@/configs/tjeklisteConfig'
 const router = useRouter()
 const tjeklisteStore = useTjeklisteStore()
 
-// Initialiser store
 onMounted(() => {
   tjeklisteStore.fetchTjeklister()
 })
 
-// Opret form data state
 const formData = reactive({
   navn: '',
   beskrivelse: '',
@@ -26,7 +24,6 @@ const formData = reactive({
   opgaver: []
 })
 
-// Computed property for detail panel
 const detailItem = computed(() => ({
   tjeklisteNavn: formData.navn || 'Ny tjekliste',
   beskrivelse: formData.beskrivelse || 'Ingen beskrivelse angivet',
@@ -34,7 +31,6 @@ const detailItem = computed(() => ({
   frekvens: formData.frekvens || 'Frekvens ikke angivet'
 }))
 
-// Definer kontekst og konfiguration
 const context = 'tjeklister'
 const config = computed(() => getWizardConfig(context, {
   dropdownOptions: {
@@ -43,15 +39,12 @@ const config = computed(() => getWizardConfig(context, {
   }
 }))
 
-// Event handlers
 const handleFormUpdate = (newFormData) => {
-  // Opdater formData objektet
   Object.assign(formData, newFormData)
 }
 
 const handleComplete = async () => {
   try {
-    // Forbered data til Firestore
     const nyTjekliste = {
       tjeklisteNavn: formData.navn,
       beskrivelse: formData.beskrivelse,
@@ -84,7 +77,6 @@ const handleCancel = () => {
     </div>
 
     <div class="content-layout">
-      <!-- Brug WizardFormComponent -->
       <div class="form-container">
         <WizardFormComponent
           :context="context"
@@ -96,7 +88,6 @@ const handleCancel = () => {
         />
       </div>
 
-      <!-- Detail panel preview -->
       <DetailPanel
         context="tjeklister"
         :item="detailItem"

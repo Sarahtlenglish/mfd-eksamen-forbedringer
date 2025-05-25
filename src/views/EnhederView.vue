@@ -15,29 +15,23 @@ import ModalComponent from '@/components/ui/ModalComponent.vue'
 const router = useRouter()
 const enhedStore = useEnhedStore()
 
-// Process enheder data to include labels
 const processedEnheder = computed(() => processEnheder(enhedStore.enheder))
 
-// Define columns for this view with formatters
 const columns = [
   { key: 'name', label: 'Enhed' },
   { key: 'location', label: 'Lokation' }
 ]
 
-// Use store data
 const enhederData = ref([])
 const historyItems = ref([])
 const selectedItem = ref(null)
 const detailPanelRef = ref(null)
 
-// Update your handleRowClick function
 const handleRowClick = (item) => {
   selectedItem.value = item
-  // Get history for the selected item
   if (item) {
     historyItems.value = enhedStore.getHistoryForEnhed(item.id)
   }
-  // Reset history mode
   if (detailPanelRef.value?.resetHistoryMode) {
     detailPanelRef.value.resetHistoryMode()
   }
@@ -47,7 +41,6 @@ const createEnhed = () => {
   router.push('/enheder/opret')
 }
 
-// Event handlers
 const { closeDetailPanel } = useCloseDetailPanelHandler({
   selectedItem,
   historyItems
@@ -87,13 +80,11 @@ const { handleDelete } = useDeleteHandler({
   onDeleted: () => selectedItem.value = null
 })
 
-// Watch for changes in store's enheder
 watch(() => enhedStore.enheder, (newEnheder) => {
   console.log('EnhederView: Store enheder updated:', newEnheder)
   enhederData.value = [...newEnheder]
 }, { deep: true, immediate: true })
 
-// Set up real-time listener
 let unsubscribe
 onMounted(async () => {
   console.log('EnhederView: Setting up Firestore listener')
@@ -102,7 +93,6 @@ onMounted(async () => {
   await enhedStore.fetchEnheder()
 })
 
-// Clean up listener
 onUnmounted(() => {
   console.log('EnhederView: Cleaning up Firestore listener')
   if (unsubscribe) {

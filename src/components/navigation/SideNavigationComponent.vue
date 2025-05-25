@@ -5,12 +5,10 @@ import { routes } from '@/router'
 
 const router = useRouter()
 
-// Filter routes that should appear in navigation
 const menuItems = computed(() => {
   return routes.filter(route => route.meta?.showInNav)
 })
 
-// Function to determine if route is active
 const isActive = (route) => {
   return router.currentRoute.value.path === route
 }

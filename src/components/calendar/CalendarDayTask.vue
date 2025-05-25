@@ -98,7 +98,6 @@ const getStatusIconClass = computed(() => {
   color: $neutral-800;
   transition: $transition-base;
 
-  // Status variants
   &.status-aktiv {
     background-color: $secondary-100;
     border: 1px solid $secondary-200;

@@ -4,12 +4,10 @@ import { db } from '@/configs/firebase'
 import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, onSnapshot } from 'firebase/firestore'
 
 export const useTjeklisteStore = defineStore('tjekliste', () => {
-  // State
   const tjeklister = ref([])
   const loading = ref(false)
   const error = ref(null)
 
-  // Getters
   const tjeklisterData = computed(() => tjeklister.value)
 
   const getTjeklisteById = (id) => {
@@ -20,7 +18,6 @@ export const useTjeklisteStore = defineStore('tjekliste', () => {
     return tjeklister.value.filter(tjekliste => tjekliste.type === type)
   }
 
-  // Actions
   const fetchTjeklister = async () => {
     loading.value = true
     try {
@@ -68,7 +65,6 @@ export const useTjeklisteStore = defineStore('tjekliste', () => {
         tidspunkt: tjekliste.tidspunkt,
         opgaver: tjekliste.opgaver || []
       }
-      // Add to local state
       tjeklister.value = [...tjeklister.value, newTjekliste]
       return docRef.id
     } catch (err) {
@@ -81,7 +77,6 @@ export const useTjeklisteStore = defineStore('tjekliste', () => {
     try {
       console.log('Updating tjekliste:', id, updatedData)
       await updateDoc(doc(db, 'Tjeklister', id), updatedData)
-      // Update local state
       const index = tjeklister.value.findIndex(tjekliste => tjekliste.id === id)
       if (index !== -1) {
         tjeklister.value[index] = { ...tjeklister.value[index], ...updatedData }
@@ -96,7 +91,6 @@ export const useTjeklisteStore = defineStore('tjekliste', () => {
     try {
       console.log('Deleting tjekliste:', id)
       await deleteDoc(doc(db, 'Tjeklister', id))
-      // Update local state
       tjeklister.value = tjeklister.value.filter(tjekliste => tjekliste.id !== id)
       console.log('Successfully deleted tjekliste:', id)
     } catch (err) {
@@ -105,7 +99,6 @@ export const useTjeklisteStore = defineStore('tjekliste', () => {
     }
   }
 
-  // Real-time listener
   const setupTjeklisterListener = () => {
     console.log('Setting up tjeklister listener...')
     return onSnapshot(collection(db, 'Tjeklister'),

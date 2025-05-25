@@ -25,7 +25,7 @@ const getFirstDayOfMonth = (date) => {
   const year = date.getFullYear()
   const month = date.getMonth()
   const firstDay = new Date(year, month, 1).getDay()
-  return firstDay === 0 ? 6 : firstDay - 1 // Adjust for Monday start
+  return firstDay === 0 ? 6 : firstDay - 1
 }
 
 const calendarDays = computed(() => {
@@ -35,7 +35,6 @@ const calendarDays = computed(() => {
   const year = props.currentDate.getFullYear()
   const month = props.currentDate.getMonth()
 
-  // Previous month days
   const prevMonth = new Date(year, month - 1)
   const daysInPrevMonth = getDaysInMonth(prevMonth)
   for (let i = firstDayOfMonth - 1; i >= 0; i--) {
@@ -45,7 +44,6 @@ const calendarDays = computed(() => {
     })
   }
 
-  // Current month days
   for (let i = 1; i <= daysInMonth; i++) {
     days.push({
       date: new Date(year, month, i),
@@ -53,8 +51,7 @@ const calendarDays = computed(() => {
     })
   }
 
-  // Next month days
-  const remainingDays = 42 - days.length // Always show 6 weeks
+  const remainingDays = 42 - days.length
   for (let i = 1; i <= remainingDays; i++) {
     days.push({
       date: new Date(year, month + 1, i),

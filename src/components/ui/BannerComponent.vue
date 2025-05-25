@@ -1,3 +1,45 @@
+<script setup>
+import { computed } from 'vue'
+import { IconAlertCircle, IconAlertTriangle, IconCircleCheck } from '@tabler/icons-vue'
+
+const props = defineProps({
+  variant: {
+    type: String,
+    default: 'warning',
+    validator: value => ['warning', 'error', 'success'].includes(value)
+  },
+  text: {
+    type: String,
+    default: 'Dette skema vil blive oprettet uden en checkliste.'
+  },
+  link: {
+    type: String,
+    default: ''
+  },
+  linkText: {
+    type: String,
+    default: ''
+  },
+  linkBreak: {
+    type: Boolean,
+    default: false
+  }
+})
+
+const getIconComponent = computed(() => {
+  switch (props.variant) {
+    case 'warning':
+      return IconAlertCircle
+    case 'error':
+      return IconAlertTriangle
+    case 'success':
+      return IconCircleCheck
+    default:
+      return IconAlertCircle
+  }
+})
+</script>
+
 <template>
 	<div
 		class="banner"
@@ -23,54 +65,6 @@
 	</div>
 </template>
 
-<script setup>
-import { computed } from 'vue'
-import { IconAlertCircle, IconAlertTriangle, IconCircleCheck } from '@tabler/icons-vue'
-
-const props = defineProps({
-  // Banner variant
-  variant: {
-    type: String,
-    default: 'warning',
-    validator: value => ['warning', 'error', 'success'].includes(value)
-  },
-  // Banner text
-  text: {
-    type: String,
-    default: 'Dette skema vil blive oprettet uden en checkliste.'
-  },
-  // Optional link
-  link: {
-    type: String,
-    default: ''
-  },
-  // Optional link text
-  linkText: {
-    type: String,
-    default: ''
-  },
-  // Whether to show the link on a new line
-  linkBreak: {
-    type: Boolean,
-    default: false
-  }
-})
-
-// Compute the icon component based on variant
-const getIconComponent = computed(() => {
-  switch (props.variant) {
-    case 'warning':
-      return IconAlertCircle
-    case 'error':
-      return IconAlertTriangle
-    case 'success':
-      return IconCircleCheck
-    default:
-      return IconAlertCircle
-  }
-})
-</script>
-
 <style lang="scss" scoped>
 @use '@/assets/variables' as *;
 @use '@/assets/icons' as *;
@@ -87,7 +81,6 @@ const getIconComponent = computed(() => {
 	border-style: solid;
 	box-sizing: border-box;
 
-	// Variants
 	&.variant-warning {
 		background-color: $warning-100;
 		border-color: $warning-300;
@@ -116,7 +109,6 @@ const getIconComponent = computed(() => {
 		stroke-width: $icon-stroke-width;
 	}
 
-	// Icon colors based on variant
 	.variant-warning & {
 		color: $warning-base;
 	}
@@ -163,7 +155,6 @@ const getIconComponent = computed(() => {
 	}
 }
 
-// Layouts
 .banner:not(.link-break) .banner-content {
 	display: flex;
 	align-items: center;

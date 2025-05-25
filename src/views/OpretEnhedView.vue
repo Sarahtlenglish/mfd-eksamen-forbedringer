@@ -11,32 +11,24 @@ import { enhederConfig } from '@/configs/enhederConfig'
 const router = useRouter()
 const enhedStore = useEnhedStore()
 
-// Holder styr på om vi opretter en enkelt enhed eller en gruppe
 const enhedType = ref('single')
 const wizardRef = ref(null)
 
-// Force re-create wizard when type changes
 const forceRecreateKey = ref(0)
 
-// Skabelon for form input data
 const formData = reactive({
-  // Fælles felter
   enhedType: 'single',
   location: '',
 
-  // Felter for enkelt enhed
   enhedNavn: '',
   beskrivelse: '',
 
-  // Felter for gruppe
   gruppeTitel: '',
   gruppeBeskrivelse: '',
 
-  // Underenheder for gruppe (kun brugt når enhedType er 'gruppe')
   underenheder: []
 })
 
-// Provide formData to child components (especially UnderenhederListComponent)
 provide('formData', formData)
 
 // Opdater enhedType når formData.enhedType ændres og nulstil wizard
@@ -55,19 +47,16 @@ watch(() => formData.enhedType, (newValue, oldValue) => {
     formData.beskrivelse = ''
   }
 
-  // Force re-render of the wizard component
   forceRecreateKey.value++
 })
 
-// Watch for location changes to update underenheder locations if needed
+// Watch for location changes to update underenheder locations
 watch(() => formData.location, (newValue, oldValue) => {
   if (newValue === oldValue || enhedType.value !== 'gruppe') return
 
-  // Reset underenheder when location changes to ensure consistent locations
   formData.underenheder = []
 })
 
-// Hent konfiguration baseret på valgt type
 const config = computed(() => {
   const context = 'enheder'
   const mockOptions = {
@@ -79,9 +68,7 @@ const config = computed(() => {
 
   const wizardConfig = getWizardConfig(context, mockOptions)
 
-  // Tilpas config baseret på enhedType
   if (enhedType.value === 'gruppe') {
-    // Opdater konfiguration for gruppe
     return {
       ...wizardConfig,
       steps: [
@@ -100,7 +87,6 @@ const config = computed(() => {
       }
     }
   } else {
-    // Konfiguration for enkelt enhed
     return {
       ...wizardConfig,
       steps: [
@@ -116,7 +102,6 @@ const config = computed(() => {
   }
 })
 
-// Live preview af enhed i detail panel
 const detailItem = computed(() => {
   if (formData.enhedType === 'gruppe') {
     return {
@@ -138,12 +123,10 @@ const detailItem = computed(() => {
   }
 })
 
-// Håndterer opdatering af formular
 const handleFormUpdate = (newFormData) => {
   Object.assign(formData, newFormData)
 }
 
-// Gemmer ny enhed og navigerer tilbage
 const handleComplete = async () => {
   try {
     console.log('Form data before submission:', formData)
@@ -166,7 +149,6 @@ const handleComplete = async () => {
       await enhedStore.addEnhed(enhedData)
     }
 
-    // Navigate back on success
     router.push('/enheder')
   } catch (error) {
     console.error('Error creating enhed:', error)
@@ -174,7 +156,6 @@ const handleComplete = async () => {
   }
 }
 
-// Afbryder oprettelse uden at gemme
 const handleCancel = () => {
   router.push('/enheder')
 }
@@ -190,7 +171,6 @@ const handleCancel = () => {
     </div>
 
     <div class="content-layout">
-      <!-- Wizard formular - using key to force re-creation when type changes -->
       <div class="form-container">
         <WizardFormComponent
           :key="forceRecreateKey"
@@ -204,7 +184,6 @@ const handleCancel = () => {
         />
       </div>
 
-      <!-- Live preview af den nye enhed -->
       <DetailPanel
         context="enheder"
         :item="detailItem"

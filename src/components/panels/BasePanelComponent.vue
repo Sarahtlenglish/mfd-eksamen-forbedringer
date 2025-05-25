@@ -4,15 +4,12 @@
 
 <template>
   <div class="panel">
-    <!-- Header slot -->
     <slot name="header"></slot>
 
-    <!-- Content slot -->
     <div class="panel-content">
       <slot></slot>
     </div>
 
-    <!-- Footer slot -->
     <slot name="footer"></slot>
   </div>
 </template>

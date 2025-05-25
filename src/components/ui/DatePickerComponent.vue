@@ -31,7 +31,6 @@ defineProps({
 
 const emit = defineEmits(['update:modelValue'])
 
-// Datepicker format handler
 const formatDate = (date) => {
   if (!date) return ''
   const d = new Date(date)

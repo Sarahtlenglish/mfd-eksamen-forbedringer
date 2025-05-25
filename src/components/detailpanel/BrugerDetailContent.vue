@@ -12,7 +12,6 @@ const props = defineProps({
   }
 })
 
-// Format address details
 const addressDisplay = computed(() => {
   if (props.item.postnummer && props.item.by) {
     return `${props.item.postnummer} ${props.item.by}`
@@ -29,12 +28,9 @@ const addressDisplay = computed(() => {
 
 const isBrugerChef = computed(() => {
   // Bruger er chef hvis "Denne bruger er chef" er valgt explicit
-  // Eller for eksisterende brugere (ikke preview), hvis brugereRef er tom
   if (props.item.id === 'preview') {
-    // For nye brugere: kun vis "er chef" hvis det er explicit valgt
     return props.item.brugereRef === 'bruger_er_chef'
   } else {
-    // For eksisterende brugere: tom brugereRef betyder de er chef
     return !props.item.brugereRef
   }
 })
@@ -43,7 +39,6 @@ const isBrugerChef = computed(() => {
 
 <template>
   <div class="bruger-detail-content">
-    <!-- Arbejdsfunktioner section -->
     <div class="detail-section">
       <div class="section-title">Arbejdsfunktioner</div>
 
@@ -75,13 +70,11 @@ const isBrugerChef = computed(() => {
       </div>
     </div>
 
-    <!-- Tilhørende Grupper section -->
     <div class="detail-section">
       <h3 class="section-title">Tilhørende Grupper</h3>
       <div class="value">{{ item.gruppe || 'Brugeren er endnu ikke tilknyttet en gruppe' }}</div>
     </div>
 
-    <!-- Personlige oplysninger section -->
     <div class="detail-section">
       <h3 class="section-title">Personlige oplysninger</h3>
 
@@ -91,7 +84,6 @@ const isBrugerChef = computed(() => {
         <div class="value">{{ item.adresse }}</div>
       </div>
 
-      <!-- Always show the By (city) field -->
       <div class="detail-row">
         <div class="label">By</div>
         <div class="separator">-</div>
@@ -99,7 +91,6 @@ const isBrugerChef = computed(() => {
       </div>
     </div>
 
-    <!-- Kontakt oplysninger section -->
     <div class="detail-section">
       <h3 class="section-title">Kontakt oplysninger</h3>
 

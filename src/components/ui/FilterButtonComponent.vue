@@ -2,12 +2,10 @@
 import { IconPencil } from '@tabler/icons-vue'
 
 defineProps({
-  // Button text
   text: {
     type: String,
     default: 'Default'
   },
-  // Button state
   active: {
     type: Boolean,
     default: false
@@ -16,12 +14,10 @@ defineProps({
     type: Boolean,
     default: false
   },
-  // Full width button
   fullWidth: {
     type: Boolean,
     default: false
   },
-  // Show icon option
   showIcon: {
     type: Boolean,
     default: true
@@ -60,8 +56,8 @@ defineEmits(['click'])
 	min-width: 50%;
 	height: 48px;
 	padding: 12px 16px;
-	background-color: $neutral-100; /* #FFFFFF */
-	border: 1px solid $secondary-300; /* #A4CBE0 */
+	background-color: $neutral-100;
+	border: 1px solid $secondary-300;
 	border-radius: 8px;
 	cursor: pointer;
 	transition: $transition-base;
@@ -75,14 +71,14 @@ defineEmits(['click'])
 	}
 
 	&:active:not(.disabled) {
-		background-color: $secondary-200; /* #C0DBEA */
-		border-color: $secondary-300; /* #A4CBE0 */
+		background-color: $secondary-200;
+		border-color: $secondary-300;
 		box-shadow: $shadow-2;
 	}
 
 	&.active {
-		background-color: $secondary-200; /* #C0DBEA */
-		border-color: $secondary-300; /* #A4CBE0 */
+		background-color: $secondary-200;
+		border-color: $secondary-300;
 		box-shadow: $shadow-2;
 	}
 

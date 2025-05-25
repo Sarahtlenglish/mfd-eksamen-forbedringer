@@ -11,21 +11,17 @@ import { useDeleteHandler } from '@/composables/useDeleteHandler'
 import { useEditHandler } from '@/composables/useEditHandler'
 import { useCloseDetailPanelHandler } from '@/composables/useCloseDetailPanelHandler'
 
-// Get store og router
 const tjeklisteStore = useTjeklisteStore()
 const router = useRouter()
 
-// Process checklist data to include labels
 const processedTjeklister = computed(() => processTjeklister(tjeklisteStore.tjeklisterData))
 
-// Define columns for this view
 const columns = [
   { key: 'type', label: 'Type' },
   { key: 'tjeklisteNavn', label: 'Tjeklistenavn' },
   { key: 'frekvens', label: 'Frekvens' }
 ]
 
-// State for selected item
 const selectedItem = ref(null)
 const loading = ref(true)
 
@@ -35,7 +31,6 @@ const { handleDelete } = useDeleteHandler({
   onDeleted: () => selectedItem.value = null
 })
 
-// Event handlers
 const handleRowClick = (item) => {
   selectedItem.value = item
 }
@@ -48,14 +43,11 @@ const { closeDetailPanel } = useCloseDetailPanelHandler({ selectedItem })
 
 const { handleEdit } = useEditHandler()
 
-// Set up real-time listener when component mounts
 let unsubscribe
 onMounted(async () => {
   loading.value = true
   try {
-    // Initial fetch
     await tjeklisteStore.fetchTjeklister()
-    // Set up real-time listener
     unsubscribe = tjeklisteStore.setupTjeklisterListener()
   } catch (error) {
     console.error('Error setting up tjeklister:', error)
@@ -64,7 +56,6 @@ onMounted(async () => {
   }
 })
 
-// Clean up listener when component unmounts
 onUnmounted(() => {
   if (unsubscribe) {
     unsubscribe()

@@ -15,16 +15,13 @@ import { useCloseDetailPanelHandler } from '@/composables/useCloseDetailPanelHan
 const router = useRouter()
 const brugerStore = useBrugerStore()
 
-// Process checklist data to include labels
 const processedBrugere = computed(() => processBrugere(brugerStore.brugere))
 
-// Define columns for this view
 const columns = [
   { key: 'fuldeNavn', label: 'Navn' },
   { key: 'rolle', label: 'Rolle' }
 ]
 
-// Data state from store
 const loading = ref(false)
 
 const selectedItem = ref(null)
@@ -35,12 +32,10 @@ const { handleDelete } = useDeleteHandler({
   onDeleted: () => selectedItem.value = null
 })
 
-// Handle row click
 const handleRowClick = (item) => {
   selectedItem.value = item
 }
 
-// Handle panel actions
 const { closeDetailPanel } = useCloseDetailPanelHandler({ selectedItem })
 
 const { handleEdit } = useEditHandler()
@@ -49,14 +44,11 @@ const createBruger = () => {
   router.push('/brugere/opret')
 }
 
-// Set up real-time listener when component mounts
 let unsubscribe
 onMounted(async () => {
   loading.value = true
   try {
-    // Initial fetch
     await brugerStore.fetchBrugere()
-    // Set up real-time listener
     unsubscribe = brugerStore.setupBrugereListener()
   } catch (error) {
     console.error('Error setting up brugere:', error)
@@ -65,7 +57,6 @@ onMounted(async () => {
   }
 })
 
-// Clean up listener when component unmounts
 onUnmounted(() => {
   if (unsubscribe) {
     unsubscribe()

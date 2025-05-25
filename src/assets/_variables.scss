@@ -1,5 +1,4 @@
 // Primary Colors (Green)
-// This color is only used for buttons - Primary, secondary and tertiary
 $primary-900: #0E1D18;
 $primary-800: #1B3930;
 $primary-700: #295648;
@@ -11,7 +10,6 @@ $primary-200: #C0D5CE;
 $primary-100: #E2EBE8;
 
 // Secondary Colors (Blue)
-// Used to highlight elements and only appears on interactive elements
 $secondary-900: #0D1C24;
 $secondary-800: #193848;
 $secondary-700: #316F90;
@@ -25,7 +23,6 @@ $secondary-50: #E5F1F8;
 $secondary-25: #F2F8FC;
 
 // Neutral Colors
-// Used for boxes and backgrounds
 $neutral-900: #000000;
 $neutral-800: #1C1C1C;
 $neutral-700: #383838;
@@ -38,7 +35,6 @@ $neutral-200: #F7F7F7;
 $neutral-100: #FFFFFF;
 
 // System Colors - Error (Red)
-// Used only for error messages, delete buttons and deviation boxes
 $error-warning: #1C0000;
 $error-success: #380000;
 $error-600: #700000;
@@ -50,7 +46,6 @@ $error-200: #F8C2C2;
 $error-100: #FDEBEB;
 
 // System Colors - Warning (Yellow)
-// Used only for warning messages e.g., in checklist creation and when deadlines are exceeded
 $warning-base: #DFC101;
 $warning-400: #EAD75C;
 $warning-300: #F2E699;
@@ -58,7 +53,6 @@ $warning-200: #F7F0C2;
 $warning-100: #FCFAEB;
 
 // System Colors - Success (Green)
-// Used for success messages
 $success-base: #11BB11;
 $success-400: #67D467;
 $success-300: #A0E4A0;
@@ -76,9 +70,6 @@ $table-2nd-row: #f5f8fb;
 
 
 // Transparency Scale
-// This rule can be applied to any color seen in these palettes.
-// For example, you can apply this scale to the Neutral 900 color.
-// The same rule should also be applied to components such as buttons, icons, etc.
 $opacity-100: 1;    // 100%
 $opacity-80: 0.8;   // 80%
 $opacity-64: 0.64;  // 64%

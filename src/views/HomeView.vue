@@ -13,11 +13,9 @@ import { useDeleteHandler } from '@/composables/useDeleteHandler'
 import { useEditHandler } from '@/composables/useEditHandler'
 import { useCloseDetailPanelHandler } from '@/composables/useCloseDetailPanelHandler'
 
-// Get stores
 const egenkontrolStore = useEgenkontrolStore()
 const enhedStore = useEnhedStore()
 
-// Calendar state management
 const calendarTasks = computed(() => {
   const raw = egenkontrolStore.getCalendarTasksSync()
   return Object.fromEntries(
@@ -36,7 +34,6 @@ const selectedItem = ref(null)
 const selectedTaskId = ref(null)
 const selectedTask = computed(() => {
   if (!selectedTaskId.value) return null
-  // Find task i alle datoer
   return Object.values(calendarTasks.value)
     .flat()
     .find(task => task.id === selectedTaskId.value) || null
@@ -46,9 +43,7 @@ const router = useRouter()
 
 let unsubscribe = null
 
-// Prepare calendar tasks based on store data
 onMounted(async () => {
-  // Fetch egenkontroller and get calendar tasks
   await egenkontrolStore.fetchEgenkontroller()
   unsubscribe = egenkontrolStore.setupEgenkontrollerListener()
   await enhedStore.fetchEnheder()
@@ -59,7 +54,6 @@ onUnmounted(() => {
   if (unsubscribe) unsubscribe()
 })
 
-// Handle calendar date clicks - send både dato og tasks
 const handleDateClick = (date) => {
   const dateKey = formatDateToISO(date)
   const tasks = calendarTasks.value[dateKey] || []

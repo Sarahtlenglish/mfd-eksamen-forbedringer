@@ -1,3 +1,17 @@
+<script setup>
+import ButtonComponent from '@/components/ui/ButtonComponent.vue'
+
+defineProps({
+  show: Boolean,
+  title: String,
+  message: String,
+  primaryButtonText: String,
+  secondaryButtonText: String,
+  onPrimary: Function,
+  onSecondary: Function
+})
+</script>
+
 <template>
   <dialog v-if="show" class="modal-dialog" open>
     <div class="modal-card">
@@ -27,20 +41,6 @@
     </div>
   </dialog>
 </template>
-
-<script setup>
-import ButtonComponent from '@/components/ui/ButtonComponent.vue'
-
-defineProps({
-  show: Boolean,
-  title: String,
-  message: String,
-  primaryButtonText: String,
-  secondaryButtonText: String,
-  onPrimary: Function,
-  onSecondary: Function
-})
-</script>
 
 <style lang="scss" scoped>
 @use '@/assets/variables' as *;

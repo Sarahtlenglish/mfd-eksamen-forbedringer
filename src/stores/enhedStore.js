@@ -43,12 +43,10 @@ const mockHistoryItems = [
 ]
 
 export const useEnhedStore = defineStore('enhedStore', () => {
-  // State
   const enheder = ref([])
   const loading = ref(false)
   const error = ref(null)
 
-  // Getters
   const getEnhederByLocation = (location) => {
     return enheder.value.filter(enhed => enhed.location === location)
   }
@@ -58,7 +56,6 @@ export const useEnhedStore = defineStore('enhedStore', () => {
   }
 
   const getHistoryForEnhed = () => {
-    // Return mock data for prototype
     return mockHistoryItems
   }
 
@@ -73,7 +70,6 @@ export const useEnhedStore = defineStore('enhedStore', () => {
     return grouped
   }
 
-  // Actions
   const fetchEnheder = async () => {
     loading.value = true
     try {
@@ -113,7 +109,6 @@ export const useEnhedStore = defineStore('enhedStore', () => {
         location: enhed.location,
         type: enhed.type
       }
-      // Add to local state
       enheder.value = [...enheder.value, newEnhed]
       return docRef.id
     } catch (err) {
@@ -125,7 +120,6 @@ export const useEnhedStore = defineStore('enhedStore', () => {
   const updateEnhed = async (id, updatedData) => {
     try {
       await updateDoc(doc(db, 'enheder', id), updatedData)
-      // Update local state
       const index = enheder.value.findIndex(enhed => enhed.id === id)
       if (index !== -1) {
         enheder.value[index] = { ...enheder.value[index], ...updatedData }
@@ -139,7 +133,6 @@ export const useEnhedStore = defineStore('enhedStore', () => {
   const deleteEnhed = async (id) => {
     try {
       await deleteDoc(doc(db, 'Enheder', id))
-      // Update local state
       enheder.value = enheder.value.filter(enhed => enhed.id !== id)
     } catch (err) {
       console.error('Error deleting enhed:', err)
@@ -147,7 +140,6 @@ export const useEnhedStore = defineStore('enhedStore', () => {
     }
   }
 
-  // For gruppe enheder
   const addGruppe = async (gruppe) => {
     try {
       console.log('Adding gruppe to Firestore:', gruppe)
@@ -169,7 +161,6 @@ export const useEnhedStore = defineStore('enhedStore', () => {
         type: 'Gruppe',
         underenheder: gruppe.underenheder
       }
-      // Add to local state
       enheder.value = [...enheder.value, newGruppe]
       return docRef.id
     } catch (err) {
@@ -178,7 +169,6 @@ export const useEnhedStore = defineStore('enhedStore', () => {
     }
   }
 
-  // Set up real-time listener
   const setupEnhederListener = () => {
     console.log('Setting up enheder listener...')
     return onSnapshot(collection(db, 'Enheder'),

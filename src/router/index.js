@@ -2,7 +2,6 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { IconCalendarEvent, IconClipboardText, IconListDetails, IconFireExtinguisher, IconUsers } from '@tabler/icons-vue'
 import HomeView from '@/views/HomeView.vue'
 
-// Define routes with additional metadata
 export const routes = [
   {
     path: '/styleguide',
@@ -40,7 +39,6 @@ export const routes = [
       navName: 'Egenkontrol',
       title: 'Egenkontroller',
       icon: IconClipboardText,
-      //requiresAuth: true 
     }
   },
   {
@@ -61,7 +59,6 @@ export const routes = [
       navName: 'Tjeklister',
       title: 'Tjeklister',
       icon: IconListDetails,
-      //requiresAuth: true 
     }
   },
   {
@@ -82,7 +79,6 @@ export const routes = [
       navName: 'Enheder',
       title: 'Enheder',
       icon: IconFireExtinguisher,
-      //requiresAuth: true 
     }
   },
   {
@@ -103,7 +99,6 @@ export const routes = [
       navName: 'Brugere',
       title: 'Brugere',
       icon: IconUsers,
-      //requiresAuth: true 
     }
   },
   {

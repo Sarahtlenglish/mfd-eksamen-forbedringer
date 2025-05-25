@@ -12,7 +12,7 @@ import { egenkontrolConfig } from '@/configs/egenkontrolConfig'
 
 /**
  * Henter konfiguration for den specificerede formulartype
- * @param {string} context - Formulartype ('egenkontroller', 'tjeklister')
+ * @param {string} context
  * @param {Object} options - Mulighed for at override standardværdier
  * @returns {Object} Konfiguration til brug i WizardFormComponent
  */
@@ -220,7 +220,6 @@ export function getWizardConfig(context, options = {}) {
 
   }
 
-  // Konfigurationer for forskellige formulartyper
   const configs = {
     egenkontroller: {
       stepIcons: [IconClipboard, IconUsers, IconBell],
@@ -288,7 +287,6 @@ export function getWizardConfig(context, options = {}) {
       dropdownOptions: options.dropdownOptions || {}
     },
 
-    // Configuration for enheder
     enheder: {
       stepIcons: [IconBuilding, IconStack],
       steps: [
@@ -313,7 +311,6 @@ export function getWizardConfig(context, options = {}) {
         ]
       }
     },
-    // Configuration for brugere (users)
     brugere: {
       stepIcons: [IconClipboard, IconUsers, IconBell],
       steps: [

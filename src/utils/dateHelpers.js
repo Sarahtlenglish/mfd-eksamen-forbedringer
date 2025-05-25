@@ -6,17 +6,14 @@
 /**
  * Format a date to ISO format (YYYY-MM-DD)
  * Ensures dates are formatted consistently for both display and data lookup
- *
  * @param {Date|string} date - A Date object or date string to format
  * @returns {string|null} The formatted date string or null if input is invalid
  */
 export function formatDateToISO(date) {
   if (!date) return null
 
-  // Handle both Date objects and strings
   const dateObj = date instanceof Date ? date : new Date(date)
 
-  // Ensure we're working with local time, not UTC
   const year = dateObj.getFullYear()
   const month = String(dateObj.getMonth() + 1).padStart(2, '0')
   const day = String(dateObj.getDate()).padStart(2, '0')
@@ -43,8 +40,8 @@ export function getDaysOverdue(fromDate, toDate = new Date()) {
 
 /**
  * Beregn næste dato baseret på frekvens
- * @param {Date} currentDate - Nuværende dato
- * @param {string} frequency - Frekvens ('dagligt'|'ugentlig'|'manedlig'|'kvartal'|'årlig')
+ * @param {Date} currentDate
+ * @param {string} frequency -('dagligt'|'ugentlig'|'manedlig'|'kvartal'|'årlig')
  * @returns {Date} Næste dato
  */
 export function getNextDateByFrequency(currentDate, frequency) {
@@ -76,7 +73,7 @@ export function getNextDateByFrequency(currentDate, frequency) {
 
 /**
  * Tjek om en dato er gyldig
- * @param {Date|string} date - Datoen der skal valideres
+ * @param {Date|string} date
  * @returns {boolean} Om datoen er gyldig
  */
 export function isValidDate(date) {
@@ -86,8 +83,8 @@ export function isValidDate(date) {
 }
 
 /**
- * Normaliser en dato til midnat (00:00:00)
- * @param {Date|string} date - Datoen der skal normaliseres
+ * Normaliser en dato til midnat
+ * @param {Date|string} date
  * @returns {Date} Normaliseret dato
  */
 export function normalizeToMidnight(date) {
@@ -111,7 +108,7 @@ export function isSameDay(date1, date2) {
 }
 
 /**
- * Beregn slutdato for en periode (2 måneder frem)
+ * Beregn slutdato for en periode
  * @returns {Date} Slutdato for perioden
  */
 export function getEndDateForPeriod() {
@@ -124,7 +121,7 @@ export function getEndDateForPeriod() {
 /**
  * Beregn status for en opgave-dato ift. i dag
  * @param {Date|string} date - Datoen for opgaven
- * @param {string} originalStatus - Oprindelig status (kan være 'udført', 'afvigelse', etc.)
+ * @param {string} originalStatus
  * @returns {string} Status ('udført', 'afvigelse', 'overskredet', 'aktiv', 'inaktiv')
  */
 export function getStatusForDate(date, originalStatus) {
@@ -163,7 +160,7 @@ export function generateDateArray(startDate, frequency, count = 10) {
 }
 
 /**
- * Returner -1 hvis dato er i fortid, 0 hvis i dag, 1 hvis i fremtid
+ * Returner 0 hvis i dag, 1 hvis i fremtid
  * @param {Date|string} date
  * @returns {number}
  */

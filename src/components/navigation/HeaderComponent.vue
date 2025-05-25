@@ -7,7 +7,6 @@ import '@/views/StyleguideView.vue'
   <header class="app-header">
     <div class="header-content">
       <div class="header-actions">
-        <!-- Action buttons as before -->
         <span class="icon medium">
           <IconBell class="menu-color" />
         </span>
@@ -39,7 +38,7 @@ import '@/views/StyleguideView.vue'
 .app-header {
   position: fixed;
   top: 0;
-  left: 250px; /* Match the width of the side navigation */
+  left: 250px;
   right: 0;
   height: 72px;
   background-color: $neutral-200;

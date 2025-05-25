@@ -12,35 +12,27 @@ const router = useRouter()
 const brugerStore = useBrugerStore()
 const wizardRef = ref(null)
 
-// Force re-create wizard when needed
 const forceRecreateKey = ref(0)
 
-// Template for form input data
 const formData = reactive({
-  // Step 1: Arbejdsfunktioner
   fuldeNavn: '',
   rolle: '',
   brugereRef: '',
 
-  // Step 2: Personlige oplysninger
   adresse: '',
   postnummer: '',
   by: '',
 
-  // Step 3: Kontakt oplysninger
   email: '',
   telefon: ''
 })
 
-// Provide formData to child components if needed
 provide('formData', formData)
 
-// Get leader options from store
 const leaderOptions = computed(() => {
   const options = [
     { value: 'bruger_er_chef', label: 'Denne bruger er chef' }
   ]
-  // Add existing users as options
   brugerStore.brugere.forEach((bruger) => {
     options.push({
       value: bruger.id,
@@ -50,14 +42,11 @@ const leaderOptions = computed(() => {
   return options
 })
 
-// Get configuration for the wizard
 const config = computed(() => {
   const context = 'brugere'
   const options = {
     dropdownOptions: {
-      // Use the role options from the brugerConfig
       rolleOptions: brugerConfig.fieldDefinitions.rolle.options,
-      // Use the computed leaderOptions that contains real users from the database
       brugereRefOptions: leaderOptions.value
     }
   }
@@ -66,7 +55,6 @@ const config = computed(() => {
 
   return {
     ...baseConfig,
-    // Use fields that match your formData property names
     fields: {
       step1: ['fuldeNavn', 'rolle', 'brugereRef'],
       step2: ['adresse', 'postnummer', 'by'],
@@ -75,7 +63,6 @@ const config = computed(() => {
   }
 })
 
-// Live preview of user in detail panel
 const detailItem = computed(() => {
   const selectedLeader = formData.brugereRef && formData.brugereRef !== 'bruger_er_chef'
     ? leaderOptions.value.find(opt => opt.value === formData.brugereRef)
@@ -95,17 +82,14 @@ const detailItem = computed(() => {
   }
 })
 
-// Handle form update
 const handleFormUpdate = (newFormData) => {
   Object.assign(formData, newFormData)
 }
 
-// Save new user and navigate back
 const handleComplete = async () => {
   try {
     console.log('Complete form with data:', formData)
 
-    // Format the user data properly
     const newBruger = {
       fuldeNavn: formData.fuldeNavn,
       rolle: formData.rolle,
@@ -117,12 +101,10 @@ const handleComplete = async () => {
       telefon: formData.telefon || ''
     }
 
-    // Add user to Firestore through store
     try {
       await brugerStore.addBruger(newBruger)
       console.log('New user added to store:', newBruger)
 
-      // Navigate back to users overview
       router.push('/brugere')
     } catch (error) {
       console.error('Error adding user to store:', error)
@@ -134,12 +116,10 @@ const handleComplete = async () => {
   }
 }
 
-// Cancel creation without saving
 const handleCancel = () => {
   router.push('/brugere')
 }
 
-// Fetch users when component mounts
 onMounted(async () => {
   try {
     await brugerStore.fetchBrugere()
@@ -159,7 +139,6 @@ onMounted(async () => {
     </div>
 
     <div class="content-layout">
-      <!-- Wizard form -->
       <div class="form-container">
         <WizardFormComponent
           :key="forceRecreateKey"
@@ -173,7 +152,6 @@ onMounted(async () => {
         />
       </div>
 
-      <!-- Live preview of the new user -->
       <DetailPanel
         context="brugere"
         :item="detailItem"

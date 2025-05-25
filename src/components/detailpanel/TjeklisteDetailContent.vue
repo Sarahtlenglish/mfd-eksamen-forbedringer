@@ -1,7 +1,6 @@
 <script setup>
 import { getTjeklisteTypeLabel, getFrekvensLabel } from '@/utils/labelHelpers'
 
-// Use script setup for Composition API
 const props = defineProps({
   context: {
     type: String,

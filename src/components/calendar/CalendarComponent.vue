@@ -47,7 +47,6 @@ const selectDate = (date) => {
   emit('date-click', date)
 }
 
-// Hjælpefunktion til at formatere dato til ISO string - brug vores fælles funktion
 const getTasksForDate = (date) => {
   const dateKey = formatDateToISO(date)
   return props.customTasks[dateKey] || []

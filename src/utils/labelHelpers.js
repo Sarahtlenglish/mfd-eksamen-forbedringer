@@ -1,20 +1,16 @@
-// Domænespecifikke helpers (importér dine configs her)
 import { enhederConfig } from '@/configs/enhederConfig'
 import { egenkontrolConfig } from '@/configs/egenkontrolConfig'
 import { tjeklisteConfig } from '@/configs/tjeklisteConfig'
 import { rolleOptions } from '@/configs/brugerConfig'
 
-// Generisk label-finder
 export function findLabel(options, value) {
   if (!options || !value) return value
   const option = options.find(opt => opt.value === value)
   return option ? option.label : value
 }
 
-// Enheder
 export const getLocationLabel = value => findLabel(enhederConfig.locations, value)
 
-// Find location value by label
 export const findLocationValue = (label) => {
   const location = enhederConfig.locations.find(loc => loc.label === label)
   return location ? location.value : label
@@ -22,33 +18,27 @@ export const findLocationValue = (label) => {
 
 export const getTypeLabel = value => findLabel(enhederConfig.types, value)
 
-// Brugere
 export const getRoleLabel = value => findLabel(rolleOptions, value)
 
-// Helper: find user name by ID
 export const getUserName = (id, brugerStore) => {
   const bruger = brugerStore.getBrugerById(id)
   return bruger ? bruger.fuldeNavn : id
 }
 
-// Helper: find enhed name by ID
 export const getEnhedName = (id, enhedStore) => {
   const enhed = enhedStore.getEnhedById(id)
   return enhed ? enhed.name : id
 }
 
-// Helper: find tjekliste name by ID
 export const getTjeklisteName = (id, tjeklisteStore) => {
   const tjekliste = tjeklisteStore.tjeklister.find(t => t.id === id)
   return tjekliste ? tjekliste.navn || tjekliste.tjeklisteNavn : id
 }
 
-// Egenkontrol/tjekliste
 export const getFrekvensLabel = value => findLabel(tjeklisteConfig.frekvensOptions, value)
 export const getTidspunktLabel = value => findLabel(egenkontrolConfig.tidspunktOptions, value)
 export const getTjeklisteTypeLabel = value => findLabel(tjeklisteConfig.typeOptions, value)
 
-// Data processering med labels
 export const processEnheder = (enheder) => {
   return enheder.map(item => ({
     ...item,
@@ -72,7 +62,6 @@ export const processBrugere = (brugere) => {
   }))
 }
 
-// Calendar specific helpers
 export const getStatusLabel = (value) => {
   const statusMap = {
     afvigelse: 'Afvigelse',
@@ -98,7 +87,6 @@ export const getBannerType = (status) => {
 export const processCalendarTasks = (tasks) => {
   if (!tasks) return []
   return tasks.map((task) => {
-    // Find the history entry for the current date
     const historyEntry = task.historik?.find(entry => entry.dato === task.dato)
     const status = historyEntry?.status || 'inaktiv'
     return {

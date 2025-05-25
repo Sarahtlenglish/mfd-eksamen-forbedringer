@@ -5,19 +5,16 @@ import FilterButtonComponent from '@/components/ui/FilterButtonComponent.vue'
 import { IconPlus } from '@tabler/icons-vue'
 
 const handleFilterClick = () => {
-  // Handle filter click
   console.log ('Filter clicked')
 }
 
 const handleCreateGruppe = () => {
   console.log('Create group')
-  // Implement create functionality
 }
 </script>
 
 <template>
   <BasePanel>
-    <!-- Header - Match the structure of DetailPanelComponent -->
     <template #header>
       <div class="detail-panel-header">
         <div class="detail-title-container no-back-button">
@@ -63,7 +60,6 @@ const handleCreateGruppe = () => {
         />
       </div>
 
-      <!-- Use the same header structure for the "Roller" section -->
       <div class="detail-panel-header">
         <div class="detail-title-container no-back-button">
           <h2 class="detail-title">Roller</h2>

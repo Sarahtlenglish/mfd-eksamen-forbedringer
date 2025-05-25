@@ -1,7 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue'
 
-// Props for the component
 const props = defineProps({
   items: {
     type: Array,
@@ -25,13 +24,10 @@ const props = defineProps({
   }
 })
 
-// Emits
 const emit = defineEmits(['page-change', 'row-click'])
 
-// Pagination state
 const currentPage = ref(1)
 
-// Computed properties
 const totalItems = computed(() => props.items.length)
 const totalPages = computed(() => Math.ceil(totalItems.value / props.itemsPerPage))
 
@@ -41,7 +37,6 @@ const paginatedItems = computed(() => {
   return props.items.slice(startIndex, endIndex)
 })
 
-// Methods
 const onPageChange = (page) => {
   currentPage.value = page
   emit('page-change', page)
@@ -73,7 +68,6 @@ const handleRowClick = (item) => {
         >
           <td v-for="column in columns" :key="column.key">
             <slot :name="`cell-${column.key}`" :item="item" :column="column">
-              <!-- Viser (gruppe) efter navnet hvis typen er 'Gruppe' og kolonnen er 'name' -->
               <template v-if="column.key === 'name' && item.type === 'Gruppe'">
                 {{ item[column.key] }} <span class="group-indicator">(Gruppe)</span>
               </template>

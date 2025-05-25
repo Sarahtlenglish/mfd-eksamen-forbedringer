@@ -12,7 +12,6 @@ import { useModal } from '@/composables/useModal'
 
 const route = useRoute()
 
-// Initialiser stores
 const egenkontrolStore = useEgenkontrolStore()
 const brugerStore = useBrugerStore()
 const enhedStore = useEnhedStore()
@@ -28,10 +27,8 @@ const {
   modalSecondaryAction
 } = useModal()
 
-// Hent alt nødvendigt data når applikationen starter
 onMounted(async () => {
   try {
-    // Hent data parallelt for bedre performance
     await Promise.all([
       egenkontrolStore.fetchEgenkontroller(),
       brugerStore.fetchBrugere(),
@@ -44,7 +41,6 @@ onMounted(async () => {
   }
 })
 
-// Tjekker om den aktuelle rute er /components eller /styleguide
 const shouldHideNavigation = () => {
   return route.path === '/components' || route.path === '/styleguide'
 }
@@ -94,7 +90,7 @@ body, html {
 
 .main-content {
   flex: 1;
-  margin-left: 250px; /* Match the width of side navigation */
+  margin-left: 250px;
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -106,7 +102,7 @@ body, html {
 
 .content-area {
   padding: $main-padding;
-  margin-top: 70px; /* Match the height of the header */
+  margin-top: 70px;
   flex: 1;
   overflow-y: auto;
   box-sizing: border-box;

@@ -6,35 +6,29 @@ import { formatDateToISO, generateDateArray, getNextDateByFrequency } from '@/ut
 import { useTjeklisteStore } from '@/stores/tjeklisteStore'
 
 export const useEgenkontrolStore = defineStore('egenkontrol', () => {
-  // State
   const egenkontrollerData = ref([])
   const loading = ref(false)
   const error = ref(null)
 
-  // Helper to update status in Firestore
   const updateStatusInFirebase = async (taskId, newStatus, targetDate) => {
     try {
       const taskRef = doc(db, 'Egenkontrol', taskId)
       const taskDoc = await getDoc(taskRef)
       const taskData = taskDoc.data()
 
-      // Find the history entry for the target date
       const historyIndex = taskData.historik.findIndex(entry => entry.dato === targetDate)
       if (historyIndex === -1) {
         throw new Error('No history entry found for the target date')
       }
 
-      // Update the status in the history array
       const updatedHistorik = [...taskData.historik]
       updatedHistorik[historyIndex] = {
         ...updatedHistorik[historyIndex],
         status: newStatus
       }
 
-      // Update the document with the new history array
       await updateDoc(taskRef, { historik: updatedHistorik })
 
-      // Update the local state
       const index = egenkontrollerData.value.findIndex(task => task.id === taskId)
       if (index !== -1) {
         egenkontrollerData.value[index] = {
@@ -48,7 +42,6 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
     }
   }
 
-  // Update statuses based on date and rules, and sync to Firestore
   const updateStatusesBasedOnDate = async () => {
     const today = new Date()
     today.setHours(0, 0, 0, 0)
@@ -76,7 +69,6 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
     }
   }
 
-  // Helper: Opret fremtidige tasks for næste 2 måneder
   async function ensureFutureTasks() {
     const tjeklisteStore = useTjeklisteStore()
     const today = new Date()
@@ -87,22 +79,18 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
     endDate.setHours(23, 59, 59, 999) // Sæt til slutningen af dagen
 
     for (const tjekliste of tjeklisteStore.tjeklister) {
-      // Find eksisterende egenkontrol for denne tjekliste
       const egenkontrol = egenkontrollerData.value.find(t => t.checkliste === tjekliste.id)
       if (!egenkontrol) continue
 
-      // Find sidste dato i historik
       const historik = egenkontrol.historik || []
       let lastDate = historik.length > 0 ? new Date(historik[historik.length - 1].dato) : new Date()
       lastDate.setHours(0, 0, 0, 0)
 
-      // Tilføj fremtidige datoer til historik-arrayet
       const freq = tjekliste.frekvens
       let nextDate = new Date(lastDate)
       while (nextDate < endDate) {
         nextDate = getNextDateByFrequency(nextDate, freq)
         if (nextDate > endDate) break
-        // Hvis datoen ikke allerede findes i historik
         if (!historik.some(h => h.dato === formatDateToISO(nextDate))) {
           historik.push({
             dato: formatDateToISO(nextDate),
@@ -112,12 +100,10 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
           })
         }
       }
-      // Opdater egenkontrol i Firestore med nyt historik-array
       await updateDoc(doc(db, 'Egenkontrol', egenkontrol.id), { historik })
     }
   }
 
-  // Fetch all egenkontroller
   const fetchEgenkontroller = async () => {
     loading.value = true
     try {
@@ -127,7 +113,6 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
         ...doc.data()
       }))
       egenkontrollerData.value = egenkontroller
-      // Opret fremtidige tasks for næste 2 måneder
       await ensureFutureTasks()
       await updateStatusesBasedOnDate()
     } catch (err) {
@@ -155,21 +140,17 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
     )
   }
 
-  // Add new egenkontrol (NY LOGIK)
   const addEgenkontrol = async (egenkontrol) => {
     console.log('Submitting egenkontrol:', egenkontrol)
     const tjeklisteStore = useTjeklisteStore()
-    // Find tjekliste-data
     const tjeklisteId = egenkontrol.tjekliste || egenkontrol.checkliste
     const tjekliste = tjeklisteStore.getTjeklisteById(tjeklisteId)
     if (!tjekliste) {
       throw new Error('Tjekliste ikke fundet')
     }
-    // Brug startDato fra egenkontrol eller fallback til i dag
     const startDato = egenkontrol.startDato || new Date().toISOString().split('T')[0]
     const frekvens = tjekliste.frekvens
     console.log('Frekvens brugt til generateDateArray:', frekvens)
-    // Generér historik for de næste 10 perioder
     const datoer = generateDateArray(startDato, frekvens, 10)
     console.log('Datoer genereret til historik:', datoer)
     const historik = datoer.map(dato => ({
@@ -178,7 +159,6 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
       afsluttetAf: '',
       noter: ''
     }))
-    // Opret dokumentet
     const egenkontrolDoc = {
       navn: egenkontrol.navn || tjekliste.tjeklisteNavn,
       beskrivelse: egenkontrol.beskrivelse || tjekliste.beskrivelse || '',
@@ -195,7 +175,6 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     }
-    // Add main document
     const docRef = await addDoc(collection(db, 'Egenkontrol'), egenkontrolDoc)
     return docRef.id
   }
@@ -204,7 +183,6 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
     try {
       console.log('Deleting egenkontrol:', id)
       await deleteDoc(doc(db, 'Egenkontrol', id))
-      // Update local state
       egenkontrollerData.value = egenkontrollerData.value.filter(egenkontrol => egenkontrol.id !== id)
       console.log('Successfully deleted egenkontrol:', id)
     } catch (err) {
@@ -213,7 +191,6 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
     }
   }
 
-  // Helper to resolve references for display
   const resolveReferences = async (egenkontrol) => {
     try {
       const [bruger, enhed, tjekliste] = await Promise.all([
@@ -234,12 +211,10 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
     }
   }
 
-  // Hybrid formatTasksForCalendar
   const formatTasksForCalendar = (tasks) => {
     const calendarTasks = {}
 
     tasks.forEach((task) => {
-      // Hvis task har historik-array (ny struktur)
       if (Array.isArray(task.historik)) {
         task.historik.forEach((entry) => {
           const dateKey = entry.dato
@@ -261,7 +236,6 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
           })
         })
       } else {
-        // Fald tilbage til gammel struktur - denne del kan fjernes når alle tasks er migreret
         const date = task.startDato || task.startDate
         if (!date) return
         const dateKey = typeof date === 'string' ? date : formatDateToISO(date)
@@ -273,7 +247,7 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
           id: task.id,
           title: task.navn || task.name || 'Egenkontrol',
           details: task.lokation || task.location || '',
-          status: 'inaktiv', // Default status for gamle tasks
+          status: 'inaktiv',
           påmindelser: task.påmindelser
         })
       }
@@ -282,15 +256,12 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
     return calendarTasks
   }
 
-  // Get calendar tasks with resolved references
   const getCalendarTasks = async () => {
     try {
-      // Ensure we have the latest data
       if (egenkontrollerData.value.length === 0) {
         await fetchEgenkontroller()
       }
 
-      // Format tasks for calendar without resolving references
       const formattedTasks = formatTasksForCalendar(egenkontrollerData.value)
       return formattedTasks
     } catch (err) {
@@ -299,7 +270,6 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
     }
   }
 
-  // Synchronous version for computed property
   const getCalendarTasksSync = () => {
     return formatTasksForCalendar(egenkontrollerData.value)
   }

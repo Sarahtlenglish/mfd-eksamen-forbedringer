@@ -12,7 +12,6 @@ defineProps({
   }
 })
 
-// Helper function to get the appropriate icon class for history events
 const getEventIconClass = (eventType) => {
   const iconClasses = {
     nextInspection: 'IconClipboardList',

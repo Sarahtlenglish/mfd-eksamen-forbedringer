@@ -1,4 +1,3 @@
-<!-- EnhederDetailContent.vue -->
 <script setup>
 import { computed } from 'vue'
 import { IconPrinter, IconUpload, IconFileText } from '@tabler/icons-vue'
@@ -18,17 +17,14 @@ const props = defineProps({
 
 const emit = defineEmits(['toggle-history'])
 
-// Check if the item is a group
 const isGruppe = computed(() => {
   return props.item.type === 'Gruppe'
 })
 
-// Check if there are underenheder
 const hasUnderenheder = computed(() => {
   return props.item.underenheder && props.item.underenheder.length > 0
 })
 
-// Get count of underenheder
 const underenhederCount = computed(() => {
   if (!props.item.underenheder) return 0
   return props.item.underenheder.length

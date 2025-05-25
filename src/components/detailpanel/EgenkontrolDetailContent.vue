@@ -18,12 +18,10 @@ const tjeklisteStore = useTjeklisteStore()
 
 <template>
   <div>
-    <!-- Beskrivelse - altid vist (hvis der er en) -->
     <div v-if="props.item.beskrivelse" class="description">
       {{ props.item.beskrivelse }}
     </div>
 
-    <!-- Udføres hver [frekvens] - altid vist -->
     <div class="detail-section">
       <div class="detail-row">
         <span class="detail-label">
@@ -35,7 +33,6 @@ const tjeklisteStore = useTjeklisteStore()
       </div>
     </div>
 
-    <!-- Tjekliste og enhed -->
     <div v-if="props.item.checkliste || props.item.lokation" class="detail-section">
       <div v-if="props.item.checkliste" class="detail-row">
         <span class="detail-label">{{ getTjeklisteName(props.item.checkliste, tjeklisteStore) }}</span>
@@ -45,7 +42,6 @@ const tjeklisteStore = useTjeklisteStore()
       </div>
     </div>
 
-    <!-- Ansvarlige -->
     <div v-if="props.item.ansvarligeBrugere?.length" class="detail-section">
       <div class="detail-row">
         <span class="detail-label">Ansvarlige brugere</span>
@@ -55,7 +51,6 @@ const tjeklisteStore = useTjeklisteStore()
       </div>
     </div>
 
-    <!-- Påmindelser -->
     <div v-if="props.item.påmindelser?.length" class="detail-section">
       <div v-for="(påmindelse, idx) in props.item.påmindelser" :key="idx" class="detail-row">
         <span class="detail-label">
@@ -67,7 +62,6 @@ const tjeklisteStore = useTjeklisteStore()
       </div>
     </div>
 
-    <!-- Notifikationsmodtagere -->
     <div v-if="props.item.modtagere?.length" class="detail-section">
       <div v-for="(modtager, idx) in props.item.modtagere" :key="idx" class="detail-row">
         <span class="detail-label">

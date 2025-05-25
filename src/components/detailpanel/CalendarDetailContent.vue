@@ -22,7 +22,6 @@ const brugerStore = useBrugerStore()
 const enhedStore = useEnhedStore()
 const tjeklisteStore = useTjeklisteStore()
 
-// Always get the latest task from the store for live updates
 const selectedTask = computed(() => {
   if (!props.item) return null
   const allTasks = egenkontrolStore.getCalendarTasksSync()
@@ -56,15 +55,12 @@ const overdueDays = computed(() => {
 
 <template>
   <div class="calendar-detail-content">
-    <!-- Task detail view -->
     <div class="task-detail-view" v-if="selectedTask">
       <div class="task-content">
         <div class="detail-section">
-        <!-- Description -->
         <p v-if="selectedTask.description || selectedTask.beskrivelse" class="task-description">
           {{ selectedTask.description || selectedTask.beskrivelse }}
         </p>
-        <!-- Deadline info -->
         <div class="detail-section" v-if="bannerType === 'overdue'">
           <div class="deadline-info">
             <div class="detail-row">
@@ -74,7 +70,6 @@ const overdueDays = computed(() => {
             </div>
           </div>
         </div>
-        <!-- Status banners -->
         <BannerComponent
           v-if="bannerType === 'overdue'"
           variant="warning"
@@ -98,7 +93,6 @@ const overdueDays = computed(() => {
           variant="success"
           :text="`Egenkontrol udført d. ${new Date(selectedTask.dato).toLocaleDateString('da-DK')} af ${selectedTask.afsluttetAf || 'Ukendt'}`"
         />
-        <!-- Action button -->
         <div class="action-button-container" v-if="bannerType === 'active' || bannerType === 'overdue'">
           <ButtonComponent
             variant="secondary"
@@ -112,8 +106,6 @@ const overdueDays = computed(() => {
           </ButtonComponent>
         </div>
       </div>
-        <!-- Rest of details sections -->
-        <!-- Standard og specifikation -->
         <div v-if="selectedTask.standard" class="detail-section">
           <div class="detail-row">
             <span class="detail-label">{{ selectedTask.standard }} - {{ selectedTask.standardTitle }}</span>
@@ -125,7 +117,6 @@ const overdueDays = computed(() => {
             <span>{{ selectedTask.location }}</span>
           </div>
         </div>
-        <!-- Tjekliste og enhed -->
         <div v-if="selectedTask.checkliste || selectedTask.lokation" class="detail-section">
           <div v-if="selectedTask.checkliste" class="detail-row">
             <strong>{{ getTjeklisteName(selectedTask.checkliste, tjeklisteStore) }}</strong>
@@ -134,7 +125,6 @@ const overdueDays = computed(() => {
             <span>{{ getEnhedName(selectedTask.lokation, enhedStore) }}</span>
           </div>
         </div>
-        <!-- Users -->
         <div v-if="selectedTask.ansvarligeBrugere?.length" class="detail-section">
           <div class="detail-row">
             <span class="detail-label">Ansvarlige brugere:</span>
@@ -145,7 +135,6 @@ const overdueDays = computed(() => {
             </span>
           </div>
         </div>
-        <!-- Påmindelser -->
         <div v-if="selectedTask.påmindelser?.length" class="detail-section">
           <div v-for="(påmindelse, idx) in selectedTask.påmindelser" :key="idx" class="detail-row">
             <span class="detail-label">
@@ -156,7 +145,6 @@ const overdueDays = computed(() => {
             </span>
           </div>
         </div>
-        <!-- Notifikationsmodtagere -->
         <div v-if="selectedTask.modtagere?.length" class="detail-section">
           <div v-for="(modtager, idx) in selectedTask.modtagere" :key="idx" class="detail-row">
             <span class="detail-label">
@@ -249,7 +237,6 @@ const overdueDays = computed(() => {
   color: $neutral-600;
 }
 
-/* Styling for task-detaljer */
 .task-detail-view {
   display: flex;
   flex-direction: column;

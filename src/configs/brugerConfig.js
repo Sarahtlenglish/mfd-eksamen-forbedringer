@@ -1,4 +1,3 @@
-// Role options for users
 export const rolleOptions = [
   { value: 'service_bruger', label: 'Service Bruger' },
   { value: 'facility_manager', label: 'Facility Manager' },
@@ -6,16 +5,13 @@ export const rolleOptions = [
   { value: 'visnings_bruger', label: 'Visnings Bruger' }
 ]
 
-// Helper function to get role label
 export function getRoleLabel(value) {
   if (!value) return ''
   const option = rolleOptions.find(opt => opt.value === value)
   return option ? option.label : value
 }
 
-// Default configuration for the bruger form
 export const brugerConfig = {
-  // Form field definitions
   fieldDefinitions: {
     fuldeNavn: {
       type: 'text',

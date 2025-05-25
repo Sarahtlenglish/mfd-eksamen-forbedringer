@@ -10,36 +10,29 @@ import { useDeleteHandler } from '@/composables/useDeleteHandler'
 import { useEditHandler } from '@/composables/useEditHandler'
 import { useCloseDetailPanelHandler } from '@/composables/useCloseDetailPanelHandler'
 
-// Get store og router
 const egenkontrolStore = useEgenkontrolStore()
 const router = useRouter()
 
-// Define columns for this view
 const columns = [
   { key: 'navn', label: 'Egenkontroller' },
   { key: 'type', label: 'Type' }
 ]
 
-// State for selected item
 const selectedItem = ref(null)
 const unsubscribe = ref(null)
 
-// Fetch data and set up real-time updates
 onMounted(async () => {
   await egenkontrolStore.fetchEgenkontroller()
   unsubscribe.value = egenkontrolStore.setupEgenkontrollerListener()
 })
 
-// Clean up listener on unmount
 onUnmounted(() => {
   if (unsubscribe.value) {
     unsubscribe.value()
   }
 })
 
-// Event handlers
 const handleRowClick = async (item) => {
-  // Resolve references before showing in detail panel
   selectedItem.value = await egenkontrolStore.resolveReferences(item)
 }
 
