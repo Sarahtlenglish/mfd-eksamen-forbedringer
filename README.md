@@ -23,14 +23,18 @@ Naviger til projektmappen i din terminal og kør følgende kommando for at insta
 npm install
 ```
 
-## Udvikling
+## Opstart
 
-### Start udviklingsserver
+Hvis du vil opstarte projektet lokalt på din maskine skal du bruge følgende kommando:
+
 ```bash
 npm run dev
 ```
 
-### Lint
+## ESLint
+
+Hvis du også vil teste koden på ESLint kan du køre følgende kommando:
+
 ```bash
 npm run lint
 ```
