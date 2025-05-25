@@ -21,7 +21,6 @@ export const useTjeklisteStore = defineStore('tjekliste', () => {
   const fetchTjeklister = async () => {
     loading.value = true
     try {
-      console.log('Fetching tjeklister from Firestore...')
       const querySnapshot = await getDocs(collection(db, 'Tjeklister'))
       const fetchedTjeklister = querySnapshot.docs.map(doc => ({
         id: doc.id,
@@ -32,10 +31,8 @@ export const useTjeklisteStore = defineStore('tjekliste', () => {
         tidspunkt: doc.data().tidspunkt,
         opgaver: doc.data().opgaver || []
       }))
-      console.log('Successfully fetched tjeklister:', fetchedTjeklister)
       tjeklister.value = fetchedTjeklister
     } catch (err) {
-      console.error('Error fetching tjeklister:', err)
       error.value = err
     } finally {
       loading.value = false
@@ -44,7 +41,6 @@ export const useTjeklisteStore = defineStore('tjekliste', () => {
 
   const addTjekliste = async (tjekliste) => {
     try {
-      console.log('Adding tjekliste to Firestore:', tjekliste)
       const docRef = await addDoc(collection(db, 'Tjeklister'), {
         tjeklisteNavn: tjekliste.tjeklisteNavn,
         beskrivelse: tjekliste.beskrivelse,
@@ -54,7 +50,6 @@ export const useTjeklisteStore = defineStore('tjekliste', () => {
         opgaver: tjekliste.opgaver || [],
         createdAt: new Date()
       })
-      console.log('Successfully added tjekliste with ID:', docRef.id)
 
       const newTjekliste = {
         id: docRef.id,
@@ -75,7 +70,6 @@ export const useTjeklisteStore = defineStore('tjekliste', () => {
 
   const updateTjekliste = async (id, updatedData) => {
     try {
-      console.log('Updating tjekliste:', id, updatedData)
       await updateDoc(doc(db, 'Tjeklister', id), updatedData)
       const index = tjeklister.value.findIndex(tjekliste => tjekliste.id === id)
       if (index !== -1) {
@@ -89,10 +83,8 @@ export const useTjeklisteStore = defineStore('tjekliste', () => {
 
   const deleteTjekliste = async (id) => {
     try {
-      console.log('Deleting tjekliste:', id)
       await deleteDoc(doc(db, 'Tjeklister', id))
       tjeklister.value = tjeklister.value.filter(tjekliste => tjekliste.id !== id)
-      console.log('Successfully deleted tjekliste:', id)
     } catch (err) {
       console.error('Error deleting tjekliste:', err)
       throw err
@@ -100,10 +92,8 @@ export const useTjeklisteStore = defineStore('tjekliste', () => {
   }
 
   const setupTjeklisterListener = () => {
-    console.log('Setting up tjeklister listener...')
     return onSnapshot(collection(db, 'Tjeklister'),
       (snapshot) => {
-        console.log('Received Firestore update, docs:', snapshot.docs.length)
         const newTjeklister = snapshot.docs.map(doc => ({
           id: doc.id,
           tjeklisteNavn: doc.data().tjeklisteNavn,
@@ -113,7 +103,6 @@ export const useTjeklisteStore = defineStore('tjekliste', () => {
           tidspunkt: doc.data().tidspunkt,
           opgaver: doc.data().opgaver || []
         }))
-        console.log('Updated local state with tjeklister:', newTjeklister)
         tjeklister.value = newTjeklister
       },
       (err) => {

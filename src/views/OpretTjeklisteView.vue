@@ -57,7 +57,6 @@ const handleComplete = async () => {
     await tjeklisteStore.addTjekliste(nyTjekliste)
     router.push('/tjeklister')
   } catch (error) {
-    console.error('Error creating tjekliste:', error)
     alert('Der opstod en fejl under oprettelsen af tjeklisten: ' + error.message)
   }
 }

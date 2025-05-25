@@ -83,7 +83,6 @@ export const useEnhedStore = defineStore('enhedStore', () => {
         underenheder: doc.data().underenheder
       }))
     } catch (err) {
-      console.error('Error fetching enheder:', err)
       error.value = err
     } finally {
       loading.value = false
@@ -92,7 +91,6 @@ export const useEnhedStore = defineStore('enhedStore', () => {
 
   const addEnhed = async (enhed) => {
     try {
-      console.log('Adding enhed to Firestore:', enhed)
       const docRef = await addDoc(collection(db, 'Enheder'), {
         enhedsNavn: enhed.name,
         beskrivelse: enhed.description,
@@ -100,7 +98,6 @@ export const useEnhedStore = defineStore('enhedStore', () => {
         type: enhed.type,
         createdAt: new Date()
       })
-      console.log('Successfully added enhed with ID:', docRef.id)
 
       const newEnhed = {
         id: docRef.id,
@@ -142,7 +139,6 @@ export const useEnhedStore = defineStore('enhedStore', () => {
 
   const addGruppe = async (gruppe) => {
     try {
-      console.log('Adding gruppe to Firestore:', gruppe)
       const docRef = await addDoc(collection(db, 'Enheder'), {
         enhedsNavn: gruppe.name,
         beskrivelse: gruppe.description,
@@ -151,7 +147,6 @@ export const useEnhedStore = defineStore('enhedStore', () => {
         underenheder: gruppe.underenheder,
         createdAt: new Date()
       })
-      console.log('Successfully added gruppe with ID:', docRef.id)
 
       const newGruppe = {
         id: docRef.id,
@@ -170,10 +165,8 @@ export const useEnhedStore = defineStore('enhedStore', () => {
   }
 
   const setupEnhederListener = () => {
-    console.log('Setting up enheder listener...')
     return onSnapshot(collection(db, 'Enheder'),
       (snapshot) => {
-        console.log('Received Firestore update, docs:', snapshot.docs.length)
         const newEnheder = snapshot.docs.map(doc => ({
           id: doc.id,
           name: doc.data().enhedsNavn,
@@ -182,11 +175,9 @@ export const useEnhedStore = defineStore('enhedStore', () => {
           type: doc.data().type,
           underenheder: doc.data().underenheder
         }))
-        console.log('Updated local state with enheder:', newEnheder)
         enheder.value = newEnheder
       },
       (err) => {
-        console.error('Error in enheder listener:', err)
         error.value = err
       }
     )

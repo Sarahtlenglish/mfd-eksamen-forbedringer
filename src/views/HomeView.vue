@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import CalendarComponent from '@/components/calendar/CalendarComponent.vue'
 import ButtonComponent from '@/components/ui/ButtonComponent.vue'
 import DetailPanel from '@/components/panels/DetailPanelComponent.vue'
@@ -26,10 +26,6 @@ const calendarTasks = computed(() => {
   )
 })
 
-watch(calendarTasks, (val) => {
-  console.log('calendarTasks changed:', val)
-})
-
 const selectedItem = ref(null)
 const selectedTaskId = ref(null)
 const selectedTask = computed(() => {
@@ -47,7 +43,6 @@ onMounted(async () => {
   await egenkontrolStore.fetchEgenkontroller()
   unsubscribe = egenkontrolStore.setupEgenkontrollerListener()
   await enhedStore.fetchEnheder()
-  console.log('Calendar tasks in HomeView:', calendarTasks.value)
 })
 
 onUnmounted(() => {

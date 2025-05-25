@@ -81,20 +81,16 @@ const { handleDelete } = useDeleteHandler({
 })
 
 watch(() => enhedStore.enheder, (newEnheder) => {
-  console.log('EnhederView: Store enheder updated:', newEnheder)
   enhederData.value = [...newEnheder]
 }, { deep: true, immediate: true })
 
 let unsubscribe
 onMounted(async () => {
-  console.log('EnhederView: Setting up Firestore listener')
   unsubscribe = enhedStore.setupEnhederListener()
-  // Fetch initial data
   await enhedStore.fetchEnheder()
 })
 
 onUnmounted(() => {
-  console.log('EnhederView: Cleaning up Firestore listener')
   if (unsubscribe) {
     unsubscribe()
   }

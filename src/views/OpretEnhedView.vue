@@ -129,8 +129,6 @@ const handleFormUpdate = (newFormData) => {
 
 const handleComplete = async () => {
   try {
-    console.log('Form data before submission:', formData)
-
     const enhedData = {
       name: formData.enhedType === 'gruppe' ? formData.gruppeTitel : formData.enhedNavn,
       description: formData.enhedType === 'gruppe' ? formData.gruppeBeskrivelse : formData.beskrivelse,
@@ -138,20 +136,15 @@ const handleComplete = async () => {
       type: formData.enhedType === 'gruppe' ? 'Gruppe' : 'single'
     }
 
-    console.log('Prepared enhed data:', enhedData)
-
     if (formData.enhedType === 'gruppe') {
       enhedData.underenheder = formData.underenheder
-      console.log('Adding gruppe:', enhedData)
       await enhedStore.addGruppe(enhedData)
     } else {
-      console.log('Adding single enhed:', enhedData)
       await enhedStore.addEnhed(enhedData)
     }
 
     router.push('/enheder')
   } catch (error) {
-    console.error('Error creating enhed:', error)
     alert('Der opstod en fejl ved oprettelse af enheden: ' + error.message)
   }
 }

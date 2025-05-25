@@ -88,8 +88,6 @@ const handleFormUpdate = (newFormData) => {
 
 const handleComplete = async () => {
   try {
-    console.log('Complete form with data:', formData)
-
     const newBruger = {
       fuldeNavn: formData.fuldeNavn,
       rolle: formData.rolle,
@@ -103,15 +101,12 @@ const handleComplete = async () => {
 
     try {
       await brugerStore.addBruger(newBruger)
-      console.log('New user added to store:', newBruger)
 
       router.push('/brugere')
     } catch (error) {
-      console.error('Error adding user to store:', error)
       alert('Der opstod en fejl ved oprettelse af brugeren: ' + error.message)
     }
   } catch (error) {
-    console.error('Error in form completion:', error)
     alert('Der opstod en fejl ved håndtering af formulardata: ' + error.message)
   }
 }

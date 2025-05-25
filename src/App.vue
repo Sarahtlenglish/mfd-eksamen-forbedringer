@@ -35,7 +35,6 @@ onMounted(async () => {
       enhedStore.fetchEnheder(),
       tjeklisteStore.fetchTjeklister()
     ])
-    console.log('All initial data loaded successfully')
   } catch (error) {
     console.error('Error loading initial data:', error)
   }

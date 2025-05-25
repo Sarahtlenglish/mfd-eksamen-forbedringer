@@ -116,7 +116,6 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
       await ensureFutureTasks()
       await updateStatusesBasedOnDate()
     } catch (err) {
-      console.error('Error fetching egenkontroller:', err)
       error.value = err
     } finally {
       loading.value = false
@@ -130,7 +129,6 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
           id: doc.id,
           ...doc.data()
         }))
-        console.log('Firestore listener fired!', egenkontroller)
         egenkontrollerData.value = egenkontroller
       },
       (err) => {
@@ -141,7 +139,6 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
   }
 
   const addEgenkontrol = async (egenkontrol) => {
-    console.log('Submitting egenkontrol:', egenkontrol)
     const tjeklisteStore = useTjeklisteStore()
     const tjeklisteId = egenkontrol.tjekliste || egenkontrol.checkliste
     const tjekliste = tjeklisteStore.getTjeklisteById(tjeklisteId)
@@ -150,9 +147,7 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
     }
     const startDato = egenkontrol.startDato || new Date().toISOString().split('T')[0]
     const frekvens = tjekliste.frekvens
-    console.log('Frekvens brugt til generateDateArray:', frekvens)
     const datoer = generateDateArray(startDato, frekvens, 10)
-    console.log('Datoer genereret til historik:', datoer)
     const historik = datoer.map(dato => ({
       dato,
       status: 'inaktiv',
@@ -181,10 +176,8 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
 
   const deleteEgenkontrol = async (id) => {
     try {
-      console.log('Deleting egenkontrol:', id)
       await deleteDoc(doc(db, 'Egenkontrol', id))
       egenkontrollerData.value = egenkontrollerData.value.filter(egenkontrol => egenkontrol.id !== id)
-      console.log('Successfully deleted egenkontrol:', id)
     } catch (err) {
       console.error('Error deleting tjekliste:', err)
       throw err

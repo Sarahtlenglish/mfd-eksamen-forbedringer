@@ -44,7 +44,6 @@ export const useBrugerStore = defineStore('bruger', () => {
         lederNavn: user.brugereRef ? brugerNavne.value[user.brugereRef] : null
       }))
     } catch (err) {
-      console.error('Error fetching brugere:', err)
       error.value = err
     } finally {
       loading.value = false
@@ -53,7 +52,6 @@ export const useBrugerStore = defineStore('bruger', () => {
 
   const addBruger = async (bruger) => {
     try {
-      console.log('Adding bruger to Firestore:', bruger)
       const docRef = await addDoc(collection(db, 'Brugere'), {
         adresse: bruger.adresse || '',
         brugereRef: bruger.brugereRef || '',
@@ -66,7 +64,6 @@ export const useBrugerStore = defineStore('bruger', () => {
         telefon: bruger.telefon || '',
         createdAt: new Date()
       })
-      console.log('Successfully added bruger with ID:', docRef.id)
       return docRef.id
     } catch (err) {
       console.error('Error adding bruger:', err)
@@ -109,10 +106,8 @@ export const useBrugerStore = defineStore('bruger', () => {
   }
 
   const setupBrugereListener = () => {
-    console.log('Setting up brugere listener...')
     return onSnapshot(collection(db, 'Brugere'),
       (snapshot) => {
-        console.log('Received Firestore update, docs:', snapshot.docs.length)
         const users = snapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data()
@@ -128,7 +123,6 @@ export const useBrugerStore = defineStore('bruger', () => {
         }))
       },
       (err) => {
-        console.error('Error in brugere listener:', err)
         error.value = err
       }
     )
