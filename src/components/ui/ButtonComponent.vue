@@ -77,6 +77,69 @@ defineEmits(['click'])
 	</button>
 </template>
 
+<<<<<<< Updated upstream
+=======
+<script setup>
+import { computed, useSlots } from 'vue'
+
+defineProps({
+  // Variant type
+  variant: {
+    type: String,
+    default: 'primary',
+    validator: value => ['primary', 'secondary', 'tertiary'].includes(value)
+  },
+
+  size: {
+    type: String,
+    default: 'medium',
+    validator: value => ['small', 'medium'].includes(value)
+  },
+  // Button type
+  type: {
+    type: String,
+    default: 'button',
+    validator: value => ['button', 'submit', 'reset'].includes(value)
+  },
+  // Disabled state
+  disabled: {
+    type: Boolean,
+    default: false
+  },
+  // Icon placement
+  iconAfter: {
+    type: Boolean,
+    default: false
+  },
+  // Full width button
+  fullWidth: {
+    type: Boolean,
+    default: false
+  },
+  // No padding (only for tertiary variant)
+  noPadding: {
+    type: Boolean,
+    default: false
+  },
+  // Delete style (only for tertiary variant)
+  isDelete: {
+    type: Boolean,
+    default: false
+  }
+})
+
+// Access slots to check if icon exists
+const slots = useSlots()
+
+// Computed property to check if icon slot is provided
+const hasIcon = computed(() => {
+  return !!slots.icon
+})
+
+defineEmits(['click'])
+</script>
+
+>>>>>>> Stashed changes
 <style lang="scss" scoped>
 @use '@/assets/variables' as *;
 @use '@/assets/icons' as *;

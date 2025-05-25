@@ -1,3 +1,488 @@
+<script setup>
+import { ref, computed } from 'vue'
+import ButtonComponent from '../components/ui/ButtonComponent.vue'
+import InputComponent from '../components/ui/InputComponent.vue'
+import DropdownComponent from '../components/ui/DropdownComponent.vue'
+import FilterButtonComponent from '../components/ui/FilterButtonComponent.vue'
+import BannerComponent from '../components/ui/BannerComponent.vue'
+import CalendarComponent from '../components/calendar/CalendarComponent.vue'
+import CalendarDayTask from '../components/calendar/CalendarDayTask.vue'
+import DetailPanelComponent from '../components/panels/DetailPanelComponent.vue'
+import {
+  IconPlus,
+  IconTrash,
+  IconPencil,
+  IconDownload,
+  IconCheck,
+  IconX
+} from '@tabler/icons-vue'
+import { formatDateToISO } from '@/utils/dateHelpers'
+
+// Tabs
+const activeTab = ref('buttons')
+const tabs = [
+  { label: 'Buttons', value: 'buttons' },
+  { label: 'Filter Button', value: 'filter' },
+  { label: 'Forms', value: 'forms' },
+  { label: 'Banners & Messaging', value: 'banners' },
+  { label: 'Calendar', value: 'calendar' },
+  { label: 'Paneler', value: 'panels' }
+]
+
+// Button component state
+const buttonText = ref('microcopy')
+const selectedVariant = ref('secondary')
+const selectedSize = ref('medium')
+const isFullWidth = ref(false)
+const hasIcon = ref(true)
+const isDisabled = ref(false)
+const noPadding = ref(false)
+const isDelete = ref(false)
+
+const variants = [
+  { label: 'Primary', value: 'primary' },
+  { label: 'Secondary', value: 'secondary' },
+  { label: 'Tertiary', value: 'tertiary' }
+]
+
+const sizes = [
+  { label: 'Small', value: 'small' },
+  { label: 'Medium', value: 'medium' }
+]
+
+const icons = [
+  { component: IconPlus, name: 'IconPlus' },
+  { component: IconTrash, name: 'IconTrash' },
+  { component: IconPencil, name: 'IconPencil' },
+  { component: IconDownload, name: 'IconDownload' },
+  { component: IconCheck, name: 'IconCheck' }
+]
+
+const selectedIcon = ref(icons[0])
+
+// Code example functionality
+const codeBlock = ref(null)
+const hasCopied = ref(false)
+
+const copyCodeToClipboard = () => {
+  if (codeBlock.value) {
+    const text = codeBlock.value.textContent
+    if (text) {
+      navigator.clipboard.writeText(text)
+      hasCopied.value = true
+      // Reset copied state after 2 seconds
+      setTimeout(() => {
+        hasCopied.value = false
+      }, 2000)
+    }
+  }
+}
+
+// Helper functions for dynamic content
+const hasComponentContent = () => {
+  return ['buttons', 'forms', 'filter', 'banners', 'calendar'].includes(activeTab.value)
+}
+
+const getComponentTitle = () => {
+  switch (activeTab.value) {
+    case 'buttons':
+      return 'Button Component'
+    case 'filter':
+      return 'Filter Button Component'
+    case 'forms':
+      return selectedFormType.value === 'input'
+        ? 'Input Component'
+        : 'Dropdown Component'
+    case 'banners':
+      return 'Banner Component'
+    case 'calendar':
+      return 'Calendar Component'
+    default:
+      return activeTab.value.charAt(0).toUpperCase() + activeTab.value.slice(1)
+  }
+}
+
+const getComponentDescription = () => {
+  switch (activeTab.value) {
+    case 'buttons':
+      return 'Buttons are used for actions, like submitting a form or clicking on a link. Buttons should communicate actions users can take.'
+    case 'filter':
+      return 'Filter Buttons are used for selecting options within predefined categories, often used in search interfaces or content filtering.'
+    case 'forms':
+      if (selectedFormType.value === 'input') {
+        return 'Input components are used for collecting user data, with various types for different data formats.'
+      } else {
+        return 'Dropdown components are used for selecting from a predefined list of options.'
+      }
+    case 'banners':
+      return 'Banners are used to display important messages, alerts or notifications to users. They can include links for additional actions.'
+    case 'calendar':
+      return 'Calendar component used for displaying and managing tasks, inspections, and other scheduled items with different status indicators.'
+    default:
+      return ''
+  }
+}
+
+// Form component state
+const selectedFormType = ref('input')
+const formTypes = [
+  { label: 'Input', value: 'input' },
+  { label: 'Dropdown', value: 'dropdown' }
+]
+
+const formLabelText = ref('Label')
+const formPlaceholder = ref('Placeholder')
+const formShowDescription = ref(false)
+const formRequired = ref(true)
+const formHasError = ref(false)
+const formDisabled = ref(false)
+const formValue = computed(() => {
+  // Automatisk sæt en værdi når password er valgt for at vise ikoner
+  if (selectedInputType.value === 'password') {
+    return 'password123'
+  }
+  return ''
+})
+const selectedDropdownValue = ref('')
+
+// Input specific props
+const selectedInputType = ref('text')
+const inputTypes = [
+  { label: 'Text', value: 'text' },
+  { label: 'Email', value: 'email' },
+  { label: 'Password', value: 'password' },
+  { label: 'Search', value: 'search' }
+]
+
+// Dropdown props
+const dropdownOptions = ref(['Body 2 (Regular)', 'Body 2 (Regular)', 'Body 2 (Regular)'])
+
+// Filter button props
+const filterButtonText = ref('Filter Button')
+const isFilterActive = ref(false)
+const isFilterDisabled = ref(false)
+const isFilterFullWidth = ref(false)
+const showFilterIcon = ref(true)
+
+// Banner component props
+const bannerText = ref('Dette skema vil blive oprettet uden en checkliste.')
+const bannerVariant = ref('warning')
+const bannerLink = ref('#')
+const bannerLinkText = ref('Opsæt Checkliste')
+const bannerShowLink = ref(true)
+const bannerLinkBreak = ref(false)
+
+// Banner variants
+const bannerVariants = [
+  { label: 'Warning', value: 'warning' },
+  { label: 'Error', value: 'error' },
+  { label: 'Success', value: 'success' }
+]
+
+// Toggle filter active state
+const toggleFilterActive = () => {
+  if (!isFilterDisabled.value) {
+    isFilterActive.value = !isFilterActive.value
+  }
+}
+
+const addDropdownOption = () => {
+  dropdownOptions.value.push('New Option')
+}
+
+const removeDropdownOption = (index) => {
+  dropdownOptions.value.splice(index, 1)
+}
+
+// Calendar component state
+// Add state for calendar task demo
+const taskVariants = [
+  { label: 'Aktiv', value: 'aktiv' },
+  { label: 'Inaktiv', value: 'inaktiv' },
+  { label: 'Udført', value: 'udført' },
+  { label: 'Afvigelse', value: 'afvigelse' },
+  { label: 'Overskredet', value: 'overskredet' }
+]
+
+const selectedTaskVariant = ref('aktiv')
+const taskTitle = ref('Egenkontrol')
+const taskDetails = ref('Details/lokation')
+const showTaskDetails = ref(false)
+
+// Add calendar subtabs
+const calendarSubtabs = [
+  { label: 'Full Calendar', value: 'fullCalendar' },
+  { label: 'Calendar Task', value: 'calendarTasks' }
+]
+const activeCalendarSubtab = ref('fullCalendar')
+
+// Interactive calendar vars
+const calendarTaskTitle = ref('Egenkontrol')
+const selectedCalendarTaskVariant = ref('aktiv')
+const calendarTasks = ref({}) // Object with date strings as keys and arrays of tasks as values
+
+// Function to add a task to the calendar when a date is clicked
+const addTaskToCalendar = (date) => {
+  if (!calendarTaskTitle.value.trim()) {
+    return // Don't add empty tasks
+  }
+  const dateStr = formatDateToISO(date)
+  const newTask = {
+    id: Date.now(), // Generate a unique ID based on timestamp
+    title: calendarTaskTitle.value,
+    details: '', // No details needed
+    status: selectedCalendarTaskVariant.value
+  }
+  if (!calendarTasks.value[dateStr]) {
+    calendarTasks.value[dateStr] = []
+  }
+  calendarTasks.value[dateStr].push(newTask)
+  // Use spread operator to trigger reactivity
+  calendarTasks.value = { ...calendarTasks.value }
+}
+
+// Dynamic code example generation based on active component
+const getCodeExample = () => {
+  if (activeTab.value === 'buttons') {
+    const props = []
+
+    if (selectedVariant.value !== 'primary') {
+      props.push(`variant="${selectedVariant.value}"`)
+    }
+
+    if (selectedSize.value !== 'medium') {
+      props.push(`size="${selectedSize.value}"`)
+    }
+
+    if (isFullWidth.value) {
+      props.push(':full-width="true"')
+    }
+
+    if (isDisabled.value) {
+      props.push(':disabled="true"')
+    }
+
+    if (noPadding.value) {
+      props.push(':no-padding="true"')
+    }
+
+    if (isDelete.value) {
+      props.push(':is-delete="true"')
+    }
+
+    const propsStr = props.length ? props.join('\n  ') : ''
+
+    if (hasIcon.value) {
+      return `<ButtonComponent
+  ${propsStr}
+>
+  <template #icon>
+    <${selectedIcon.value.name} />
+  </template>
+  ${buttonText.value}
+</ButtonComponent>`
+    } else {
+      return `<ButtonComponent
+  ${propsStr}
+>
+  ${buttonText.value}
+</ButtonComponent>`
+    }
+  } else if (activeTab.value === 'filter') {
+    const props = []
+
+    if (filterButtonText.value) {
+      props.push(`text="${filterButtonText.value}"`)
+    }
+
+    if (isFilterActive.value) {
+      props.push(':active="true"')
+    }
+
+    if (isFilterDisabled.value) {
+      props.push(':disabled="true"')
+    }
+
+    if (isFilterFullWidth.value) {
+      props.push(':full-width="true"')
+    }
+
+    if (!showFilterIcon.value) {
+      props.push(':show-icon="false"')
+    }
+
+    const propsStr = props.length ? props.join('\n  ') : ''
+
+    return `<FilterButtonComponent
+  ${propsStr}
+  @click="handleFilterClick"
+/>`
+  } else if (activeTab.value === 'forms' && selectedFormType.value === 'input') {
+    // Input component code example generation
+    const props = []
+
+    props.push(`label="${formLabelText.value}"`)
+
+    if (formShowDescription.value) {
+      props.push('description="This is a helper text for the input field"')
+    }
+
+    props.push(`placeholder="${formPlaceholder.value}"`)
+
+    if (formRequired.value) {
+      props.push(':required="true"')
+    }
+
+    if (selectedInputType.value !== 'text') {
+      props.push(`type="${selectedInputType.value}"`)
+    }
+
+    if (formDisabled.value) {
+      props.push(':disabled="true"')
+    }
+
+    if (formHasError.value) {
+      props.push(':has-error="true"')
+      props.push('error-message="Error message"')
+    }
+
+    const propsStr = props.join('\n  ')
+
+    return `<InputComponent
+  ${propsStr}
+  v-model="value"
+/>`
+  } else if (activeTab.value === 'forms' && selectedFormType.value === 'dropdown') {
+    // Dropdown component code example generation
+    const props = []
+
+    props.push(`label="${formLabelText.value}"`)
+
+    if (formShowDescription.value) {
+      props.push('description="This is a helper text for the dropdown field"')
+    }
+
+    props.push(`placeholder="${formPlaceholder.value}"`)
+
+    if (formRequired.value) {
+      props.push(':required="true"')
+    }
+
+    if (formDisabled.value) {
+      props.push(':disabled="true"')
+    }
+
+    if (formHasError.value) {
+      props.push(':has-error="true"')
+      props.push('error-message="Error message"')
+    }
+
+    props.push(':options="[\'Option 1\', \'Option 2\', \'Option 3\', \'Option 4\']"')
+
+    const propsStr = props.join('\n  ')
+
+    return `<DropdownComponent
+  ${propsStr}
+  v-model="value"
+/>`
+  } else if (activeTab.value === 'banners') {
+    const props = []
+    props.push(`variant="${bannerVariant.value}"`)
+    if (bannerText.value !== 'Dette skema vil blive oprettet uden en checkliste.') {
+      props.push(`text="${bannerText.value}"`)
+    }
+    if (bannerShowLink.value) {
+      props.push('link="#"')
+      if (bannerLinkText.value !== 'Opsæt Checkliste') {
+        props.push(`link-text="${bannerLinkText.value}"`)
+      }
+      if (bannerLinkBreak.value) {
+        props.push(':link-break="true"')
+      }
+    }
+    const propsStr = props.join('\n  ')
+    return `<BannerComponent
+  ${propsStr}
+/>`
+  } else if (activeTab.value === 'calendar') {
+    // Calendar component code example generation
+    if (activeCalendarSubtab.value === 'fullCalendar') {
+      const props = []
+      if (Object.keys(calendarTasks.value).length > 0) {
+        props.push(':customTasks="calendarTasks"')
+      }
+      const propsStr = props.length ? props.join('\n  ') : ''
+      return `<CalendarComponent${propsStr ? '\n  ' + propsStr : ''} />`
+    } else {
+      const props = []
+      props.push(`title="${taskTitle.value}"`)
+      if (showTaskDetails.value) {
+        props.push(`details="${taskDetails.value}"`)
+      }
+      if (selectedTaskVariant.value !== 'normal') {
+        props.push(`status="${selectedTaskVariant.value}"`)
+      }
+      const propsStr = props.length ? props.join('\n  ') : ''
+      return `<CalendarDayTask\n  ${propsStr}\n/>`
+    }
+  }
+
+  return '// Code example will appear here'
+}
+
+// Tilføj en computed property der bestemmer om container skal have fuld bredde
+const isFullWidthContainer = computed(() => {
+  return false // No component should have full width now
+})
+
+// Add function to get status label in Danish
+const getStatusLabel = (status) => {
+  switch (status) {
+    case 'normal': return 'Normal'
+    case 'warning': return 'Advarsel'
+    case 'error': return 'Fejl'
+    default: return status
+  }
+}
+
+// Playground state for DetailPanelComponent
+const showPanel = ref(true)
+const panelContext = ref('calendar')
+const panelContexts = [
+  { label: 'Calendar', value: 'calendar' },
+  { label: 'Egenkontroller', value: 'egenkontroller' },
+  { label: 'Enheder', value: 'enheder' },
+  { label: 'Tjeklister', value: 'tjeklister' },
+  { label: 'Brugere', value: 'brugere' }
+]
+const showBackButton = ref(true)
+const showEditButton = ref(true)
+const showDeleteButton = ref(true)
+const isCreationMode = ref(false)
+const customTitle = ref('')
+// Dummy data for each context
+const panelItems = {
+  calendar: { date: new Date() },
+  egenkontroller: { navn: 'Egenkontrol A', id: 1 },
+  enheder: { name: 'Enhed 1', location: 'Bygning A', type: 'Gruppe' },
+  tjeklister: { tjeklisteNavn: 'Tjekliste 1', id: 2 },
+  brugere: { fuldeNavn: 'Fulde navn', id: 3 }
+}
+const panelItem = computed(() => panelItems[panelContext.value])
+// Playground kodeeksempel
+const getPanelCodeExample = computed(() => {
+  let props = [
+    `context='${panelContext.value}'`,
+    ':item=\'item\''
+  ]
+  if (!showBackButton.value) props.push(':showBackButton="false"')
+  if (!showEditButton.value) props.push(':showEditButton="false"')
+  if (!showDeleteButton.value) props.push(':showDeleteButton="false"')
+  if (isCreationMode.value) props.push(':isCreationMode="true"')
+  if (customTitle.value) props.push(`customTitle='${customTitle.value}'`)
+  return `<DetailPanelComponent\n  ${props.join('\n  ')}\n/>`
+})
+</script>
 <template>
 	<div class="component-view">
 		<header class="main-header">
@@ -22,7 +507,50 @@
 			</div>
 
 			<!-- If the component tab has content -->
-			<div v-if="hasComponentContent()" class="component-playground">
+			<div v-if="activeTab === 'panels'">
+				<div class="panel-playground-layout">
+					<div class="panel-playground-controls">
+						<h3>Panel Playground</h3>
+						<label>Context:</label>
+						<select v-model="panelContext">
+							<option v-for="ctx in panelContexts" :key="ctx.value" :value="ctx.value">{{ ctx.label }}</option>
+						</select>
+						<label><input type="checkbox" v-model="showBackButton"> showBackButton</label>
+						<label><input type="checkbox" v-model="showEditButton"> showEditButton</label>
+						<label><input type="checkbox" v-model="showDeleteButton"> showDeleteButton</label>
+						<label><input type="checkbox" v-model="isCreationMode"> isCreationMode</label>
+						<label>customTitle:</label>
+						<input type="text" v-model="customTitle" placeholder="Custom title..." />
+						<button @click="showPanel = !showPanel" class="control-btn">
+							{{ showPanel ? 'Luk panel' : 'Vis panel' }}
+						</button>
+						<div class="component-code">
+							<div class="code-header">
+								<h3>Code Example</h3>
+								<button class="copy-btn" @click="copyCodeToClipboard" title="Copy to clipboard">
+									<component :is="hasCopied ? IconCheck : IconDownload" class="copy-icon" />
+									<span>{{ hasCopied ? 'Copied!' : 'Copy' }}</span>
+								</button>
+							</div>
+							<pre ref="codeBlock"><code>{{ getPanelCodeExample }}</code></pre>
+						</div>
+					</div>
+					<div class="panel-playground-panel">
+						<DetailPanelComponent
+							v-if="showPanel"
+							:context="panelContext"
+							:item="panelItem"
+							:showBackButton="showBackButton"
+							:showEditButton="showEditButton"
+							:showDeleteButton="showDeleteButton"
+							:isCreationMode="isCreationMode"
+							:customTitle="customTitle"
+							@close="showPanel = false"
+						/>
+					</div>
+				</div>
+			</div>
+			<div v-else-if="hasComponentContent()" class="component-playground">
 				<!-- Preview Section -->
 					<div class="component-preview">
 					<div class="preview-container">
@@ -186,13 +714,49 @@
 									</div>
 								</div>
 							</div>
+						</div>
 
-							<p class="info-text">
-								{{ activeCalendarSubtab === 'fullCalendar'
-									? 'Interaktiv kalender til visning og navigation mellem måneder.'
-									: 'Calendar task komponenter til visning af opgaver med forskellige status.'
-								}}
-							</p>
+						<!-- Detail Panel Preview -->
+						<div v-if="activeTab === 'panels'" class="panel-playground-layout">
+							<div class="panel-playground-controls">
+								<h3>Panel Playground</h3>
+								<label>Context:</label>
+								<select v-model="panelContext">
+									<option v-for="ctx in panelContexts" :key="ctx.value" :value="ctx.value">{{ ctx.label }}</option>
+								</select>
+								<label><input type="checkbox" v-model="showBackButton"> showBackButton</label>
+								<label><input type="checkbox" v-model="showEditButton"> showEditButton</label>
+								<label><input type="checkbox" v-model="showDeleteButton"> showDeleteButton</label>
+								<label><input type="checkbox" v-model="isCreationMode"> isCreationMode</label>
+								<label>customTitle:</label>
+								<input type="text" v-model="customTitle" placeholder="Custom title..." />
+								<button @click="showPanel = !showPanel" class="control-btn">
+									{{ showPanel ? 'Luk panel' : 'Vis panel' }}
+								</button>
+								<div class="component-code">
+									<div class="code-header">
+										<h3>Code Example</h3>
+										<button class="copy-btn" @click="copyCodeToClipboard" title="Copy to clipboard">
+											<component :is="hasCopied ? IconCheck : IconDownload" class="copy-icon" />
+											<span>{{ hasCopied ? 'Copied!' : 'Copy' }}</span>
+										</button>
+									</div>
+									<pre ref="codeBlock"><code>{{ getPanelCodeExample }}</code></pre>
+								</div>
+							</div>
+							<div class="panel-playground-panel">
+								<DetailPanelComponent
+									v-if="showPanel"
+									:context="panelContext"
+									:item="panelItem"
+									:showBackButton="showBackButton"
+									:showEditButton="showEditButton"
+									:showDeleteButton="showDeleteButton"
+									:isCreationMode="isCreationMode"
+									:customTitle="customTitle"
+									@close="showPanel = false"
+								/>
+							</div>
 						</div>
 					</div>
 					</div>
@@ -473,70 +1037,10 @@
 						</div>
 					</template>
 
-          <!-- Navigation tab -->
-					<template v-if="activeTab === 'navigation'">
-            <div class="control-group">
-              <label class="control-label">View</label>
-              <div class="calendar-subtabs">
-                <button
-                  v-for="subtab in navigationSubtabs"
-                  :key="subtab.value"
-                  @click="activeNavigationSubtab = subtab.value"
-                  :class="['control-btn', { active: activeNavigationSubtab === subtab.value }]"
-                >
-                  {{ subtab.label }}
-                </button>
-              </div>
-            </div>
-            <div class="">
-              <!-- Side Navigation Display -->
-              <template v-if="activeNavigationSubtab === 'sideNavigation'">
-                <div class="control-group">
-                  <label class="control-label">Component Preview</label>
-                  <div class="preview-container navigation-preview-wrapper">
-                    <div class="side-navigation-container">
-                      <SideNavigationComponent class="static-nav" />
-                    </div>
-                  </div>
-                </div>
-              </template>
-
-              <!-- Header Display -->
-              <template v-else-if="activeNavigationSubtab === 'header'">
-                <div class="control-group">
-                  <label class="control-label">Component Preview</label>
-                  <div class="preview-container">
-                    <div class="header-container">
-                      <HeaderComponent class="static-header" />
-                    </div>
-                  </div>
-                </div>
-              </template>
-
-              <!-- Styling Display -->
-              <template v-else-if="activeNavigationSubtab === 'styling'">
-                <div class="control-group">
-                  <label class="control-label">Navigation States</label>
-                  <div class="style-samples">
-                    <div class="menu-item">Normal State</div>
-                    <div class="menu-item">Hover State</div>
-                    <div class="menu-item active">Active State</div>
-                  </div>
-                </div>
-              </template>
-            </div>
-          </template>
-
 					<!-- Calendar Controls -->
 					<template v-if="activeTab === 'calendar'">
 						<div class="control-grid">
 							<div class="control-group">
-								<p class="info-text">
-									{{ activeCalendarSubtab === 'fullCalendar'
-										? 'Interaktiv kalender til visning og navigation mellem måneder.'
-										: 'Calendar task komponenter til visning af opgaver med forskellige status.'
-									}}
-								</p>
 							</div>
 
 							<!-- Show controls only for calendar tasks -->
@@ -611,479 +1115,6 @@
 	</div>
 </template>
 
-<script setup>
-import { ref, computed } from 'vue'
-import ButtonComponent from '../components/ui/ButtonComponent.vue'
-import InputComponent from '../components/ui/InputComponent.vue'
-import DropdownComponent from '../components/ui/DropdownComponent.vue'
-import FilterButtonComponent from '../components/ui/FilterButtonComponent.vue'
-import BannerComponent from '../components/ui/BannerComponent.vue'
-import HeaderComponent from '../components/navigation/HeaderComponent.vue'
-import SideNavigationComponent from '../components/navigation/SideNavigationComponent.vue'
-import CalendarComponent from '../components/calendar/CalendarComponent.vue'
-import CalendarDayTask from '../components/calendar/CalendarDayTask.vue'
-import {
-  IconPlus,
-  IconTrash,
-  IconPencil,
-  IconDownload,
-  IconCheck,
-  IconX
-} from '@tabler/icons-vue'
-
-// Tabs
-const activeTab = ref('buttons')
-const tabs = [
-  { label: 'Logo', value: 'logo' },
-  { label: 'Buttons', value: 'buttons' },
-  { label: 'Filter Button', value: 'filter' },
-  { label: 'Navigation', value: 'navigation' },
-  { label: 'Forms', value: 'forms' },
-  { label: 'Tables', value: 'tables' },
-  { label: 'Modals & Pop-Ups', value: 'modals' },
-  { label: 'Banners & Messaging', value: 'banners' },
-  { label: 'Illustrations', value: 'illustrations' },
-  { label: 'Calendar', value: 'calendar' }
-]
-
-// Button component state
-const buttonText = ref('microcopy')
-const selectedVariant = ref('secondary')
-const selectedSize = ref('medium')
-const isFullWidth = ref(false)
-const hasIcon = ref(true)
-const isDisabled = ref(false)
-const noPadding = ref(false)
-const isDelete = ref(false)
-
-const variants = [
-  { label: 'Primary', value: 'primary' },
-  { label: 'Secondary', value: 'secondary' },
-  { label: 'Tertiary', value: 'tertiary' }
-]
-
-const sizes = [
-  { label: 'Small', value: 'small' },
-  { label: 'Medium', value: 'medium' }
-]
-
-const icons = [
-  { component: IconPlus, name: 'IconPlus' },
-  { component: IconTrash, name: 'IconTrash' },
-  { component: IconPencil, name: 'IconPencil' },
-  { component: IconDownload, name: 'IconDownload' },
-  { component: IconCheck, name: 'IconCheck' }
-]
-
-const selectedIcon = ref(icons[0])
-
-// Code example functionality
-const codeBlock = ref(null)
-const hasCopied = ref(false)
-
-const copyCodeToClipboard = () => {
-  if (codeBlock.value) {
-    const text = codeBlock.value.textContent
-    if (text) {
-      navigator.clipboard.writeText(text)
-      hasCopied.value = true
-      // Reset copied state after 2 seconds
-      setTimeout(() => {
-        hasCopied.value = false
-      }, 2000)
-    }
-  }
-}
-
-// Helper functions for dynamic content
-const hasComponentContent = () => {
-  return ['buttons', 'forms', 'filter', 'banners', 'navigation', 'calendar'].includes(activeTab.value)
-}
-
-const getComponentTitle = () => {
-  switch (activeTab.value) {
-    case 'buttons':
-      return 'Button Component'
-    case 'filter':
-      return 'Filter Button Component'
-    case 'forms':
-      return selectedFormType.value === 'input'
-        ? 'Input Component'
-        : 'Dropdown Component'
-    case 'banners':
-      return 'Banner Component'
-    case 'calendar':
-      return 'Calendar Component'
-    case 'navigation':
-      if (activeNavigationSubtab.value === 'sideNavigation') {
-        return 'Side Navigation Component'
-      } else if (activeNavigationSubtab.value === 'header') {
-        return 'Header Component'
-      } else {
-        return 'Navigation Styling'
-      }
-    default:
-      return activeTab.value.charAt(0).toUpperCase() + activeTab.value.slice(1)
-  }
-}
-
-const getComponentDescription = () => {
-  switch (activeTab.value) {
-    case 'buttons':
-      return 'Buttons are used for actions, like submitting a form or clicking on a link. Buttons should communicate actions users can take.'
-    case 'filter':
-      return 'Filter Buttons are used for selecting options within predefined categories, often used in search interfaces or content filtering.'
-    case 'forms':
-      if (selectedFormType.value === 'input') {
-        return 'Input components are used for collecting user data, with various types for different data formats.'
-      } else {
-        return 'Dropdown components are used for selecting from a predefined list of options.'
-      }
-    case 'banners':
-      return 'Banners are used to display important messages, alerts or notifications to users. They can include links for additional actions.'
-    case 'calendar':
-      return 'Calendar component used for displaying and managing tasks, inspections, and other scheduled items with different status indicators.'
-    case 'navigation':
-      if (activeNavigationSubtab.value === 'sideNavigation') {
-        return 'Side navigation component provides the main application navigation menu. It allows users to navigate between different sections of the application.'
-      } else if (activeNavigationSubtab.value === 'header') {
-        return 'Header component displays action buttons and user controls in the top bar of the application.'
-      } else {
-        return 'Styling options and states for navigation elements including hover and active states.'
-      }
-    default:
-      return ''
-  }
-}
-
-// Form component state
-const selectedFormType = ref('input')
-const formTypes = [
-  { label: 'Input', value: 'input' },
-  { label: 'Dropdown', value: 'dropdown' }
-]
-
-const formLabelText = ref('Label')
-const formPlaceholder = ref('Placeholder')
-const formShowDescription = ref(false)
-const formRequired = ref(true)
-const formHasError = ref(false)
-const formDisabled = ref(false)
-const formValue = computed(() => {
-  // Automatisk sæt en værdi når password er valgt for at vise ikoner
-  if (selectedInputType.value === 'password') {
-    return 'password123'
-  }
-  return ''
-})
-const selectedDropdownValue = ref('')
-
-// Input specific props
-const selectedInputType = ref('text')
-const inputTypes = [
-  { label: 'Text', value: 'text' },
-  { label: 'Email', value: 'email' },
-  { label: 'Password', value: 'password' },
-  { label: 'Search', value: 'search' }
-]
-
-// Dropdown props
-const dropdownOptions = ref(['Body 2 (Regular)', 'Body 2 (Regular)', 'Body 2 (Regular)'])
-
-// Filter button props
-const filterButtonText = ref('Filter Button')
-const isFilterActive = ref(false)
-const isFilterDisabled = ref(false)
-const isFilterFullWidth = ref(false)
-const showFilterIcon = ref(true)
-
-// Banner component props
-const bannerText = ref('Dette skema vil blive oprettet uden en checkliste.')
-const bannerVariant = ref('warning')
-const bannerLink = ref('#')
-const bannerLinkText = ref('Opsæt Checkliste')
-const bannerShowLink = ref(true)
-const bannerLinkBreak = ref(false)
-
-// Banner variants
-const bannerVariants = [
-  { label: 'Warning', value: 'warning' },
-  { label: 'Error', value: 'error' },
-  { label: 'Success', value: 'success' }
-]
-
-// Toggle filter active state
-const toggleFilterActive = () => {
-  if (!isFilterDisabled.value) {
-    isFilterActive.value = !isFilterActive.value
-  }
-}
-
-const addDropdownOption = () => {
-  dropdownOptions.value.push('New Option')
-}
-
-const removeDropdownOption = (index) => {
-  dropdownOptions.value.splice(index, 1)
-}
-
-// navigation & header
-const navigationSubtabs = [
-  { label: 'Side Navigation', value: 'sideNavigation' },
-  { label: 'Header', value: 'header' },
-  { label: 'Styling', value: 'styling' }
-]
-const activeNavigationSubtab = ref('sideNavigation')
-
-// Calendar component state
-// Add state for calendar task demo
-const taskVariants = [
-  { label: 'Normal', value: 'normal' },
-  { label: 'Warning', value: 'warning' },
-  { label: 'Error', value: 'error' }
-]
-
-const selectedTaskVariant = ref('normal')
-const taskTitle = ref('Egenkontrol')
-const taskDetails = ref('Details/lokation')
-const showTaskDetails = ref(false)
-
-// Add calendar subtabs
-const calendarSubtabs = [
-  { label: 'Full Calendar', value: 'fullCalendar' },
-  { label: 'Calendar Task', value: 'calendarTasks' }
-]
-const activeCalendarSubtab = ref('fullCalendar')
-
-// Interactive calendar vars
-const calendarTaskTitle = ref('Egenkontrol')
-const calendarTaskDetails = ref('Bygning A, 1. sal')
-const calendarShowTaskDetails = ref(true)
-const selectedCalendarTaskVariant = ref('normal')
-const calendarTasks = ref({}) // Object with date strings as keys and arrays of tasks as values
-
-// Function to add a task to the calendar when a date is clicked
-const addTaskToCalendar = (date) => {
-  if (!calendarTaskTitle.value.trim()) {
-    return // Don't add empty tasks
-  }
-  const dateStr = date.toISOString().split('T')[0]
-  const newTask = {
-    id: Date.now(), // Generate a unique ID based on timestamp
-    title: calendarTaskTitle.value,
-    details: '', // No details needed
-    status: selectedCalendarTaskVariant.value
-  }
-  if (!calendarTasks.value[dateStr]) {
-    calendarTasks.value[dateStr] = []
-  }
-  calendarTasks.value[dateStr].push(newTask)
-  // Use spread operator to trigger reactivity
-  calendarTasks.value = { ...calendarTasks.value }
-}
-
-// Dynamic code example generation based on active component
-const getCodeExample = () => {
-  if (activeTab.value === 'buttons') {
-    const props = []
-
-    if (selectedVariant.value !== 'primary') {
-      props.push(`variant="${selectedVariant.value}"`)
-    }
-
-    if (selectedSize.value !== 'medium') {
-      props.push(`size="${selectedSize.value}"`)
-    }
-
-    if (isFullWidth.value) {
-      props.push(':full-width="true"')
-    }
-
-    if (isDisabled.value) {
-      props.push(':disabled="true"')
-    }
-
-    if (noPadding.value) {
-      props.push(':no-padding="true"')
-    }
-
-    if (isDelete.value) {
-      props.push(':is-delete="true"')
-    }
-
-    const propsStr = props.length ? props.join('\n  ') : ''
-
-    if (hasIcon.value) {
-      return `<ButtonComponent
-  ${propsStr}
->
-  <template #icon>
-    <${selectedIcon.value.name} />
-  </template>
-  ${buttonText.value}
-</ButtonComponent>`
-    } else {
-      return `<ButtonComponent
-  ${propsStr}
->
-  ${buttonText.value}
-</ButtonComponent>`
-    }
-  } else if (activeTab.value === 'filter') {
-    const props = []
-
-    if (filterButtonText.value) {
-      props.push(`text="${filterButtonText.value}"`)
-    }
-
-    if (isFilterActive.value) {
-      props.push(':active="true"')
-    }
-
-    if (isFilterDisabled.value) {
-      props.push(':disabled="true"')
-    }
-
-    if (isFilterFullWidth.value) {
-      props.push(':full-width="true"')
-    }
-
-    if (!showFilterIcon.value) {
-      props.push(':show-icon="false"')
-    }
-
-    const propsStr = props.length ? props.join('\n  ') : ''
-
-    return `<FilterButtonComponent
-  ${propsStr}
-  @click="handleFilterClick"
-/>`
-  } else if (activeTab.value === 'forms' && selectedFormType.value === 'input') {
-    // Input component code example generation
-    const props = []
-
-    props.push(`label="${formLabelText.value}"`)
-
-    if (formShowDescription.value) {
-      props.push('description="This is a helper text for the input field"')
-    }
-
-    props.push(`placeholder="${formPlaceholder.value}"`)
-
-    if (formRequired.value) {
-      props.push(':required="true"')
-    }
-
-    if (selectedInputType.value !== 'text') {
-      props.push(`type="${selectedInputType.value}"`)
-    }
-
-    if (formDisabled.value) {
-      props.push(':disabled="true"')
-    }
-
-    if (formHasError.value) {
-      props.push(':has-error="true"')
-      props.push('error-message="Error message"')
-    }
-
-    const propsStr = props.join('\n  ')
-
-    return `<InputComponent
-  ${propsStr}
-  v-model="value"
-/>`
-  } else if (activeTab.value === 'forms' && selectedFormType.value === 'dropdown') {
-    // Dropdown component code example generation
-    const props = []
-
-    props.push(`label="${formLabelText.value}"`)
-
-    if (formShowDescription.value) {
-      props.push('description="This is a helper text for the dropdown field"')
-    }
-
-    props.push(`placeholder="${formPlaceholder.value}"`)
-
-    if (formRequired.value) {
-      props.push(':required="true"')
-    }
-
-    if (formDisabled.value) {
-      props.push(':disabled="true"')
-    }
-
-    if (formHasError.value) {
-      props.push(':has-error="true"')
-      props.push('error-message="Error message"')
-    }
-
-    props.push(':options="[\'Option 1\', \'Option 2\', \'Option 3\', \'Option 4\']"')
-
-    const propsStr = props.join('\n  ')
-
-    return `<DropdownComponent
-  ${propsStr}
-  v-model="value"
-/>`
-  } else if (activeTab.value === 'banners') {
-    const props = []
-    props.push(`variant="${bannerVariant.value}"`)
-    if (bannerText.value !== 'Dette skema vil blive oprettet uden en checkliste.') {
-      props.push(`text="${bannerText.value}"`)
-    }
-    if (bannerShowLink.value) {
-      props.push('link="#"')
-      if (bannerLinkText.value !== 'Opsæt Checkliste') {
-        props.push(`link-text="${bannerLinkText.value}"`)
-      }
-      if (bannerLinkBreak.value) {
-        props.push(':link-break="true"')
-      }
-    }
-    const propsStr = props.join('\n  ')
-    return `<BannerComponent
-  ${propsStr}
-/>`
-  } else if (activeTab.value === 'calendar') {
-    // Calendar component code example generation
-    if (activeCalendarSubtab.value === 'fullCalendar') {
-      return '<CalendarComponent />'
-    } else {
-      const props = []
-      props.push(`title="${taskTitle.value}"`)
-      if (showTaskDetails.value) {
-        props.push(`details="${taskDetails.value}"`)
-      }
-      if (selectedTaskVariant.value !== 'normal') {
-        props.push(`status="${selectedTaskVariant.value}"`)
-      }
-      const propsStr = props.length ? props.join('\n  ') : ''
-      return `<CalendarDayTask
-  ${propsStr}
-/>`
-    }
-  }
-
-  return '// Code example will appear here'
-}
-
-// Tilføj en computed property der bestemmer om container skal have fuld bredde
-const isFullWidthContainer = computed(() => {
-  return false // No component should have full width now
-})
-
-// Add function to get status label in Danish
-const getStatusLabel = (status) => {
-  switch (status) {
-    case 'normal': return 'Normal'
-    case 'warning': return 'Advarsel'
-    case 'error': return 'Fejl'
-    default: return status
-  }
-}
-</script>
-
 <style lang="scss" scoped>
 @use '@/assets/variables' as *;
 @use '@/assets/icons' as *;
@@ -1091,6 +1122,8 @@ const getStatusLabel = (status) => {
 .component-view {
 	min-height: 100vh;
 	background-color: #f5f5f5;
+	display: flex;
+	flex-direction: column;
 }
 
 .main-header {
@@ -1133,9 +1166,12 @@ const getStatusLabel = (status) => {
 }
 
 .component-container {
-	max-width: 1000px;
+	max-width: 2000px;
 	margin: 2rem auto;
 	padding: 0 1.5rem;
+	flex: 1 1 0;
+	display: flex;
+	flex-direction: column;
 
   &.full-width-container {
     max-width: 1000px; // Same as parent
@@ -1180,7 +1216,6 @@ const getStatusLabel = (status) => {
 	border-bottom: 1px solid $neutral-200;
 	max-width: 100%;
 	box-sizing: border-box;
-	overflow: hidden;
 }
 
 .preview-container {
@@ -1188,7 +1223,7 @@ const getStatusLabel = (status) => {
 	text-align: left;
 	max-width: 100%;
 	box-sizing: border-box;
-	overflow: hidden;
+	overflow: visible;
 }
 
 .preview-heading {
@@ -1448,23 +1483,28 @@ const getStatusLabel = (status) => {
 	justify-content: space-between;
 }
 
-.remove-btn {
+.remove-option-btn {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	border: none;
 	background: none;
+	border: none;
 	color: $error-base;
 	cursor: pointer;
-	padding: 0.25rem;
+	padding: 0.25rem 0.5rem;
+	border-radius: 4px;
+	transition: background 0.15s, color 0.15s;
+	margin-left: 0.5rem;
 
 	&:hover {
+		background: $error-100;
 		color: $error-600;
 	}
 
 	svg {
 		width: 1rem;
 		height: 1rem;
+		pointer-events: none;
 	}
 }
 
@@ -1780,5 +1820,106 @@ const getStatusLabel = (status) => {
   margin-top: $spacing-small;
   font-size: 0.875rem;
   color: $neutral-600;
+}
+
+.panel-playground-layout {
+  display: flex;
+  gap: 2rem;
+  align-items: stretch;
+  width: 60rem;
+  height: 100%;
+  min-height: 600px;
+}
+
+.panel-playground-controls,
+.panel-playground-panel {
+  flex: 0 0 50%;
+  max-width: 50%;
+  min-width: 0;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  height: 100%;
+  min-height: 0;
+  justify-content: flex-start;
+}
+
+.panel-playground-controls h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: $neutral-900;
+}
+
+.panel-playground-controls label {
+  font-size: 0.95rem;
+  color: $neutral-800;
+  margin-bottom: 0.25rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.panel-playground-controls select,
+.panel-playground-controls input[type='text'] {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid $neutral-300;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+  background: #fafbfc;
+}
+
+.panel-playground-controls input[type='checkbox'] {
+  accent-color: $secondary-500;
+  margin-right: 0.5rem;
+}
+
+.panel-playground-controls .control-btn {
+  padding: 0.5rem 0.75rem;
+  border: none;
+  background-color: $secondary-500;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  margin-top: 0.5rem;
+  transition: background 0.2s;
+}
+.panel-playground-controls .control-btn:hover {
+  background-color: $secondary-700;
+}
+
+.panel-code-example {
+  background: #18181b;
+  color: #f4f4f5;
+  border-radius: 6px;
+  padding: 1rem;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+  overflow-x: auto;
+}
+
+@media (max-width: 900px) {
+  .panel-playground-layout {
+    flex-direction: column;
+    height: auto;
+  }
+  .panel-playground-controls,
+  .panel-playground-panel {
+    max-width: 100%;
+    width: 100%;
+    min-width: 0;
+    position: static;
+    padding: 1rem 0.5rem;
+    height: auto;
+  }
 }
 </style>
