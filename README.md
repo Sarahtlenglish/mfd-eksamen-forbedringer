@@ -1,5 +1,9 @@
 # MFD-Eksamen
 
+> **Forudsætninger**  
+> - Node.js
+> - npm
+
 ## Projektopsætning
 Følg denne guide for at få projektet op at køre på din maskine.
 
@@ -7,10 +11,6 @@ Følg denne guide for at få projektet op at køre på din maskine.
 
 Trin 1: Klon projektet fra github
 Først skal du downloade eller klone projektet til din lokale maskine.
-
-### Forudsætninger
-- Node.js
-- npm
 
 ```bash
 git clone https://github.com/Mettelund97/mfd-eksamen.git
