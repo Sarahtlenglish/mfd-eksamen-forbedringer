@@ -1,12 +1,20 @@
-## MFD-Eksamen
+# MFD-Eksamen
 
-Projektopsætning
+## Projektopsætning
 Følg denne guide for at få projektet op at køre på din maskine.
 
 ## Installation
 
 Trin 1: Klon projektet fra github
 Først skal du downloade eller klone projektet til din lokale maskine.
+
+### Forudsætninger
+- Node.js
+- npm
+
+```bash
+git clone https://github.com/Mettelund97/mfd-eksamen.git
+```
 
 Trin 2: Installer alle afhængighederne
 Naviger til projektmappen i din terminal og kør følgende kommando for at installere alle nødvendige pakker:
@@ -15,18 +23,14 @@ Naviger til projektmappen i din terminal og kør følgende kommando for at insta
 npm install
 ```
 
-## Opstart af projekt
+## Udvikling
 
-Hvis du vil opstarte projektet lokalt på din maskine skal du bruge følgende kommando: 
-
+### Start udviklingsserver
 ```bash
 npm run dev
 ```
 
-## ESLint
-
-Hvis du også vil teste koden på ESLint kan du køre følgende kommando: 
-
+### Lint
 ```bash
 npm run lint
 ```
