@@ -94,11 +94,9 @@ const handleNextTab = () => {
     const isValid = validateCurrentStep()
 
     if (!isValid) {
-      console.log('Validation failed, showing errors')
       return
     }
 
-    console.log('Validation passed, proceeding to next step')
     if (activeTabIndex.value < steps.value.length - 1) {
       wizardStepper.value?.nextTab()
       emit('next')
