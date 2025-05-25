@@ -1,41 +1,24 @@
-# mfd-eksamen
+## MFD-Eksamen
 
-This template should help get you started developing with Vue 3 in Vite.
+Projektopsætning
+Følg denne guide for at få projektet op at køre på din maskine.
 
-## Recommended IDE Setup
+Installation
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+Trin 1: Klon projektet fra github
+Først skal du downloade eller klone projektet til din lokale maskine.
 
-## Customize configuration
+Trin 2: Installer alle afhængighederne
+Naviger til projektmappen i din terminal og kør følgende kommando for at installere alle nødvendige pakker:
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+## npm install
 
-## Project Setup
+Opstart af projekt
 
-```sh
-npm install
-```
+Hvis du vil opstarte projektet lokalt på din maskine skal du bruge følgende kommando: 
 
-### Compile and Hot-Reload for Development
+## npm run dev
 
-```sh
-npm run dev
-```
+Hvis du også vil teste koden på ESLint kan du køre følgende kommando: 
 
-### Compile and Minify for Production
-
-```sh
-npm run build
-```
-
-### Run Unit Tests with [Vitest](https://vitest.dev/)
-
-```sh
-npm run test:unit
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
-```
+## npm run lint
