@@ -72,77 +72,6 @@ export function getNextDateByFrequency(currentDate, frequency) {
 }
 
 /**
- * Tjek om en dato er gyldig
- * @param {Date|string} date
- * @returns {boolean} Om datoen er gyldig
- */
-export function isValidDate(date) {
-  if (!date) return false
-  const dateObj = date instanceof Date ? date : new Date(date)
-  return dateObj instanceof Date && !isNaN(dateObj)
-}
-
-/**
- * Normaliser en dato til midnat
- * @param {Date|string} date
- * @returns {Date} Normaliseret dato
- */
-export function normalizeToMidnight(date) {
-  if (!date) return null
-  const dateObj = date instanceof Date ? date : new Date(date)
-  dateObj.setHours(0, 0, 0, 0)
-  return dateObj
-}
-
-/**
- * Tjek om to datoer er på samme dag
- * @param {Date|string} date1 - Første dato
- * @param {Date|string} date2 - Anden dato
- * @returns {boolean} Om datoerne er på samme dag
- */
-export function isSameDay(date1, date2) {
-  if (!date1 || !date2) return false
-  const d1 = normalizeToMidnight(date1)
-  const d2 = normalizeToMidnight(date2)
-  return d1 && d2 && d1.getTime() === d2.getTime()
-}
-
-/**
- * Beregn slutdato for en periode
- * @returns {Date} Slutdato for perioden
- */
-export function getEndDateForPeriod() {
-  const endDate = new Date()
-  endDate.setMonth(endDate.getMonth() + 2)
-  endDate.setHours(23, 59, 59, 999)
-  return endDate
-}
-
-/**
- * Beregn status for en opgave-dato ift. i dag
- * @param {Date|string} date - Datoen for opgaven
- * @param {string} originalStatus
- * @returns {string} Status ('udført', 'afvigelse', 'overskredet', 'aktiv', 'inaktiv')
- */
-export function getStatusForDate(date, originalStatus) {
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const entry = new Date(date)
-  entry.setHours(0, 0, 0, 0)
-  let status = originalStatus
-  if (status === 'udført' || status === 'afvigelse') {
-    // behold status
-  } else if (entry < today) {
-    status = 'overskredet'
-  } else if (entry.getTime() === today.getTime()) {
-    status = 'aktiv'
-  } else {
-    status = 'inaktiv'
-  }
-  return status
-}
-
-/**
  * Generér et array af datoer ud fra startdato og frekvens
  * @param {Date|string} startDate
  * @param {string} frequency
@@ -157,19 +86,4 @@ export function generateDateArray(startDate, frequency, count = 10) {
     current = getNextDateByFrequency(current, frequency)
   }
   return dates
-}
-
-/**
- * Returner 0 hvis i dag, 1 hvis i fremtid
- * @param {Date|string} date
- * @returns {number}
- */
-export function compareToToday(date) {
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const d = new Date(date)
-  d.setHours(0, 0, 0, 0)
-  if (d < today) return -1
-  if (d.getTime() === today.getTime()) return 0
-  return 1
 }

@@ -339,11 +339,6 @@ export function getWizardConfig(context, options = {}) {
           { value: 'facility_manager', label: 'Facility Manager' },
           { value: 'administrator', label: 'Administrator' },
           { value: 'visnings_bruger', label: 'Visnings Bruger' }
-        ],
-        lederOptions: [
-          { value: 'christian_hansen', label: 'Christian Hansen' },
-          { value: 'anders_jensen', label: 'Anders Jensen' },
-          { value: 'tanja_lund', label: 'Tanja Lund' }
         ]
       }
     }

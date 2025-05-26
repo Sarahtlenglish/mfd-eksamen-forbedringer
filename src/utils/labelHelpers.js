@@ -11,11 +11,6 @@ export function findLabel(options, value) {
 
 export const getLocationLabel = value => findLabel(enhederConfig.locations, value)
 
-export const findLocationValue = (label) => {
-  const location = enhederConfig.locations.find(loc => loc.label === label)
-  return location ? location.value : label
-}
-
 export const getTypeLabel = value => findLabel(enhederConfig.types, value)
 
 export const getRoleLabel = value => findLabel(rolleOptions, value)

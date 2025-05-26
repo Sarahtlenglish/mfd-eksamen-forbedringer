@@ -14,10 +14,6 @@ export const useTjeklisteStore = defineStore('tjekliste', () => {
     return tjeklister.value.find(tjekliste => tjekliste.id === id)
   }
 
-  const getTjeklisterByType = (type) => {
-    return tjeklister.value.filter(tjekliste => tjekliste.type === type)
-  }
-
   const fetchTjeklister = async () => {
     loading.value = true
     try {
@@ -68,6 +64,7 @@ export const useTjeklisteStore = defineStore('tjekliste', () => {
     }
   }
 
+  /* For when tjekliste update is implemented */
   const updateTjekliste = async (id, updatedData) => {
     try {
       await updateDoc(doc(db, 'Tjeklister', id), updatedData)
@@ -118,7 +115,6 @@ export const useTjeklisteStore = defineStore('tjekliste', () => {
     error,
     tjeklisterData,
     getTjeklisteById,
-    getTjeklisterByType,
     fetchTjeklister,
     addTjekliste,
     updateTjekliste,

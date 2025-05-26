@@ -10,20 +10,8 @@ export const useBrugerStore = defineStore('bruger', () => {
   const loading = ref(false)
   const error = ref(null)
 
-  const getBrugereByRole = (rolle) => {
-    return brugere.value.filter(bruger => bruger.rolle === rolle)
-  }
-
-  const getBrugereByGruppe = (gruppe) => {
-    return brugere.value.filter(bruger => bruger.gruppe === gruppe)
-  }
-
   const getBrugerById = (id) => {
     return brugere.value.find(bruger => bruger.id === id)
-  }
-
-  const getHistoryForBruger = (brugerId) => {
-    return historyItems.value.filter(item => item.brugerId === brugerId)
   }
 
   const fetchBrugere = async () => {
@@ -71,6 +59,7 @@ export const useBrugerStore = defineStore('bruger', () => {
     }
   }
 
+  /* For when update is implemented on the user */
   const updateBruger = async (id, updatedData) => {
     try {
       const updateFields = {}
@@ -134,10 +123,7 @@ export const useBrugerStore = defineStore('bruger', () => {
     historyItems,
     loading,
     error,
-    getBrugereByRole,
-    getBrugereByGruppe,
     getBrugerById,
-    getHistoryForBruger,
     fetchBrugere,
     addBruger,
     updateBruger,

@@ -47,27 +47,12 @@ export const useEnhedStore = defineStore('enhedStore', () => {
   const loading = ref(false)
   const error = ref(null)
 
-  const getEnhederByLocation = (location) => {
-    return enheder.value.filter(enhed => enhed.location === location)
-  }
-
   const getEnhedById = (id) => {
     return enheder.value.find(enhed => enhed.id === id)
   }
 
   const getHistoryForEnhed = () => {
     return mockHistoryItems
-  }
-
-  const getGroupedEnheder = () => {
-    const grouped = {}
-    enheder.value.forEach((enhed) => {
-      if (!grouped[enhed.location]) {
-        grouped[enhed.location] = []
-      }
-      grouped[enhed.location].push(enhed)
-    })
-    return grouped
   }
 
   const fetchEnheder = async () => {
@@ -114,6 +99,7 @@ export const useEnhedStore = defineStore('enhedStore', () => {
     }
   }
 
+  /* For when enheder update is implemented */
   const updateEnhed = async (id, updatedData) => {
     try {
       await updateDoc(doc(db, 'enheder', id), updatedData)
@@ -187,10 +173,8 @@ export const useEnhedStore = defineStore('enhedStore', () => {
     enheder,
     loading,
     error,
-    getEnhederByLocation,
     getEnhedById,
     getHistoryForEnhed,
-    getGroupedEnheder,
     fetchEnheder,
     addEnhed,
     addGruppe,
