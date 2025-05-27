@@ -32,11 +32,13 @@ defineProps({
 const emit = defineEmits(['update:modelValue'])
 
 const formatDate = (date) => {
+  // Hvis der ikke er nogen dato, returner en tom streng
   if (!date) return ''
+  // Konverter input til et Date objekt så vi kan bruge JavaScript's dato-metoder (2024-03-17)
   const d = new Date(date)
-  // Danske navne for måneder
+  // Array med danske månedsnavne (index 0 = januar, 1 = februar, osv.)
   const months = ['januar', 'februar', 'marts', 'april', 'maj', 'juni', 'juli', 'august', 'september', 'oktober', 'november', 'december']
-  // Formater til dansk format: "d. 17. marts 2025"
+  // Formater datoen til dansk format: "Fra d. 17. marts 2024"
   return `Fra d. ${d.getDate()}. ${months[d.getMonth()]} ${d.getFullYear()}`
 }
 </script>
