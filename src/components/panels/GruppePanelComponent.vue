@@ -4,12 +4,12 @@ import ButtonComponent from '@/components/ui/ButtonComponent.vue'
 import FilterButtonComponent from '@/components/ui/FilterButtonComponent.vue'
 import { IconPlus } from '@tabler/icons-vue'
 
-const handleFilterClick = () => {
-  console.log ('Filter clicked')
+const filterClicked = () => {
+  alert('Filtreringsfunktionalitet er ikke implementeret endnu.')
 }
 
-const handleCreateGruppe = () => {
-  console.log('Create group')
+const createGroup = () => {
+  alert('Oprettelse af gruppe funktionalitet er ikke implementeret endnu.')
 }
 </script>
 
@@ -24,7 +24,7 @@ const handleCreateGruppe = () => {
           <ButtonComponent
             size="small"
             variant="tertiary"
-            @click="handleCreateGruppe"
+            @click="createGroup"
           >
             <template #icon>
               <IconPlus />
@@ -41,22 +41,22 @@ const handleCreateGruppe = () => {
           text="Alle"
           :full-width="true"
           :show-icon="false"
-          @click="handleFilterClick"
+          @click="filterClicked"
         />
         <FilterButtonComponent
           text="Facility"
           :full-width="true"
-          @click="handleFilterClick"
+          @click="filterClicked"
         />
         <FilterButtonComponent
           text="Admin"
           :full-width="true"
-          @click="handleFilterClick"
+          @click="filterClicked"
         />
         <FilterButtonComponent
           text="Eksterne"
           :full-width="true"
-          @click="handleFilterClick"
+          @click="filterClicked"
         />
       </div>
 
@@ -71,25 +71,25 @@ const handleCreateGruppe = () => {
           text="Administrator"
           :full-width="true"
           :show-icon="false"
-          @click="handleFilterClick"
+          @click="filterClicked"
         />
         <FilterButtonComponent
           text="Facility Manager"
           :full-width="true"
           :show-icon="false"
-          @click="handleFilterClick"
+          @click="filterClicked"
         />
         <FilterButtonComponent
           text="Service Bruger"
           :full-width="true"
           :show-icon="false"
-          @click="handleFilterClick"
+          @click="filterClicked"
         />
         <FilterButtonComponent
           text="Visnings Bruger"
           :full-width="true"
           :show-icon="false"
-          @click="handleFilterClick"
+          @click="filterClicked"
         />
       </div>
     </template>

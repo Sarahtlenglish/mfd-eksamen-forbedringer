@@ -1,5 +1,8 @@
 <script setup>
 import { computed } from 'vue'
+import { useBrugerStore } from '@/stores/brugerStore'
+
+const brugerStore = useBrugerStore()
 
 const props = defineProps({
   item: {
@@ -35,6 +38,18 @@ const isBrugerChef = computed(() => {
   }
 })
 
+const lederNavn = computed(() => {
+  if (!props.item.brugereRef) return null
+
+  // First try the already processed lederNavn
+  if (props.item.lederNavn) {
+    return props.item.lederNavn
+  }
+
+  // Fallback to looking up the name from brugerNavne
+  return brugerStore.brugerNavne[props.item.brugereRef] || props.item.brugereRef
+})
+
 </script>
 
 <template>
@@ -54,7 +69,7 @@ const isBrugerChef = computed(() => {
       <div v-else-if="item.brugereRef" class="detail-row">
         <div class="label">Nærmeste leder</div>
         <div class="separator">-</div>
-        <div class="value">{{ item.lederNavn || item.brugereRef }}</div>
+        <div class="value">{{ lederNavn }}</div>
       </div>
       <div v-else class="detail-row">
         <div class="label">Nærmeste leder</div>

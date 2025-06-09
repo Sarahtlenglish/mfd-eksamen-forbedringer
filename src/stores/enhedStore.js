@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { db } from '@/configs/firebase'
 import { collection, addDoc, getDocs, doc, deleteDoc, updateDoc, onSnapshot } from 'firebase/firestore'
+import { useOfflineStore } from './offlineStore'
 
 // Hardcoded history data for prototype
 const mockHistoryItems = [
@@ -55,9 +56,19 @@ export const useEnhedStore = defineStore('enhedStore', () => {
     return mockHistoryItems
   }
 
+  // Fetches units from Firebase or offline cache
   const fetchEnheder = async () => {
     loading.value = true
+    const offlineStore = useOfflineStore()
+
     try {
+      // Offline: Load from cache
+      if (!offlineStore.isOnline) {
+        enheder.value = await offlineStore.getCachedData('enheder')
+        return
+      }
+
+      // Online: Original logic
       const querySnapshot = await getDocs(collection(db, 'Enheder'))
       enheder.value = querySnapshot.docs.map(doc => ({
         id: doc.id,
@@ -67,14 +78,39 @@ export const useEnhedStore = defineStore('enhedStore', () => {
         type: doc.data().type,
         underenheder: doc.data().underenheder
       }))
+
+      // Cache for offline use
+      await offlineStore.cacheResponseData('enheder', enheder.value)
     } catch (err) {
       error.value = err
+      // Fallback to cache
+      enheder.value = await offlineStore.getCachedData('enheder')
     } finally {
       loading.value = false
     }
   }
 
+  // Adds a unit (offline: queue for sync)
   const addEnhed = async (enhed) => {
+    const offlineStore = useOfflineStore()
+
+    // Offline: Store temporarily
+    if (!offlineStore.isOnline) {
+      const tempEnhed = {
+        id: `temp_enhed_${Date.now()}`,
+        name: enhed.name,
+        description: enhed.description,
+        location: enhed.location,
+        type: enhed.type,
+        underenheder: enhed.underenheder
+      }
+      enheder.value = [...enheder.value, tempEnhed]
+      await offlineStore.storeLocalData('enheder', tempEnhed)
+      await offlineStore.addPendingAction({ type: 'ADD_ENHED', data: enhed })
+      return tempEnhed.id
+    }
+
+    // Online: Original logic
     try {
       const docRef = await addDoc(collection(db, 'Enheder'), {
         enhedsNavn: enhed.name,
@@ -99,10 +135,30 @@ export const useEnhedStore = defineStore('enhedStore', () => {
     }
   }
 
-  /* For when enheder update is implemented */
+  // Updates a unit (offline: queue for sync)
   const updateEnhed = async (id, updatedData) => {
+    const offlineStore = useOfflineStore()
+
+    // Offline: Update locally
+    if (!offlineStore.isOnline) {
+      const index = enheder.value.findIndex(enhed => enhed.id === id)
+      if (index !== -1) {
+        enheder.value[index] = { ...enheder.value[index], ...updatedData }
+        await offlineStore.storeLocalData('enheder', enheder.value[index])
+      }
+      await offlineStore.addPendingAction({ type: 'UPDATE_ENHED', data: { id, updatedData } })
+      return
+    }
+
+    // Online: Original logic
     try {
-      await updateDoc(doc(db, 'enheder', id), updatedData)
+      await updateDoc(doc(db, 'Enheder', id), {
+        enhedsNavn: updatedData.name,
+        beskrivelse: updatedData.description,
+        lokation: updatedData.location,
+        type: updatedData.type,
+        underenheder: updatedData.underenheder
+      })
       const index = enheder.value.findIndex(enhed => enhed.id === id)
       if (index !== -1) {
         enheder.value[index] = { ...enheder.value[index], ...updatedData }
@@ -113,10 +169,23 @@ export const useEnhedStore = defineStore('enhedStore', () => {
     }
   }
 
+  // Deletes a unit (offline: queue for sync)
   const deleteEnhed = async (id) => {
+    const offlineStore = useOfflineStore()
+
+    // Remove from local state immediately
+    enheder.value = enheder.value.filter(enhed => enhed.id !== id)
+
+    // Offline: Queue for sync
+    if (!offlineStore.isOnline) {
+      await offlineStore.deleteLocalData('enheder', id)
+      await offlineStore.addPendingAction({ type: 'DELETE_ENHED', data: { id } })
+      return
+    }
+
+    // Online: Original logic
     try {
       await deleteDoc(doc(db, 'Enheder', id))
-      enheder.value = enheder.value.filter(enhed => enhed.id !== id)
     } catch (err) {
       console.error('Error deleting enhed:', err)
       throw err
@@ -124,6 +193,28 @@ export const useEnhedStore = defineStore('enhedStore', () => {
   }
 
   const addGruppe = async (gruppe) => {
+    const offlineStore = useOfflineStore()
+
+    // Offline: Store temporarily
+    if (!offlineStore.isOnline) {
+      const tempGruppe = {
+        id: `temp_gruppe_${Date.now()}`,
+        name: gruppe.name,
+        description: gruppe.description,
+        location: gruppe.location,
+        type: 'Gruppe',
+        underenheder: gruppe.underenheder
+      }
+      enheder.value = [...enheder.value, tempGruppe]
+      await offlineStore.storeLocalData('enheder', tempGruppe)
+      await offlineStore.addPendingAction({
+        type: 'ADD_ENHED',
+        data: { ...gruppe, type: 'Gruppe' }
+      })
+      return tempGruppe.id
+    }
+
+    // Online: Original logic
     try {
       const docRef = await addDoc(collection(db, 'Enheder'), {
         enhedsNavn: gruppe.name,
@@ -150,7 +241,11 @@ export const useEnhedStore = defineStore('enhedStore', () => {
     }
   }
 
+  // Sets up real-time updates from Firebase (only online)
   const setupEnhederListener = () => {
+    const offlineStore = useOfflineStore()
+    if (!offlineStore.isOnline) return null
+
     return onSnapshot(collection(db, 'Enheder'),
       (snapshot) => {
         const newEnheder = snapshot.docs.map(doc => ({
@@ -162,6 +257,9 @@ export const useEnhedStore = defineStore('enhedStore', () => {
           underenheder: doc.data().underenheder
         }))
         enheder.value = newEnheder
+
+        // Cache for offline use
+        offlineStore.cacheResponseData('enheder', enheder.value)
       },
       (err) => {
         error.value = err

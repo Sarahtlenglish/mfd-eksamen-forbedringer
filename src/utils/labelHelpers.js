@@ -57,6 +57,14 @@ export const processBrugere = (brugere) => {
   }))
 }
 
+export const processEgenkontroller = (egenkontroller) => {
+  return egenkontroller.map(item => ({
+    ...item,
+    frekvens: getFrekvensLabel(item.frekvens),
+    tidspunkt: getTidspunktLabel(item.tidspunkt)
+  }))
+}
+
 export const getStatusLabel = (value) => {
   const statusMap = {
     afvigelse: 'Afvigelse',

@@ -6,15 +6,16 @@ import DetailPanel from '@/components/panels/DetailPanelComponent.vue'
 import ButtonComponent from '@/components/ui/ButtonComponent.vue'
 import { IconPlus } from '@tabler/icons-vue'
 import { useEnhedStore } from '@/stores/enhedStore'
-import { processEnheder } from '@/utils/labelHelpers'
 import { useDeleteHandler } from '@/composables/useDeleteHandler'
 import { useEditHandler } from '@/composables/useEditHandler'
 import { useCloseDetailPanelHandler } from '@/composables/useCloseDetailPanelHandler'
 import ModalComponent from '@/components/ui/ModalComponent.vue'
+import { processEnheder } from '@/utils/labelHelpers'
 
 const router = useRouter()
 const enhedStore = useEnhedStore()
 
+// Local computed property for processed data
 const processedEnheder = computed(() => processEnheder(enhedStore.enheder))
 
 const columns = [
