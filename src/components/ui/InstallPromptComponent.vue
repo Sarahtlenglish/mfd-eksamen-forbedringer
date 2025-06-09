@@ -6,7 +6,7 @@
         <IconDownload />
       </div>
       <div class="install-text">
-        <h3>Installer MFD App</h3>
+        <h3>Installer DBI App</h3>
         <p>Få hurtig adgang og brug appen offline</p>
       </div>
       <div class="install-actions">
