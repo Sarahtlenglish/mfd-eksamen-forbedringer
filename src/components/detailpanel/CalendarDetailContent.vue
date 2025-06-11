@@ -204,7 +204,7 @@ const tjeklisteFields = computed(() => {
                 Opret opgave til afvigelsen
               </button>
               <button
-                class="banner-link-action primary"
+                class="banner-link-action"
                 @click="openStatusUpdateModal"
               >
                 Opdater egenkontrol status
