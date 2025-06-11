@@ -77,7 +77,6 @@ const handleTjeklisteComplete = async (completionData) => {
       completionData.completedBy
     )
 
-    // Luk modalen
     showTjeklisteModal.value = false
   } catch (error) {
     console.error('Fejl ved fuldførelse af egenkontrol:', error)
@@ -95,6 +94,20 @@ const overdueDays = computed(() => {
   if (!selectedTask.value || selectedTask.value.status !== 'overskredet') return 0
   return getDaysOverdue(selectedTask.value.dato)
 })
+
+const getCompletedDate = () => {
+  if (!selectedTask.value) return 'Ukendt dato'
+
+  // Prøv forskellige mulige felter for afsluttet dato
+  const completedDate = selectedTask.value.afsluttetDato || selectedTask.value.completedAt || selectedTask.value.updatedAt || new Date().toISOString()
+
+  try {
+    return new Date(completedDate).toLocaleDateString('da-DK')
+  } catch (error) {
+    console.error('Error parsing date:', completedDate)
+    return new Date().toLocaleDateString('da-DK') // Fallback til dagens dato
+  }
+}
 
 // Computed properties for modal data
 const tjeklisteFields = computed(() => {
@@ -140,7 +153,7 @@ const tjeklisteFields = computed(() => {
         <BannerComponent
           v-if="bannerType === 'completed'"
           variant="success"
-          :text="`Egenkontrol udført d. ${new Date(selectedTask.dato).toLocaleDateString('da-DK')} af ${selectedTask.afsluttetAf || 'Ukendt'}`"
+          :text="`Egenkontrol udført d. ${getCompletedDate()} af ${selectedTask.afsluttetAf || 'Ukendt'}`"
         />
         <div class="action-button-container" v-if="bannerType === 'active' || bannerType === 'overdue'">
           <ButtonComponent
