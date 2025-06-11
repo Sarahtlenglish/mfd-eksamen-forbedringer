@@ -103,9 +103,8 @@ const getCompletedDate = () => {
 
   try {
     return new Date(completedDate).toLocaleDateString('da-DK')
-  } catch (error) {
-    console.error('Error parsing date:', completedDate)
-    return new Date().toLocaleDateString('da-DK') // Fallback til dagens dato
+  } catch {
+    return new Date().toLocaleDateString('da-DK')
   }
 }
 
