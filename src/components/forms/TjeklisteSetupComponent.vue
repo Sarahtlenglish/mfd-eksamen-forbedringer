@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref } from 'vue'
 import { IconMessage, IconPhoto, IconToggleLeft, IconPlus } from '@tabler/icons-vue'
 import ButtonComponent from '@/components/ui/ButtonComponent.vue'
 
@@ -42,11 +42,6 @@ const fieldTypes = [
   }
 ]
 
-const getFieldTypeLabel = (type) => {
-  const fieldType = fieldTypes.find(ft => ft.type === type)
-  return fieldType ? fieldType.label : type
-}
-
 const showAddForm = (position) => {
   activeAddForm.value = position
   selectedFieldType.value = null
@@ -79,7 +74,7 @@ const addField = () => {
 
   const updatedFields = [...props.modelValue, field]
   emit('update:modelValue', updatedFields)
-  
+
   cancelAddField()
 }
 
@@ -97,7 +92,7 @@ const addFieldAfter = (index) => {
   const updatedFields = [...props.modelValue]
   updatedFields.splice(index + 1, 0, field)
   emit('update:modelValue', updatedFields)
-  
+
   cancelAddField()
 }
 
@@ -130,7 +125,7 @@ const cancelAddField = () => {
         <div class="builder-header">
           <h4>{{ previewTitle || 'Din tjekliste' }}</h4>
         </div>
-        
+
         <!-- Eksisterende felter som interaktiv liste -->
         <div class="field-list">
           <!-- Første felt eller "tilføj første felt" -->
@@ -151,13 +146,13 @@ const cancelAddField = () => {
             <!-- Field preview -->
             <div class="field-preview-item">
               <!-- Remove button in corner -->
-              <button 
+              <button
                 @click="removeField(index)"
                 class="remove-field-corner"
                 type="button">
                 ×
               </button>
-              
+
               <div class="field-preview">
                 <!-- Yes/No + Comment field -->
                 <div v-if="field.type === 'yes_no_comment'" class="preview-yes-no-comment">
@@ -181,19 +176,11 @@ const cancelAddField = () => {
 
                 <!-- Comment only field -->
                 <div v-else-if="field.type === 'comment'" class="preview-comment-only">
-                  <div class="comment-field-container">
-                    <label class="comment-field-label">Evt. beskrivelse af fejl, lokation og øvrige bemærkninger:</label>
-                    <textarea disabled class="comment-textarea" rows="4"></textarea>
-                  </div>
-                </div>
-
-                <!-- Checkbox only field -->
-                <div v-else-if="field.type === 'checkbox'" class="preview-checkbox-only">
-                  <label class="preview-checkbox">
-                    <input type="checkbox" disabled>
-                    {{ field.title }}
-                  </label>
+                  <div class="preview-question">{{ field.title }}</div>
                   <div v-if="field.description" class="preview-description">{{ field.description }}</div>
+                  <div class="comment-field-container">
+                    <textarea disabled class="comment-textarea" placeholder="Skriv kommentar her..." rows="3"></textarea>
+                  </div>
                 </div>
 
                 <!-- Upload field -->
@@ -201,15 +188,15 @@ const cancelAddField = () => {
                   <label class="preview-question">{{ field.title }}</label>
                   <div v-if="field.description" class="preview-description">{{ field.description }}</div>
                   <div class="preview-upload-area">
-                    <span>Klik for at uploade billede</span>
+                    <span>📷 Klik for at uploade billede</span>
                   </div>
                 </div>
               </div>
             </div>
 
             <!-- Add field form (conditionally shown AFTER each field) -->
-            <div 
-              v-if="activeAddForm === `after-${index}`" 
+            <div
+              v-if="activeAddForm === `after-${index}`"
               class="add-field-form-inline">
               <div class="add-field-section">
                 <h4 class="add-field-title">Tilføj nyt felt</h4>
@@ -291,8 +278,8 @@ const cancelAddField = () => {
           </div>
 
           <!-- Add field form for first field or end -->
-          <div 
-            v-if="activeAddForm === 'first' || activeAddForm === 'end'" 
+          <div
+            v-if="activeAddForm === 'first' || activeAddForm === 'end'"
             class="add-field-form-inline">
             <div class="add-field-section">
               <h4 class="add-field-title">{{ activeAddForm === 'first' ? 'Tilføj dit første felt' : 'Tilføj nyt felt' }}</h4>
@@ -420,8 +407,25 @@ const cancelAddField = () => {
   background: $neutral-100;
   border: 1px solid $neutral-300;
   border-radius: $border-radius-lg;
-  overflow: scroll;
+  overflow: auto;
   max-height: 400px;
+
+  // Fjern scroll arrows og scrollbar
+  &::-webkit-scrollbar-button {
+    display: none;
+  }
+
+  &::-webkit-scrollbar-button:start:decrement,
+  &::-webkit-scrollbar-button:end:increment {
+    display: none;
+  }
+
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer og Edge */
+
+  &::-webkit-scrollbar {
+    display: none; /* Chrome, Safari og Opera */
+  }
 }
 
 .builder-header {

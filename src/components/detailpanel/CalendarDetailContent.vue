@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, nextTick } from 'vue'
 import { useEgenkontrolStore } from '@/stores/egenkontrolStore'
 import { useBrugerStore } from '@/stores/brugerStore'
 import { useEnhedStore } from '@/stores/enhedStore'
@@ -7,6 +7,7 @@ import { useTjeklisteStore } from '@/stores/tjeklisteStore'
 import { getDaysOverdue } from '@/utils/dateHelpers'
 import BannerComponent from '@/components/ui/BannerComponent.vue'
 import ButtonComponent from '@/components/ui/ButtonComponent.vue'
+import TjeklisteModal from '@/components/ui/TjeklisteModalComponent.vue'
 import { IconCheck } from '@tabler/icons-vue'
 import { getBannerType, getUserName, getEnhedName, getTjeklisteName, getFrekvensLabel, getTidspunktLabel } from '@/utils/labelHelpers'
 
@@ -22,6 +23,9 @@ const brugerStore = useBrugerStore()
 const enhedStore = useEnhedStore()
 const tjeklisteStore = useTjeklisteStore()
 
+// Modal state
+const showTjeklisteModal = ref(false)
+
 const selectedTask = computed(() => {
   if (!props.item) return null
   const allTasks = egenkontrolStore.getCalendarTasksSync()
@@ -36,20 +40,65 @@ const bannerType = computed(() => {
 })
 
 const sendReminder = () => alert('Påmindelse sendt til ansvarlige brugere')
+
 const performInspection = async () => {
   try {
-    if (!selectedTask.value) return
-    await egenkontrolStore.updateEgenkontrolStatus(selectedTask.value.id, 'udført', selectedTask.value.dato)
+    // Sørg for at tjeklisteFields er opdateret før modalen åbnes
+    if (!selectedTask.value?.tjeklisteFields || selectedTask.value.tjeklisteFields.length === 0) {
+      await egenkontrolStore.fetchEgenkontroller()
+      // Vent til næste tick så data er opdateret
+      await nextTick()
+    }
+
+    // Double check at vi faktisk har felter
+    const fields = selectedTask.value?.tjeklisteFields || []
+
+    if (fields.length === 0) {
+      alert('Ingen tjekliste felter fundet for denne egenkontrol')
+      return
+    }
+
+    // Åbn modalen
+    showTjeklisteModal.value = true
   } catch (error) {
-    console.error('Fejl ved opdatering af egenkontrol status:', error)
-    alert('Der opstod en fejl ved opdatering af egenkontrol status')
+    console.error('Fejl ved åbning af modal:', error)
   }
 }
+
+const handleTjeklisteComplete = async (completionData) => {
+  try {
+    if (!selectedTask.value) return
+
+    // Opdater fieldResults i egenkontrol store
+    await egenkontrolStore.updateFieldResults(
+      selectedTask.value.id,
+      selectedTask.value.dato,
+      completionData.tjeklisteFields,
+      completionData.completedBy
+    )
+
+    // Luk modalen
+    showTjeklisteModal.value = false
+  } catch (error) {
+    console.error('Fejl ved fuldførelse af egenkontrol:', error)
+    alert('Der opstod en fejl ved fuldførelse af egenkontrollen')
+  }
+}
+
+const handleModalClose = () => {
+  showTjeklisteModal.value = false
+}
+
 const createDeviationTask = () => alert('Opgave for afvigelse oprettet')
 
 const overdueDays = computed(() => {
   if (!selectedTask.value || selectedTask.value.status !== 'overskredet') return 0
   return getDaysOverdue(selectedTask.value.dato)
+})
+
+// Computed properties for modal data
+const tjeklisteFields = computed(() => {
+  return selectedTask.value?.tjeklisteFields || []
 })
 </script>
 
@@ -156,6 +205,15 @@ const overdueDays = computed(() => {
         </div>
       </div>
     </div>
+
+    <!-- Tjekliste Modal -->
+    <TjeklisteModal
+      :isOpen="showTjeklisteModal"
+      :task="selectedTask"
+      :tjeklisteFields="tjeklisteFields"
+      @complete="handleTjeklisteComplete"
+      @close="handleModalClose"
+    />
   </div>
 </template>
 

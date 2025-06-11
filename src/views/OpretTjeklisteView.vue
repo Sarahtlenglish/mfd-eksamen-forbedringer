@@ -21,14 +21,16 @@ const formData = reactive({
   type: '',
   frekvens: '',
   tidspunkt: '',
-  opgaver: []
+  opgaver: [],
+  tjeklisteFields: []
 })
 
 const detailItem = computed(() => ({
   tjeklisteNavn: formData.navn || 'Ny tjekliste',
   beskrivelse: formData.beskrivelse || 'Ingen beskrivelse angivet',
   type: formData.type || 'Type ikke angivet',
-  frekvens: formData.frekvens || 'Frekvens ikke angivet'
+  frekvens: formData.frekvens || 'Frekvens ikke angivet',
+  tjeklisteFields: formData.tjeklisteFields || []
 }))
 
 const context = 'tjeklister'

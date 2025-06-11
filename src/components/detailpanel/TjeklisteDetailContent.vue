@@ -33,7 +33,7 @@ defineEmits(['close', 'edit', 'delete', 'microcopy'])
 
       <div class="preview-section">
         <h3 class="detail-heading">FORHÅNDSVISNING</h3>
-        
+
         <!-- Debug info (kan fjernes senere) -->
         <div v-if="false" class="debug-info">
           <p>tjeklisteFields length: {{ item.tjeklisteFields?.length || 0 }}</p>
@@ -45,10 +45,10 @@ defineEmits(['close', 'edit', 'delete', 'microcopy'])
           <div class="preview-header">
             <h4 class="preview-title">{{ item.tjeklisteNavn || item.tjeklistenavn || 'Tjekliste' }}</h4>
           </div>
-          
+
           <div class="preview-fields">
-            <div 
-              v-for="(field, index) in item.tjeklisteFields" 
+            <div
+              v-for="(field, index) in item.tjeklisteFields"
               :key="field.id || `field-${index}`"
               class="preview-field-item"
             >
@@ -124,16 +124,16 @@ defineEmits(['close', 'edit', 'delete', 'microcopy'])
 }
 
 .detail-heading {
-  margin-bottom: $spacing-medium;
+  margin-bottom: 1.25rem;
 }
 
 .preview-container {
   border: 1px solid $neutral-300;
   border-radius: 8px;
   overflow: hidden;
+  background-color: $neutral-100;
   max-height: 400px;
   overflow-y: auto;
-  margin-bottom: $spacing-small;
 
   &::-webkit-scrollbar {
     width: 6px;
@@ -158,7 +158,7 @@ defineEmits(['close', 'edit', 'delete', 'microcopy'])
 
 .preview-header {
   background: $table-header;
-  padding: $spacing-small $spacing-medium;
+  padding: $spacing-medium;
   border-bottom: 1px solid $neutral-300;
 
   .preview-title {
@@ -171,7 +171,6 @@ defineEmits(['close', 'edit', 'delete', 'microcopy'])
 
 .preview-fields {
   padding: $spacing-medium;
-  background-color: $neutral-100;
 }
 
 .preview-field-item {
