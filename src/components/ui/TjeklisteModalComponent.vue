@@ -38,15 +38,12 @@ const initializeFields = () => {
   }))
 }
 
-// Watch for modal opening
 watch(() => props.isOpen, (newIsOpen) => {
   if (newIsOpen) {
-    console.log('Modal opened, initializing fields...')
     initializeFields()
   }
 })
 
-// Also initialize on mount if modal is already open
 onMounted(() => {
   if (props.isOpen) {
     initializeFields()
@@ -269,6 +266,18 @@ const handleImageUpload = (fieldId, event) => {
   justify-content: center;
   z-index: 1000;
   padding: $spacing-large;
+
+  @media (max-width: $tablet) {
+    padding: $spacing-medium;
+    align-items: flex-start;
+    padding-top: 3vh;
+  }
+
+  @media (max-width: $mobile) {
+    padding: $spacing-small;
+    align-items: flex-start;
+    padding-top: 1vh;
+  }
 }
 
 .modal-container {
@@ -280,15 +289,38 @@ const handleImageUpload = (fieldId, event) => {
   display: flex;
   flex-direction: column;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+  @media (max-width: $tablet) {
+    max-width: 95vw;
+    max-height: 97vh;
+    border-radius: $border-radius-md;
+  }
+
+  @media (max-width: $mobile) {
+    max-width: 100vw;
+    max-height: 99vh;
+    border-radius: $border-radius-sm;
+    margin: 0;
+  }
 }
 
 .modal-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   padding: $spacing-large;
   border-bottom: 1px solid $neutral-300;
   flex-shrink: 0;
+  gap: $spacing-medium;
+
+  @media (max-width: $tablet) {
+    padding: $spacing-medium-plus;
+  }
+
+  @media (max-width: $mobile) {
+    padding: $spacing-medium;
+    gap: $spacing-small;
+  }
 }
 
 .modal-title {
@@ -296,6 +328,17 @@ const handleImageUpload = (fieldId, event) => {
   font-weight: 600;
   margin: 0;
   color: $neutral-900;
+  flex: 1;
+  line-height: 1.3;
+
+  @media (max-width: $tablet) {
+    font-size: 1.3rem;
+  }
+
+  @media (max-width: $mobile) {
+    font-size: 1.1rem;
+    line-height: 1.4;
+  }
 }
 
 .close-button {
@@ -309,6 +352,9 @@ const handleImageUpload = (fieldId, event) => {
   justify-content: center;
   border-radius: $border-radius-sm;
   transition: $transition-base;
+  min-width: 44px;
+  min-height: 44px;
+  flex-shrink: 0;
 
   svg {
     width: 24px;
@@ -319,12 +365,30 @@ const handleImageUpload = (fieldId, event) => {
     color: $neutral-900;
     background: $neutral-200;
   }
+
+  @media (max-width: $mobile) {
+    min-width: 48px;
+    min-height: 48px;
+
+    svg {
+      width: 28px;
+      height: 28px;
+    }
+  }
 }
 
 .modal-content {
   flex: 1;
   overflow-y: auto;
   padding: $spacing-large;
+
+  @media (max-width: $tablet) {
+    padding: $spacing-medium-plus;
+  }
+
+  @media (max-width: $mobile) {
+    padding: $spacing-medium;
+  }
 }
 
 .task-description {
@@ -333,12 +397,22 @@ const handleImageUpload = (fieldId, event) => {
   border-radius: $border-radius-md $border-radius-md 0 0;
   color: $neutral-800;
   font-style: italic;
+
+  @media (max-width: $mobile) {
+    padding: $spacing-medium;
+    font-size: $body-1-font-size;
+    margin-bottom: $spacing-medium;
+  }
 }
 
 .fields-container {
   display: flex;
   flex-direction: column;
   gap: $spacing-large;
+
+  @media (max-width: $mobile) {
+    gap: $spacing-medium;
+  }
 }
 
 .field-item {
@@ -346,13 +420,14 @@ const handleImageUpload = (fieldId, event) => {
   border: 1px solid $neutral-300;
   border-radius: $border-radius-md;
   padding: $spacing-medium-plus;
+
+  @media (max-width: $mobile) {
+    padding: $spacing-medium;
+  }
 }
 
 .field-item:first-of-type {
-  background: $neutral-100;
-  border: 1px solid $neutral-300;
-  border-radius: $border-radius-md 0 0 $border-radius-md;
-  padding: $spacing-medium-plus;
+  border-radius: 0 0 $border-radius-md $border-radius-md;
 }
 
 .field-question {
@@ -360,10 +435,15 @@ const handleImageUpload = (fieldId, event) => {
   font-weight: 600;
   margin-bottom: $spacing-small;
   color: $neutral-900;
+
+  @media (max-width: $mobile) {
+    font-size: 1.2rem;
+    line-height: 1.4;
+  }
 }
 
 .required-star {
-  color: $error-500;
+  color: $error-base;
   margin-left: 4px;
 }
 
@@ -372,12 +452,22 @@ const handleImageUpload = (fieldId, event) => {
   color: $neutral-600;
   margin-bottom: $spacing-medium;
   font-style: italic;
+
+  @media (max-width: $mobile) {
+    font-size: $body-2-font-size;
+    line-height: 1.5;
+  }
 }
 
 .radio-options {
   display: flex;
   gap: $spacing-large;
   margin-bottom: $spacing-medium;
+
+  @media (max-width: $mobile) {
+    flex-direction: column;
+    gap: $spacing-small;
+  }
 }
 
 .radio-option {
@@ -387,6 +477,7 @@ const handleImageUpload = (fieldId, event) => {
   padding: $spacing-small;
   border-radius: $border-radius-sm;
   transition: $transition-base;
+  min-height: 44px;
 
   &:hover {
     background: $neutral-200;
@@ -395,12 +486,31 @@ const handleImageUpload = (fieldId, event) => {
   input[type="radio"] {
     margin-right: $spacing-xs;
     transform: scale(1.2);
+    min-width: 20px;
+    min-height: 20px;
+  }
+
+  @media (max-width: $mobile) {
+    min-height: 52px;
+    padding: $spacing-medium;
+
+    input[type="radio"] {
+      transform: scale(1.5);
+      margin-right: $spacing-small;
+      min-width: 24px;
+      min-height: 24px;
+    }
   }
 }
 
 .radio-label {
   font-weight: 500;
   color: $neutral-900;
+  flex: 1;
+
+  @media (max-width: $mobile) {
+    font-size: $body-1-font-size;
+  }
 }
 
 .comment-section {
@@ -412,6 +522,10 @@ const handleImageUpload = (fieldId, event) => {
   font-weight: 500;
   margin-bottom: $spacing-xs;
   color: $neutral-800;
+
+  @media (max-width: $mobile) {
+    font-size: $body-1-font-size;
+  }
 }
 
 .comment-textarea {
@@ -423,11 +537,18 @@ const handleImageUpload = (fieldId, event) => {
   resize: vertical;
   font-family: inherit;
   background-color: $neutral-200;
+  min-height: 80px;
 
   &:focus {
     outline: none;
     border-color: $secondary-500;
     box-shadow: 0 0 0 2px rgba(75, 151, 192, 0.1);
+  }
+
+  @media (max-width: $mobile) {
+    padding: $spacing-medium;
+    font-size: $body-2-font-size;
+    min-height: 120px;
   }
 }
 
@@ -447,16 +568,30 @@ const handleImageUpload = (fieldId, event) => {
   padding: $spacing-large;
   text-align: center;
   transition: $transition-base;
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: $neutral-200;
 
   &:hover {
     border-color: $secondary-400;
     background: $secondary-50;
+  }
+
+  @media (max-width: $mobile) {
+    padding: $spacing-medium-plus;
+    min-height: 140px;
   }
 }
 
 .upload-placeholder {
   color: $neutral-600;
   font-size: 1rem;
+
+  @media (max-width: $mobile) {
+    font-size: $body-1-font-size;
+  }
 }
 
 .upload-preview {
@@ -472,12 +607,21 @@ const handleImageUpload = (fieldId, event) => {
   object-fit: cover;
   border-radius: $border-radius-sm;
   border: 1px solid $neutral-300;
+
+  @media (max-width: $mobile) {
+    max-width: 150px;
+    max-height: 120px;
+  }
 }
 
 .upload-success {
   color: $success-base;
   font-weight: 500;
   font-size: 0.9rem;
+
+  @media (max-width: $mobile) {
+    font-size: $body-2-font-size;
+  }
 }
 
 .no-fields {
@@ -489,6 +633,14 @@ const handleImageUpload = (fieldId, event) => {
     margin: 0;
     font-size: 1.1rem;
   }
+
+  @media (max-width: $mobile) {
+    padding: $spacing-large;
+
+    p {
+      font-size: $body-1-font-size;
+    }
+  }
 }
 
 .modal-footer {
@@ -498,5 +650,25 @@ const handleImageUpload = (fieldId, event) => {
   padding: $spacing-large;
   border-top: 1px solid $neutral-300;
   flex-shrink: 0;
+
+  @media (max-width: $tablet) {
+    padding: $spacing-medium-plus;
+    gap: $spacing-small;
+  }
+
+  @media (max-width: $mobile) {
+    padding: $spacing-medium;
+    flex-direction: column;
+    gap: $spacing-medium;
+  }
+}
+
+/* Specifik styling for knapper i footer */
+.modal-footer :deep(.button-component) {
+  @media (max-width: $mobile) {
+    width: 100%;
+    min-height: 52px;
+    font-size: $body-1-font-size;
+  }
 }
 </style>

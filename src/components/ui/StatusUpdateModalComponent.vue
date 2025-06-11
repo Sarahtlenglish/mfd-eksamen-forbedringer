@@ -97,7 +97,7 @@ const handleClose = () => {
             <strong>Egenkontrol:</strong> {{ task?.title || task?.navn }}
           </p>
           <p class="date-info">
-            <strong>Oprindelig dato:</strong> {{ task?.dato }}
+            <strong>Dato for udførelse:</strong> {{ formatDate(task?.dato) }}
           </p>
           <p class="status-info">
             <strong>Status:</strong> Afvigelse registreret d. {{ formatDate(getOriginalDeviationDate()) }}
@@ -212,17 +212,42 @@ const handleClose = () => {
   justify-content: center;
   z-index: 1000;
   padding: $spacing-large;
+
+  @media (max-width: $tablet) {
+    padding: $spacing-medium;
+    align-items: flex-start;
+    padding-top: 5vh;
+  }
+
+  @media (max-width: $mobile) {
+    padding: $spacing-small;
+    align-items: flex-start;
+    padding-top: 2vh;
+  }
 }
 
 .modal-container {
   background: $neutral-100;
   border-radius: $border-radius-lg;
   width: 100%;
-  max-width: 600px;
+  max-width: 700px;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+
+  @media (max-width: $tablet) {
+    max-width: 95vw;
+    max-height: 95vh;
+    border-radius: $border-radius-md;
+  }
+
+  @media (max-width: $mobile) {
+    max-width: 100vw;
+    max-height: 98vh;
+    border-radius: $border-radius-sm;
+    margin: 0;
+  }
 }
 
 .modal-header {
@@ -232,6 +257,14 @@ const handleClose = () => {
   padding: $spacing-large;
   border-bottom: 1px solid $neutral-300;
   flex-shrink: 0;
+
+  @media (max-width: $tablet) {
+    padding: $spacing-medium-plus;
+  }
+
+  @media (max-width: $mobile) {
+    padding: $spacing-medium;
+  }
 }
 
 .modal-title {
@@ -239,6 +272,15 @@ const handleClose = () => {
   font-weight: $subtitle-1-font-weight;
   margin: 0;
   color: $neutral-900;
+
+  @media (max-width: $tablet) {
+    font-size: $subtitle-1-font-size;
+  }
+
+  @media (max-width: $mobile) {
+    font-size: $subtitle-2-font-size;
+    line-height: 1.3;
+  }
 }
 
 .close-button {
@@ -252,6 +294,8 @@ const handleClose = () => {
   justify-content: center;
   border-radius: $border-radius-sm;
   transition: $transition-base;
+  min-width: 44px;
+  min-height: 44px;
 
   svg {
     width: 24px;
@@ -262,12 +306,30 @@ const handleClose = () => {
     color: $neutral-900;
     background: $neutral-200;
   }
+
+  @media (max-width: $mobile) {
+    min-width: 48px;
+    min-height: 48px;
+
+    svg {
+      width: 28px;
+      height: 28px;
+    }
+  }
 }
 
 .modal-content {
   flex: 1;
   overflow-y: auto;
   padding: $spacing-large;
+
+  @media (max-width: $tablet) {
+    padding: $spacing-medium-plus;
+  }
+
+  @media (max-width: $mobile) {
+    padding: $spacing-medium;
+  }
 }
 
 .info-section {
@@ -283,12 +345,21 @@ const handleClose = () => {
       margin-bottom: 0;
     }
   }
+
+  @media (max-width: $mobile) {
+    padding: $spacing-medium;
+    margin-bottom: $spacing-medium;
+  }
 }
 
 .form-section {
   display: flex;
   flex-direction: column;
   gap: $spacing-large;
+
+  @media (max-width: $mobile) {
+    gap: $spacing-medium;
+  }
 }
 
 .field-group {
@@ -301,6 +372,10 @@ const handleClose = () => {
   font-weight: $body-1-font-weight-semibold;
   color: $neutral-900;
   font-size: $body-2-font-size;
+
+  @media (max-width: $mobile) {
+    font-size: $body-2-font-size;
+  }
 }
 
 .required {
@@ -320,6 +395,7 @@ const handleClose = () => {
   padding: $spacing-small;
   border-radius: $border-radius-sm;
   transition: $transition-base;
+  min-height: 44px;
 
   &:hover {
     background: $neutral-200;
@@ -328,11 +404,28 @@ const handleClose = () => {
   input[type="radio"] {
     margin-right: $spacing-small;
     transform: scale(1.2);
+    min-width: 20px;
+    min-height: 20px;
   }
 
   span {
-    font-weight: $body-1-font-weight-semibold;
     color: $neutral-900;
+    flex: 1;
+  }
+
+  @media (max-width: $mobile) {
+    min-height: 48px;
+    padding: $spacing-medium;
+
+    input[type="radio"] {
+      transform: scale(1.4);
+      min-width: 18px;
+      min-height: 18px;
+    }
+
+    span {
+      font-size: $body-2-font-size;
+    }
   }
 }
 
@@ -345,11 +438,18 @@ const handleClose = () => {
   resize: vertical;
   font-family: inherit;
   background-color: $neutral-200;
+  min-height: 44px;
 
   &:focus {
     outline: none;
     border-color: $secondary-500;
     box-shadow: 0 0 0 2px rgba(75, 151, 192, 0.1);
+  }
+
+  @media (max-width: $mobile) {
+    padding: $spacing-medium;
+    font-size: $body-2-font-size;
+    min-height: 120px;
   }
 }
 
@@ -359,11 +459,18 @@ const handleClose = () => {
   border-radius: $border-radius-sm;
   font-size: $body-2-font-size;
   background-color: $neutral-200;
+  min-height: 44px;
 
   &:focus {
     outline: none;
     border-color: $secondary-500;
     box-shadow: 0 0 0 2px rgba(75, 151, 192, 0.1);
+  }
+
+  @media (max-width: $mobile) {
+    padding: $spacing-medium;
+    font-size: $body-2-font-size;
+    min-height: 48px;
   }
 }
 
@@ -384,5 +491,57 @@ const handleClose = () => {
   padding: $spacing-large;
   border-top: 1px solid $neutral-300;
   flex-shrink: 0;
+
+  @media (max-width: $tablet) {
+    padding: $spacing-medium-plus;
+    gap: $spacing-small;
+  }
+
+  @media (max-width: $mobile) {
+    padding: $spacing-medium;
+    flex-direction: column;
+    gap: $spacing-small;
+  }
+}
+
+/* Specifik styling for knapper i footer */
+.modal-footer :deep(.button-component) {
+  @media (max-width: $mobile) {
+    width: 100%;
+    min-height: 52px;
+    font-size: $body-1-font-size;
+  }
+}
+
+/* Specifik styling for sekundær knap */
+.modal-footer :deep(.button-component[variant="secondary"]) {
+  @media (max-width: $mobile) {
+    background: $neutral-100;
+    border: 1px solid $neutral-300;
+    color: $neutral-700;
+
+    &:hover {
+      background: $neutral-200;
+    }
+  }
+}
+
+/* Specifik styling for primær knap */
+.modal-footer :deep(.button-component[variant="primary"]) {
+  @media (max-width: $mobile) {
+    background: $primary-500;
+    color: $neutral-100;
+    border: none;
+    font-weight: $body-2-font-weight-semibold;
+
+    &:hover {
+      background: $primary-600;
+    }
+
+    &:disabled {
+      background: $neutral-400;
+      color: $neutral-600;
+    }
+  }
 }
 </style>

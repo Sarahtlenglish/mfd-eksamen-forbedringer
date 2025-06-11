@@ -38,12 +38,12 @@ const selectedTask = computed(() => {
 
 const bannerType = computed(() => {
   if (!selectedTask.value) return null
-  
+
   // Hvis opgaven har en korrektion der er markeret som korrigeret, vis som completed
   if (selectedTask.value.korrektion?.korrigeret) {
     return 'completed'
   }
-  
+
   return getBannerType(selectedTask.value.status)
 })
 
@@ -177,7 +177,7 @@ const tjeklisteFields = computed(() => {
             </div>
           </div>
         </div>
-        
+
         <!-- Overskredet deadline banner -->
         <BannerComponent
           v-if="bannerType === 'overdue'"
@@ -188,7 +188,7 @@ const tjeklisteFields = computed(() => {
           :link-break="true"
           @click:link="sendReminder"
         />
-        
+
         <!-- Standard afvigelse banner -->
         <BannerComponent
           v-if="bannerType === 'deviation' && !selectedTask.korrektion"
@@ -197,14 +197,14 @@ const tjeklisteFields = computed(() => {
         >
           <template #actions>
             <div class="banner-actions">
-              <button 
-                class="banner-link-action" 
+              <button
+                class="banner-link-action"
                 @click="createDeviationTask"
               >
                 Opret opgave til afvigelsen
               </button>
-              <button 
-                class="banner-link-action primary" 
+              <button
+                class="banner-link-action primary"
                 @click="openStatusUpdateModal"
               >
                 Opdater egenkontrol status
@@ -239,7 +239,7 @@ const tjeklisteFields = computed(() => {
           variant="success"
           :text="`Egenkontrol udført d. ${getCompletedDate()} af ${selectedTask.afsluttetAf || 'Ukendt'}`"
         />
-        
+
         <div class="action-button-container" v-if="bannerType === 'active' || bannerType === 'overdue'">
           <ButtonComponent
             variant="secondary"
@@ -266,7 +266,7 @@ const tjeklisteFields = computed(() => {
         </div>
         <div v-if="selectedTask.checkliste || selectedTask.lokation" class="detail-section">
           <div v-if="selectedTask.checkliste" class="detail-row">
-            <strong>{{ getTjeklisteName(selectedTask.checkliste, tjeklisteStore) }}</strong>
+            <span class="detail-label">{{ getTjeklisteName(selectedTask.checkliste, tjeklisteStore) }}</span>
           </div>
           <div v-if="selectedTask.lokation" class="detail-row">
             <span>{{ getEnhedName(selectedTask.lokation, enhedStore) }}</span>
@@ -338,8 +338,7 @@ const tjeklisteFields = computed(() => {
   flex-wrap: wrap;
   width: 100%;
   justify-content: space-between !important;
-  
-  /* Specifik styling for correction actions - fjern gap */
+
   &.correction-actions {
     flex-direction: column;
     gap: 0;
@@ -359,7 +358,7 @@ const tjeklisteFields = computed(() => {
   text-align: left;
   transition: $transition-base;
   flex: 0 0 auto;
-  
+
   &:hover {
     color: $neutral-900;
     text-decoration: none;
@@ -376,7 +375,7 @@ const tjeklisteFields = computed(() => {
   font-family: inherit;
   text-align: left;
   flex: 0 0 auto;
-  
+
   strong {
     color: $neutral-800;
     font-weight: $body-1-font-weight-semibold;

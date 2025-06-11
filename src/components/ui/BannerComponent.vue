@@ -62,9 +62,9 @@ const handleLinkClick = (event) => {
 		<div class="banner-content">
 			<template v-if="!linkBreak">
 				<span class="banner-text">{{ text }}</span>
-				<a 
-					v-if="link" 
-					class="banner-link" 
+				<a
+					v-if="link"
+					class="banner-link"
 					:href="link"
 					@click="handleLinkClick"
 				>
@@ -73,16 +73,16 @@ const handleLinkClick = (event) => {
 			</template>
 			<template v-else>
 				<div class="banner-text">{{ text }}</div>
-				<a 
-					v-if="link" 
-					class="banner-link" 
+				<a
+					v-if="link"
+					class="banner-link"
 					:href="link"
 					@click="handleLinkClick"
 				>
 					{{ linkText || 'Opsæt Checkliste' }}
 				</a>
 			</template>
-			
+
 			<!-- Ny slot for custom actions -->
 			<slot name="actions"></slot>
 		</div>
@@ -222,16 +222,16 @@ const handleLinkClick = (event) => {
 	text-align: left;
 	transition: $transition-base;
 	flex: 0 0 auto;
-	
+
 	&:hover {
 		color: $neutral-900;
 		text-decoration: none;
 	}
-	
+
 	&.primary {
 		font-weight: $body-1-font-weight-semibold;
 		color: $neutral-800;
-		
+
 		&:hover {
 			color: $neutral-900;
 		}
