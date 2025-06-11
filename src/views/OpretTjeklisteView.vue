@@ -50,13 +50,14 @@ const handleComplete = async () => {
       beskrivelse: formData.beskrivelse,
       type: formData.type,
       frekvens: formData.frekvens,
-      tidspunkt: formData.tidspunkt,
-      opgaver: formData.opgaver
+      tjeklisteFields: formData.tjeklisteFields || [],
+      opgaver: formData.opgaver || []
     }
 
     await tjeklisteStore.addTjekliste(nyTjekliste)
     router.push('/tjeklister')
   } catch (error) {
+    console.error('Fejl ved oprettelse:', error)
     alert('Der opstod en fejl under oprettelsen af tjeklisten: ' + error.message)
   }
 }
