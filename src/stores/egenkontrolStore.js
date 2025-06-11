@@ -331,6 +331,87 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
     }
   }
 
+  // NY FUNKTION: Opdater status fra afvigelse til udført med korrektion
+  const updateEgenkontrolStatusWithCorrection = async (taskId, originalDate, correctionData) => {
+    try {
+      const taskRef = doc(db, 'Egenkontrol', taskId)
+      const taskDoc = await getDoc(taskRef)
+      const taskData = taskDoc.data()
+
+      const historyIndex = taskData.historik.findIndex(entry => entry.dato === originalDate)
+      if (historyIndex === -1) {
+        throw new Error('No history entry found for the original date')
+      }
+
+      const originalEntry = taskData.historik[historyIndex]
+
+      // Sikr at der faktisk var en afvigelse på denne dato
+      if (originalEntry.status !== 'afvigelse') {
+        throw new Error('Can only correct entries with deviation status')
+      }
+
+      const updatedHistorik = [...taskData.historik]
+
+      if (correctionData.afvigelseUdbedret === 'ja') {
+        // Marker som udført med korrektion
+        updatedHistorik[historyIndex] = {
+          ...originalEntry,
+          status: 'udført', // Ændrer status til udført
+          // Bevar den oprindelige afvigelse information
+          oprindeligAfvigelse: {
+            status: 'afvigelse',
+            afsluttetDato: originalEntry.afsluttetDato,
+            afsluttetAf: originalEntry.afsluttetAf,
+            tjeklisteFields: originalEntry.tjeklisteFields
+          },
+          // Tilføj korrektion information
+          korrektion: {
+            korrigeret: true,
+            korrektionsDato: correctionData.udbedringsDato,
+            korrigeretAf: correctionData.udbedretAf,
+            korrektionsBeskrivelse: correctionData.udbedringsBeskrivelse,
+            korrektionsTidspunkt: new Date().toISOString()
+          },
+          // Opdater hovedfelter
+          afsluttetDato: correctionData.udbedringsDato,
+          afsluttetAf: correctionData.udbedretAf,
+          manueltFuldført: true
+        }
+      } else {
+        // Opdater bare beskrivelsen hvis ikke udbedret endnu
+        updatedHistorik[historyIndex] = {
+          ...originalEntry,
+          statusOpdatering: {
+            dato: correctionData.udbedringsDato,
+            opdateretAf: correctionData.udbedretAf,
+            beskrivelse: correctionData.udbedringsBeskrivelse,
+            opdateringsTidspunkt: new Date().toISOString()
+          }
+        }
+      }
+
+      // Opdater hele historik arrayet i Firebase
+      await updateDoc(taskRef, {
+        historik: updatedHistorik,
+        updatedAt: new Date().toISOString()
+      })
+
+      // Opdater lokal state
+      const index = egenkontrollerData.value.findIndex(task => task.id === taskId)
+      if (index !== -1) {
+        egenkontrollerData.value[index] = {
+          ...egenkontrollerData.value[index],
+          historik: updatedHistorik
+        }
+      }
+
+      return correctionData.afvigelseUdbedret === 'ja' ? 'udført' : 'afvigelse'
+    } catch (err) {
+      console.error('Error updating egenkontrol status with correction:', err)
+      throw err
+    }
+  }
+
   const resolveReferences = async (egenkontrol) => {
     try {
       const [bruger, enhed, tjekliste] = await Promise.all([
@@ -366,6 +447,7 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
             status: entry.status,
             noter: entry.noter,
             afsluttetAf: entry.afsluttetAf,
+            afsluttetDato: entry.afsluttetDato,
             dato: entry.dato,
             id: task.id,
             title: task.navn || task.name || 'Egenkontrol',
@@ -374,7 +456,10 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
             modtagere: task.modtagere,
             påmindelser: task.påmindelser,
             // Tilføj adgang til tjeklisteFields for denne dato
-            tjeklisteFields: entry.tjeklisteFields || []
+            tjeklisteFields: entry.tjeklisteFields || [],
+            // Tilføj korrektion og oprindelig afvigelse information
+            korrektion: entry.korrektion || null,
+            oprindeligAfvigelse: entry.oprindeligAfvigelse || null
           })
         })
       } else {
@@ -431,6 +516,7 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
     getCalendarTasksSync,
     updateStatusesBasedOnDate,
     updateEgenkontrolStatus: updateStatusInFirebase,
-    updateFieldResults
+    updateFieldResults,
+    updateEgenkontrolStatusWithCorrection
   }
 })
