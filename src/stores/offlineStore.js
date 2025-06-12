@@ -2,11 +2,12 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { indexedDBManager } from '@/utils/indexedDB'
+import { syncManager } from './syncManager'
 
 export const useOfflineStore = defineStore('offline', () => {
   // Track network status and offline data
   const isOnline = ref(navigator.onLine)
-  const pendingActions = ref([]) // Actions waiting to sync when online
+  const pendingActions = ref([])
   const offlineData = ref({
     brugere: [],
     enheder: [],
@@ -124,7 +125,6 @@ export const useOfflineStore = defineStore('offline', () => {
       await indexedDBManager.put('pendingActions', actionWithTimestamp)
       console.log(`📋 Added pending action: ${action.type}`)
     } catch (error) {
-      // Fallback to memory only
       console.warn('⚠️ Failed to persist pending action, using memory only:', error.message)
       const actionWithTimestamp = {
         ...action,
@@ -143,130 +143,49 @@ export const useOfflineStore = defineStore('offline', () => {
       const actionsToProcess = await indexedDBManager.getAll('pendingActions')
       if (actionsToProcess.length === 0) return
 
-      console.log(`🔄 Processing ${actionsToProcess.length} pending actions`)
+      const results = await syncManager.processAll(actionsToProcess)
 
-      for (const action of actionsToProcess) {
-        try {
-          await processAction(action)
-          await indexedDBManager.delete('pendingActions', action.id)
-          const actionIndex = pendingActions.value.findIndex(a => a.id === action.id)
+      // Clean up successful actions and refresh data
+      for (const result of results) {
+        if (result.status === 'success') {
+          await indexedDBManager.delete('pendingActions', result.id)
+          const actionIndex = pendingActions.value.findIndex(a => a.id === result.id)
           if (actionIndex >= 0) {
+            const action = pendingActions.value[actionIndex]
             pendingActions.value.splice(actionIndex, 1)
+
+            // For ADD actions: cleanup temp data and refresh cache
+            if (action.type.startsWith('ADD_')) {
+              const collection = action.type.replace('ADD_', '').toLowerCase() + (action.type === 'ADD_ENHED' ? 'er' : action.type === 'ADD_BRUGER' ? 'e' : action.type === 'ADD_TJEKLISTE' ? '' : '')
+
+              // Find and delete temp item
+              const tempItems = await indexedDBManager.getAll(collection)
+              const tempItem = tempItems.find(item =>
+                item.id && item.id.startsWith('temp_')
+                && Object.keys(action.data).some(key => item[key] === action.data[key])
+              )
+
+              if (tempItem) {
+                await indexedDBManager.delete(collection, tempItem.id)
+
+                // Refresh data from Firebase
+                const refreshMap = {
+                  ADD_ENHED: () => import('@/stores/enhedStore').then(m => m.useEnhedStore().fetchEnheder()),
+                  ADD_BRUGER: () => import('@/stores/brugerStore').then(m => m.useBrugerStore().fetchBrugere()),
+                  ADD_TJEKLISTE: () => import('@/stores/tjeklisteStore').then(m => m.useTjeklisteStore().fetchTjeklister()),
+                  ADD_EGENKONTROL: () => import('@/stores/egenkontrolStore').then(m => m.useEgenkontrolStore().fetchEgenkontroller())
+                }
+
+                if (refreshMap[action.type]) {
+                  await refreshMap[action.type]()
+                }
+              }
+            }
           }
-          console.log(`✅ Synced action: ${action.type}`)
-        } catch (error) {
-          console.warn(`⚠️ Failed to sync action ${action.type}:`, error.message)
-          // Keep the action for next sync attempt
         }
       }
-      console.log('🎉 All pending actions processed')
     } catch (error) {
-      console.error('❌ Failed to process pending actions:', error.message)
-    }
-  }
-
-  // Single function to process any action type
-  const processAction = async (action) => {
-    const { addDoc, updateDoc, deleteDoc, doc, collection, getDoc } = await import('firebase/firestore')
-    const { db } = await import('@/configs/firebase')
-
-    const { type, data } = action
-
-    switch (type) {
-      case 'ADD_BRUGER':
-        await addDoc(collection(db, 'Brugere'), {
-          fuldeNavn: data.fuldeNavn,
-          email: data.email,
-          rolle: data.rolle,
-          telefon: data.telefon,
-          createdAt: new Date()
-        })
-        break
-
-      case 'UPDATE_BRUGER':
-        await updateDoc(doc(db, 'Brugere', data.id), data.updatedData)
-        break
-
-      case 'DELETE_BRUGER':
-        await deleteDoc(doc(db, 'Brugere', data.id))
-        break
-
-      case 'ADD_ENHED': {
-        const enhedData = {
-          enhedsNavn: data.name,
-          beskrivelse: data.description,
-          lokation: data.location,
-          type: data.type,
-          createdAt: new Date()
-        }
-        if (data.underenheder !== undefined) {
-          enhedData.underenheder = data.underenheder
-        }
-        await addDoc(collection(db, 'Enheder'), enhedData)
-        break
-      }
-
-      case 'UPDATE_ENHED': {
-        const updateData = {
-          enhedsNavn: data.updatedData.name,
-          beskrivelse: data.updatedData.description,
-          lokation: data.updatedData.location,
-          type: data.updatedData.type
-        }
-        if (data.updatedData.underenheder !== undefined) {
-          updateData.underenheder = data.updatedData.underenheder
-        }
-        await updateDoc(doc(db, 'Enheder', data.id), updateData)
-        break
-      }
-
-      case 'DELETE_ENHED':
-        await deleteDoc(doc(db, 'Enheder', data.id))
-        break
-
-      case 'ADD_TJEKLISTE':
-        await addDoc(collection(db, 'Tjeklister'), {
-          tjeklisteNavn: data.tjeklisteNavn,
-          beskrivelse: data.beskrivelse,
-          type: data.type,
-          frekvens: data.frekvens,
-          tidspunkt: data.tidspunkt,
-          opgaver: data.opgaver || [],
-          createdAt: new Date()
-        })
-        break
-
-      case 'UPDATE_TJEKLISTE':
-        await updateDoc(doc(db, 'Tjeklister', data.id), data.updatedData)
-        break
-
-      case 'DELETE_TJEKLISTE':
-        await deleteDoc(doc(db, 'Tjeklister', data.id))
-        break
-
-      case 'ADD_EGENKONTROL':
-        await addDoc(collection(db, 'Egenkontrol'), data)
-        break
-
-      case 'DELETE_EGENKONTROL':
-        await deleteDoc(doc(db, 'Egenkontrol', data.id))
-        break
-
-      case 'UPDATE_EGENKONTROL_STATUS': {
-        const taskRef = doc(db, 'Egenkontrol', data.taskId)
-        const taskDoc = await getDoc(taskRef)
-        const taskData = taskDoc.data()
-        const historyIndex = taskData.historik.findIndex(entry => entry.dato === data.targetDate)
-        if (historyIndex !== -1) {
-          const updatedHistorik = [...taskData.historik]
-          updatedHistorik[historyIndex] = {
-            ...updatedHistorik[historyIndex],
-            status: data.newStatus
-          }
-          await updateDoc(taskRef, { historik: updatedHistorik })
-        }
-        break
-      }
+      console.error('Failed to process pending actions:', error.message)
     }
   }
 
@@ -283,9 +202,6 @@ export const useOfflineStore = defineStore('offline', () => {
       pendingActions.value = []
     }
   }
-
-  // Cache response data for offline use (alias for storeLocalData)
-  const cacheResponseData = storeLocalData
 
   // Clear all offline data
   const clearOfflineData = async () => {
@@ -336,8 +252,8 @@ export const useOfflineStore = defineStore('offline', () => {
     loadPendingActions,
 
     // Cache management
-    cacheResponseData,
-    getCachedData: getLocalData, // Use getLocalData instead of duplicate function
+    cacheResponseData: storeLocalData,
+    getCachedData: getLocalData,
     clearOfflineData
   }
 })

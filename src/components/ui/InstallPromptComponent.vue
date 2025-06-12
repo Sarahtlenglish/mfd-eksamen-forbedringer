@@ -26,92 +26,51 @@ import { IconDownload } from '@tabler/icons-vue'
 // Component state
 const showPrompt = ref(false)
 const deferredPrompt = ref(null) // Browser's install event
-const isStandalone = ref(false)
 
 let beforeInstallPromptHandler = null
 
+// Check if PWA is already installed
+const isInstalled = () => {
+  // Check standalone mode or previous installation record
+  return window.matchMedia('(display-mode: standalone)').matches
+    || window.navigator.standalone === true
+    || localStorage.getItem('pwa-installed') === 'true'
+}
+
 onMounted(() => {
-  // Enhanced detection for installed PWA
-  const checkIfInstalled = () => {
-    // Method 1: Check if running in standalone mode
-    const isStandaloneDisplay = window.matchMedia('(display-mode: standalone)').matches
-
-    // Method 2: iOS Safari detection
-    const isIOSStandalone = window.navigator.standalone === true
-
-    // Method 3: Check if we have a record of installation
-    const wasInstalled = localStorage.getItem('pwa-installed') === 'true'
-
-    // Method 4: Check if navigator.getInstalledRelatedApps exists and use it
-    if ('getInstalledRelatedApps' in navigator) {
-      navigator.getInstalledRelatedApps().then((apps) => {
-        if (apps.length > 0) {
-          console.log('📱 PWA already installed (detected via getInstalledRelatedApps)')
-          showPrompt.value = false
-          localStorage.setItem('pwa-installed', 'true')
-        }
-      }).catch(() => {
-        // Silently fail - this API is not supported in all browsers
-      })
-    }
-
-    return isStandaloneDisplay || isIOSStandalone || wasInstalled
+  // Don't show prompt if already installed
+  if (isInstalled()) {
+    console.log('📱 PWA already installed')
+    return
   }
 
-  isStandalone.value = checkIfInstalled()
-
-  if (isStandalone.value) {
-    console.log('📱 PWA already installed - hiding install prompt')
-    return // Don't show install prompt if already installed
-  }
-
-  // Listen for beforeinstallprompt event
+  // Listen for install prompt event
   beforeInstallPromptHandler = (e) => {
-  // Double-check if PWA is installed before showing prompt
-    if (checkIfInstalled()) {
-      console.log('📱 PWA detected as installed - preventing install prompt')
-      return
-    }
+    // Double-check installation status
+    if (isInstalled()) return
 
     console.log('📱 PWA install prompt available')
-    // Prevent the default prompt
     e.preventDefault()
-    // Store the event for later use
     deferredPrompt.value = e
 
-    // Check if user hasn't dismissed the prompt recently
+    // Show prompt if not recently dismissed
     const dismissedTime = localStorage.getItem('install-prompt-dismissed')
-    if (!dismissedTime || Date.now() - parseInt(dismissedTime) > 7 * 24 * 60 * 60 * 1000) {
+    const weekInMs = 7 * 24 * 60 * 60 * 1000
+
+    if (!dismissedTime || Date.now() - parseInt(dismissedTime) > weekInMs) {
       showPrompt.value = true
-      console.log('✅ Showing PWA install prompt')
     }
   }
 
   window.addEventListener('beforeinstallprompt', beforeInstallPromptHandler)
 
-  // Listen for app installed event
+  // Listen for successful installation
   window.addEventListener('appinstalled', () => {
     console.log('✅ PWA installed successfully')
     showPrompt.value = false
     deferredPrompt.value = null
-    isStandalone.value = true
-    // Remember that the app was installed
     localStorage.setItem('pwa-installed', 'true')
   })
-
-  // Additional check: If user manually installs via browser menu
-  // Check periodically if app becomes standalone
-  const checkInterval = setInterval(() => {
-    if (window.matchMedia('(display-mode: standalone)').matches) {
-      console.log('📱 PWA standalone mode detected - marking as installed')
-      localStorage.setItem('pwa-installed', 'true')
-      showPrompt.value = false
-      clearInterval(checkInterval)
-    }
-  }, 2000)
-
-  // Clear interval after 30 seconds to avoid memory leaks
-  setTimeout(() => clearInterval(checkInterval), 30000)
 })
 
 onUnmounted(() => {
@@ -127,21 +86,17 @@ const installApp = async () => {
   }
 
   console.log('🚀 Triggering PWA install')
-  // Show the install prompt
   deferredPrompt.value.prompt()
 
-  // Wait for user response
   const { outcome } = await deferredPrompt.value.userChoice
   console.log('👤 Install choice:', outcome)
 
-  // Clear the prompt
   deferredPrompt.value = null
   showPrompt.value = false
 }
 
 const dismissPrompt = () => {
   showPrompt.value = false
-  // Remember that user dismissed the prompt
   localStorage.setItem('install-prompt-dismissed', Date.now().toString())
 }
 </script>

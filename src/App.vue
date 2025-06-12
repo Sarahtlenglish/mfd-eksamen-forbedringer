@@ -45,11 +45,6 @@ onMounted(async () => {
     }, 5000)
   })
 
-  // Process pending actions when coming back online
-  window.addEventListener('online', () => {
-    offlineStore.processPendingActions()
-  })
-
   try {
     await Promise.all([
       egenkontrolStore.fetchEgenkontroller(),

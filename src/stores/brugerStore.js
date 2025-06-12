@@ -78,7 +78,7 @@ export const useBrugerStore = defineStore('bruger', () => {
     if (!offlineStore.isOnline) {
       const tempBruger = {
         ...bruger,
-        id: `temp_${Date.now()}`,
+        id: `temp_bruger_${Date.now()}`,
         createdAt: new Date(),
         lederNavn: bruger.brugereRef ? brugerNavne.value[bruger.brugereRef] : null
       }
