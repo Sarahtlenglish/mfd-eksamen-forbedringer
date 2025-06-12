@@ -6,15 +6,16 @@ import DetailPanel from '@/components/panels/DetailPanelComponent.vue'
 import ButtonComponent from '@/components/ui/ButtonComponent.vue'
 import { IconPlus } from '@tabler/icons-vue'
 import { useTjeklisteStore } from '@/stores/tjeklisteStore'
-import { processTjeklister } from '@/utils/labelHelpers'
 import { useDeleteHandler } from '@/composables/useDeleteHandler'
 import { useEditHandler } from '@/composables/useEditHandler'
 import { useCloseDetailPanelHandler } from '@/composables/useCloseDetailPanelHandler'
+import { processTjeklister } from '@/utils/labelHelpers'
 
 const tjeklisteStore = useTjeklisteStore()
 const router = useRouter()
 
-const processedTjeklister = computed(() => processTjeklister(tjeklisteStore.tjeklisterData))
+// Local computed property for processed data
+const processedTjeklister = computed(() => processTjeklister(tjeklisteStore.tjeklister))
 
 const columns = [
   { key: 'type', label: 'Type' },

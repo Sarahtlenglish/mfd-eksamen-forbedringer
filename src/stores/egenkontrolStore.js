@@ -4,13 +4,77 @@ import { db } from '@/configs/firebase'
 import { collection, addDoc, deleteDoc, doc, getDocs, onSnapshot, getDoc, updateDoc } from 'firebase/firestore'
 import { formatDateToISO, generateDateArray, getNextDateByFrequency } from '@/utils/dateHelpers'
 import { useTjeklisteStore } from '@/stores/tjeklisteStore'
+import { useOfflineStore } from './offlineStore'
 
 export const useEgenkontrolStore = defineStore('egenkontrol', () => {
   const egenkontrollerData = ref([])
   const loading = ref(false)
   const error = ref(null)
 
-  const updateStatusInFirebase = async (taskId, newStatus, targetDate, completedData = null) => {
+  // Fetches control tasks from Firebase or offline cache
+  const fetchEgenkontroller = async () => {
+    loading.value = true
+    const offlineStore = useOfflineStore()
+
+    try {
+      // Offline: Load from cache
+      if (!offlineStore.isOnline) {
+        egenkontrollerData.value = await offlineStore.getCachedData('egenkontrol')
+        return
+      }
+
+      // Online: Original logic
+      const querySnapshot = await getDocs(collection(db, 'Egenkontrol'))
+      const egenkontroller = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }))
+      egenkontrollerData.value = egenkontroller
+      await ensureFutureTasks()
+      await updateStatusesBasedOnDate()
+
+      // Cache for offline use
+      await offlineStore.cacheResponseData('egenkontrol', egenkontrollerData.value)
+    } catch (err) {
+      error.value = err
+      // Fallback to cache
+      egenkontrollerData.value = await offlineStore.getCachedData('egenkontrol')
+    } finally {
+      loading.value = false
+    }
+  }
+
+  // Updates a control task (offline: queue for sync)
+  const updateStatusInFirebase = async (taskId, newStatus, targetDate) => {
+    const offlineStore = useOfflineStore()
+
+    // Offline: Update locally
+    if (!offlineStore.isOnline) {
+      const index = egenkontrollerData.value.findIndex(task => task.id === taskId)
+      if (index !== -1) {
+        const task = egenkontrollerData.value[index]
+        const historyIndex = task.historik.findIndex(entry => entry.dato === targetDate)
+        if (historyIndex !== -1) {
+          const updatedHistorik = [...task.historik]
+          updatedHistorik[historyIndex] = {
+            ...updatedHistorik[historyIndex],
+            status: newStatus
+          }
+          egenkontrollerData.value[index] = {
+            ...egenkontrollerData.value[index],
+            historik: updatedHistorik
+          }
+          await offlineStore.storeLocalData('egenkontrol', egenkontrollerData.value[index])
+        }
+      }
+      await offlineStore.addPendingAction({
+        type: 'UPDATE_EGENKONTROL_STATUS',
+        data: { taskId, newStatus, targetDate }
+      })
+      return
+    }
+
+    // Online: Original logic
     try {
       const taskRef = doc(db, 'Egenkontrol', taskId)
       const taskDoc = await getDoc(taskRef)
@@ -196,6 +260,9 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
   }
 
   const setupEgenkontrollerListener = () => {
+    const offlineStore = useOfflineStore()
+    if (!offlineStore.isOnline) return null
+
     return onSnapshot(collection(db, 'Egenkontrol'),
       (snapshot) => {
         const egenkontroller = snapshot.docs.map(doc => ({
@@ -203,6 +270,9 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
           ...doc.data()
         }))
         egenkontrollerData.value = egenkontroller
+
+        // Cache for offline use
+        offlineStore.cacheResponseData('egenkontrol', egenkontrollerData.value)
       },
       (err) => {
         console.error('Error in egenkontroller listener:', err)
@@ -211,7 +281,54 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
     )
   }
 
+  // Adds a control task (offline: queue for sync)
   const addEgenkontrol = async (egenkontrol) => {
+    const offlineStore = useOfflineStore()
+
+    // Offline: Store temporarily
+    if (!offlineStore.isOnline) {
+      const tjeklisteStore = useTjeklisteStore()
+      const tjeklisteId = egenkontrol.tjekliste || egenkontrol.checkliste
+      const tjekliste = tjeklisteStore.getTjeklisteById(tjeklisteId)
+      if (!tjekliste) {
+        throw new Error('Tjekliste ikke fundet')
+      }
+
+      const startDato = egenkontrol.startDato || new Date().toISOString().split('T')[0]
+      const frekvens = tjekliste.frekvens
+      const datoer = generateDateArray(startDato, frekvens, 10)
+      const historik = datoer.map(dato => ({
+        dato,
+        status: 'inaktiv',
+        afsluttetAf: '',
+        noter: ''
+      }))
+
+      const tempEgenkontrol = {
+        id: `temp_egenkontrol_${Date.now()}`,
+        navn: egenkontrol.navn || tjekliste.tjeklisteNavn,
+        beskrivelse: egenkontrol.beskrivelse || tjekliste.beskrivelse || '',
+        checkliste: tjeklisteId,
+        tjeklisterRef: `/Tjeklister/${tjeklisteId}`,
+        lokation: egenkontrol.lokation || '',
+        ansvarligeBrugere: egenkontrol.ansvarligeBrugere || [],
+        modtagere: egenkontrol.modtagere || [],
+        påmindelser: egenkontrol.påmindelser || [],
+        frekvens,
+        startDato,
+        historik,
+        type: 'Egenkontrol',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      }
+
+      egenkontrollerData.value = [...egenkontrollerData.value, tempEgenkontrol]
+      await offlineStore.storeLocalData('egenkontrol', tempEgenkontrol)
+      await offlineStore.addPendingAction({ type: 'ADD_EGENKONTROL', data: egenkontrol })
+      return tempEgenkontrol.id
+    }
+
+    // Online: Original logic
     const tjeklisteStore = useTjeklisteStore()
     const tjeklisteId = egenkontrol.tjekliste || egenkontrol.checkliste
     const tjekliste = tjeklisteStore.getTjeklisteById(tjeklisteId)
@@ -268,12 +385,25 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
     return docRef.id
   }
 
+  // Deletes a control task (offline: queue for sync)
   const deleteEgenkontrol = async (id) => {
+    const offlineStore = useOfflineStore()
+
+    // Remove from local state immediately
+    egenkontrollerData.value = egenkontrollerData.value.filter(egenkontrol => egenkontrol.id !== id)
+
+    // Offline: Queue for sync
+    if (!offlineStore.isOnline) {
+      await offlineStore.deleteLocalData('egenkontrol', id)
+      await offlineStore.addPendingAction({ type: 'DELETE_EGENKONTROL', data: { id } })
+      return
+    }
+
+    // Online: Original logic
     try {
       await deleteDoc(doc(db, 'Egenkontrol', id))
-      egenkontrollerData.value = egenkontrollerData.value.filter(egenkontrol => egenkontrol.id !== id)
     } catch (err) {
-      console.error('Error deleting tjekliste:', err)
+      console.error('Error deleting egenkontrol:', err)
       throw err
     }
   }

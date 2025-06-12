@@ -7,10 +7,10 @@ import GruppePanelComponent from '@/components/panels/GruppePanelComponent.vue'
 import { IconPlus } from '@tabler/icons-vue'
 import DetailPanelComponent from '@/components/panels/DetailPanelComponent.vue'
 import { useBrugerStore } from '@/stores/brugerStore'
-import { processBrugere } from '@/utils/labelHelpers'
 import { useDeleteHandler } from '@/composables/useDeleteHandler'
 import { useEditHandler } from '@/composables/useEditHandler'
 import { useCloseDetailPanelHandler } from '@/composables/useCloseDetailPanelHandler'
+import { processBrugere } from '@/utils/labelHelpers'
 
 const router = useRouter()
 const brugerStore = useBrugerStore()
