@@ -87,7 +87,7 @@ export const useTjeklisteStore = defineStore('tjekliste', () => {
 
       // Sikr at tjeklisteFields eksisterer
       const tjeklisteFields = tjekliste.tjeklisteFields || []
-      
+
       // Initialiser tomme resultater baseret på tjekliste felter
       const fieldResults = tjeklisteFields.map(field => ({
         fieldId: field.id,
@@ -110,12 +110,12 @@ export const useTjeklisteStore = defineStore('tjekliste', () => {
       }
 
       const docRef = await addDoc(collection(db, 'TjeklisteResultater'), resultatData)
-      
+
       const newResultat = {
         id: docRef.id,
         ...resultatData
       }
-      
+
       tjeklisteResultater.value = [...tjeklisteResultater.value, newResultat]
       return docRef.id
     } catch (err) {
@@ -173,7 +173,7 @@ export const useTjeklisteStore = defineStore('tjekliste', () => {
       const resultater = querySnapshot.docs
         .map(doc => ({ id: doc.id, ...doc.data() }))
         .filter(resultat => resultat.egenkontrolId === egenkontrolId)
-      
+
       return resultater
     } catch (err) {
       console.error('Error fetching tjekliste resultater:', err)
@@ -198,7 +198,7 @@ export const useTjeklisteStore = defineStore('tjekliste', () => {
       }
 
       await updateDoc(doc(db, 'Tjeklister', id), updatePayload)
-      
+
       const index = tjeklister.value.findIndex(tjekliste => tjekliste.id === id)
       if (index !== -1) {
         tjeklister.value[index] = { ...tjeklister.value[index], ...updatePayload }
