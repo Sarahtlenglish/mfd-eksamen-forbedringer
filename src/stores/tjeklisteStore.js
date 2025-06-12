@@ -131,7 +131,7 @@ export const useTjeklisteStore = defineStore('tjekliste', () => {
       if (!resultat) throw new Error('Resultat not found')
 
       // Find og opdater det specifikke felt
-      const updatedFieldResults = resultat.fieldResults.map(field => {
+      const updatedFieldResults = resultat.fieldResults.map((field) => {
         if (field.fieldId === fieldId) {
           return { ...field, ...fieldData, completed: true }
         }
