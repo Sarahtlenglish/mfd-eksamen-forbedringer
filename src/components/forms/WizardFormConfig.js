@@ -3,7 +3,7 @@
  * Centraliseret konfiguration for formular wizards i forskellige kontekster.
  */
 
-import { IconClipboard, IconUsers, IconBell, IconChecklist, IconBuilding, IconStack } from '@tabler/icons-vue'
+import { IconClipboard, IconUsers, IconBell, IconChecklist, IconBuilding, IconStack, IconSettings } from '@tabler/icons-vue'
 import InputComponent from '@/components/ui/InputComponent.vue'
 import DropdownComponent from '@/components/ui/DropdownComponent.vue'
 import DatePickerComponent from '@/components/ui/DatePickerComponent.vue'
@@ -268,20 +268,20 @@ export function getWizardConfig(context, options = {}) {
     },
 
     tjeklister: {
-      stepIcons: [IconChecklist, IconBell],
+      stepIcons: [IconChecklist, IconSettings],
       steps: [
         {
           title: 'Tjekliste Information',
           heading: 'Udfyld information for tjeklisten'
         },
         {
-          title: 'Frekvens',
-          heading: 'Vælg frekvens for tjeklisten'
+          title: 'Tjekliste Opsætning',
+          heading: 'Opsæt felter og struktur for tjeklisten'
         }
       ],
       fields: {
-        step1: ['navn', 'beskrivelse', 'type'],
-        step2: ['frekvens']
+        step1: ['navn', 'beskrivelse', 'type', 'frekvens'], // Frekvens er nu flyttet hertil
+        step2: [] // Dette bliver håndteret specielt i det nye tjekliste opsætning step
       },
       fieldDefinitions,
       dropdownOptions: options.dropdownOptions || {}

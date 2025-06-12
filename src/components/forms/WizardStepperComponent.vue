@@ -150,7 +150,7 @@ onMounted(() => {
 }
 
 :deep(.wizard-nav) {
-  margin-bottom: $spacing-large;
+  margin-bottom: $spacing-small;
   height: auto;
   min-height: 5rem;
   display: flex;
@@ -239,7 +239,6 @@ onMounted(() => {
 
 :deep(.wizard-tab-content) {
   border-radius: $border-radius-lg;
-  margin-bottom: $spacing-medium;
   flex: 1;
   overflow-y: visible;
   max-height: calc(100vh - 250px);

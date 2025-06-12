@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, nextTick } from 'vue'
 import { useEgenkontrolStore } from '@/stores/egenkontrolStore'
 import { useBrugerStore } from '@/stores/brugerStore'
 import { useEnhedStore } from '@/stores/enhedStore'
@@ -7,6 +7,8 @@ import { useTjeklisteStore } from '@/stores/tjeklisteStore'
 import { getDaysOverdue } from '@/utils/dateHelpers'
 import BannerComponent from '@/components/ui/BannerComponent.vue'
 import ButtonComponent from '@/components/ui/ButtonComponent.vue'
+import TjeklisteModal from '@/components/ui/TjeklisteModalComponent.vue'
+import StatusUpdateModal from '@/components/ui/StatusUpdateModalComponent.vue'
 import { IconCheck } from '@tabler/icons-vue'
 import { getBannerType, getUserName, getEnhedName, getTjeklisteName, getFrekvensLabel, getTidspunktLabel } from '@/utils/labelHelpers'
 
@@ -22,34 +24,139 @@ const brugerStore = useBrugerStore()
 const enhedStore = useEnhedStore()
 const tjeklisteStore = useTjeklisteStore()
 
+// Modal states
+const showTjeklisteModal = ref(false)
+const showStatusUpdateModal = ref(false)
+
 const selectedTask = computed(() => {
   if (!props.item) return null
   const allTasks = egenkontrolStore.getCalendarTasksSync()
   const dateKey = props.item.dato
   if (!allTasks[dateKey]) return null
-  return allTasks[dateKey].find(t => t.id === props.item.id)
+  return allTasks[dateKey].find(t => t.id === props.item.id) || null
 })
 
 const bannerType = computed(() => {
   if (!selectedTask.value) return null
+
+  // Hvis opgaven har en korrektion der er markeret som korrigeret, vis som completed
+  if (selectedTask.value.korrektion?.korrigeret) {
+    return 'completed'
+  }
+
   return getBannerType(selectedTask.value.status)
 })
 
 const sendReminder = () => alert('Påmindelse sendt til ansvarlige brugere')
+
 const performInspection = async () => {
   try {
-    if (!selectedTask.value) return
-    await egenkontrolStore.updateEgenkontrolStatus(selectedTask.value.id, 'udført', selectedTask.value.dato)
+    if (!selectedTask.value?.tjeklisteFields || selectedTask.value.tjeklisteFields.length === 0) {
+      await egenkontrolStore.fetchEgenkontroller()
+      await nextTick()
+    }
+
+    const fields = selectedTask.value?.tjeklisteFields || []
+
+    if (fields.length === 0) {
+      alert('Ingen tjekliste felter fundet for denne egenkontrol')
+      return
+    }
+
+    showTjeklisteModal.value = true
   } catch (error) {
-    console.error('Fejl ved opdatering af egenkontrol status:', error)
-    alert('Der opstod en fejl ved opdatering af egenkontrol status')
+    console.error('Fejl ved åbning af modal:', error)
   }
 }
+
+const handleTjeklisteComplete = async (completionData) => {
+  try {
+    if (!selectedTask.value) return
+
+    await egenkontrolStore.updateFieldResults(
+      selectedTask.value.id,
+      selectedTask.value.dato,
+      completionData.tjeklisteFields,
+      completionData.completedBy
+    )
+
+    showTjeklisteModal.value = false
+  } catch (error) {
+    console.error('Fejl ved fuldførelse af egenkontrol:', error)
+    alert('Der opstod en fejl ved fuldførelse af egenkontrollen')
+  }
+}
+
+const handleModalClose = () => {
+  showTjeklisteModal.value = false
+}
+
 const createDeviationTask = () => alert('Opgave for afvigelse oprettet')
+
+// Nye funktioner til status opdatering
+const openStatusUpdateModal = () => {
+  showStatusUpdateModal.value = true
+}
+
+const handleStatusUpdate = async (updateData) => {
+  try {
+    if (!selectedTask.value) return
+
+    // Find brugernavnet baseret på ID
+    const selectedBruger = brugerStore.brugere.find(b => b.id === updateData.udbedretAf)
+    const brugerNavn = selectedBruger?.fuldeNavn || selectedBruger?.navn || 'Ukendt bruger'
+
+    await egenkontrolStore.updateEgenkontrolStatusWithCorrection(
+      updateData.taskId,
+      updateData.originalDate,
+      {
+        afvigelseUdbedret: updateData.afvigelseUdbedret,
+        udbedringsBeskrivelse: updateData.udbedringsBeskrivelse,
+        udbedretAf: brugerNavn, // Gem navnet, ikke ID'et
+        udbedringsDato: updateData.udbedringsDato
+      }
+    )
+
+    showStatusUpdateModal.value = false
+  } catch (error) {
+    console.error('Fejl ved opdatering af status:', error)
+    alert('Der opstod en fejl ved opdatering af status')
+  }
+}
+
+const handleStatusUpdateClose = () => {
+  showStatusUpdateModal.value = false
+}
 
 const overdueDays = computed(() => {
   if (!selectedTask.value || selectedTask.value.status !== 'overskredet') return 0
   return getDaysOverdue(selectedTask.value.dato)
+})
+
+const getCompletedDate = () => {
+  if (!selectedTask.value) return 'Ukendt dato'
+
+  const completedDate = selectedTask.value.afsluttetDato || selectedTask.value.completedAt || selectedTask.value.updatedAt || new Date().toISOString()
+
+  try {
+    return new Date(completedDate).toLocaleDateString('da-DK')
+  } catch {
+    return new Date().toLocaleDateString('da-DK')
+  }
+}
+
+const formatDate = (dateString) => {
+  if (!dateString) return 'Ukendt dato'
+  try {
+    return new Date(dateString).toLocaleDateString('da-DK')
+  } catch {
+    return 'Ukendt dato'
+  }
+}
+
+// Computed properties for modal data
+const tjeklisteFields = computed(() => {
+  return selectedTask.value?.tjeklisteFields || []
 })
 </script>
 
@@ -70,6 +177,8 @@ const overdueDays = computed(() => {
             </div>
           </div>
         </div>
+
+        <!-- Overskredet deadline banner -->
         <BannerComponent
           v-if="bannerType === 'overdue'"
           variant="warning"
@@ -79,20 +188,58 @@ const overdueDays = computed(() => {
           :link-break="true"
           @click:link="sendReminder"
         />
+
+        <!-- Standard afvigelse banner -->
         <BannerComponent
-          v-if="bannerType === 'deviation'"
+          v-if="bannerType === 'deviation' && !selectedTask.korrektion"
           variant="error"
           text="Denne egenkontrol har en afvigelse."
-          link="#"
-          link-text="Opret opgave til afvigelsen"
-          :link-break="true"
-          @click:link="createDeviationTask"
-        />
+        >
+          <template #actions>
+            <div class="banner-actions">
+              <button
+                class="banner-link-action"
+                @click="createDeviationTask"
+              >
+                Opret opgave til afvigelsen
+              </button>
+              <button
+                class="banner-link-action"
+                @click="openStatusUpdateModal"
+              >
+                Opdater egenkontrol status
+              </button>
+            </div>
+          </template>
+        </BannerComponent>
+
+        <!-- Udbedret afvigelse banner -->
         <BannerComponent
-          v-if="bannerType === 'completed'"
+          v-if="bannerType === 'completed' && selectedTask.korrektion?.korrigeret"
           variant="success"
-          :text="`Egenkontrol udført d. ${new Date(selectedTask.dato).toLocaleDateString('da-DK')} af ${selectedTask.afsluttetAf || 'Ukendt'}`"
+          :text="`Egenkontrol udbedret d. ${formatDate(selectedTask.korrektion?.korrektionsDato)} af ${selectedTask.korrektion?.korrigeretAf || 'Ukendt'}`"
+        >
+          <template #actions>
+            <div class="banner-actions correction-actions">
+              <div class="correction-action">
+                <strong>Afvigelse:</strong> Registreret d.
+                {{ formatDate(selectedTask.oprindeligAfvigelse?.afsluttetDato) }}
+                af {{ selectedTask.oprindeligAfvigelse?.afsluttetAf || 'Ukendt' }}
+              </div>
+              <div class="correction-action">
+                <strong>Udbedret:</strong> {{ selectedTask.korrektion?.korrektionsBeskrivelse || 'Ingen beskrivelse' }}
+              </div>
+            </div>
+          </template>
+        </BannerComponent>
+
+        <!-- Standard udført banner -->
+        <BannerComponent
+          v-if="bannerType === 'completed' && !selectedTask.korrektion?.korrigeret"
+          variant="success"
+          :text="`Egenkontrol udført d. ${getCompletedDate()} af ${selectedTask.afsluttetAf || 'Ukendt'}`"
         />
+
         <div class="action-button-container" v-if="bannerType === 'active' || bannerType === 'overdue'">
           <ButtonComponent
             variant="secondary"
@@ -119,7 +266,7 @@ const overdueDays = computed(() => {
         </div>
         <div v-if="selectedTask.checkliste || selectedTask.lokation" class="detail-section">
           <div v-if="selectedTask.checkliste" class="detail-row">
-            <strong>{{ getTjeklisteName(selectedTask.checkliste, tjeklisteStore) }}</strong>
+            <span class="detail-label">{{ getTjeklisteName(selectedTask.checkliste, tjeklisteStore) }}</span>
           </div>
           <div v-if="selectedTask.lokation" class="detail-row">
             <span>{{ getEnhedName(selectedTask.lokation, enhedStore) }}</span>
@@ -156,6 +303,23 @@ const overdueDays = computed(() => {
         </div>
       </div>
     </div>
+
+    <!-- Tjekliste Modal -->
+    <TjeklisteModal
+      :isOpen="showTjeklisteModal"
+      :task="selectedTask"
+      :tjeklisteFields="tjeklisteFields"
+      @complete="handleTjeklisteComplete"
+      @close="handleModalClose"
+    />
+
+    <!-- Status Update Modal -->
+    <StatusUpdateModal
+      :isOpen="showStatusUpdateModal"
+      :task="selectedTask"
+      @update="handleStatusUpdate"
+      @close="handleStatusUpdateClose"
+    />
   </div>
 </template>
 
@@ -164,6 +328,58 @@ const overdueDays = computed(() => {
 
 .calendar-detail-content {
   padding: $spacing-small 0;
+}
+
+.banner-actions {
+  display: flex;
+  flex-direction: row;
+  gap: $spacing-xlarge;
+  margin-top: 0 !important;
+  flex-wrap: wrap;
+  width: 100%;
+  justify-content: space-between !important;
+
+  &.correction-actions {
+    flex-direction: column;
+    gap: 0;
+    justify-content: flex-start !important;
+  }
+}
+
+.banner-link-action {
+  background: none;
+  border: none;
+  color: $neutral-700;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+  font-size: $body-2-font-size;
+  font-family: inherit;
+  text-align: left;
+  transition: $transition-base;
+  flex: 0 0 auto;
+
+  &:hover {
+    color: $neutral-900;
+    text-decoration: none;
+  }
+}
+
+.correction-action {
+  background: none;
+  border: none;
+  color: $neutral-700;
+  cursor: default;
+  padding: 0;
+  font-size: $body-2-font-size;
+  font-family: inherit;
+  text-align: left;
+  flex: 0 0 auto;
+
+  strong {
+    color: $neutral-800;
+    font-weight: $body-1-font-weight-semibold;
+  }
 }
 
 .task-list {

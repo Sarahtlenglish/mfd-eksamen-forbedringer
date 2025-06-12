@@ -4,6 +4,7 @@ import WizardStepperComponent from '@/components/forms/WizardStepperComponent.vu
 import { TabContent } from 'vue3-form-wizard'
 import 'vue3-form-wizard/dist/style.css'
 import ButtonComponent from '@/components/ui/ButtonComponent.vue'
+import TjeklisteSetupComponent from '@/components/forms/TjeklisteSetupComponent.vue'
 import { IconPlus } from '@tabler/icons-vue'
 
 const props = defineProps({
@@ -53,6 +54,17 @@ const stepIcons = computed(() => props.config.stepIcons || [])
 const validateCurrentStep = () => {
   try {
     const currentStepIndex = activeTabIndex.value + 1
+    
+    // Special validation for tjekliste setup step
+    if (props.context === 'tjeklister' && currentStepIndex === 2) {
+      if (!props.formData.tjeklisteFields || props.formData.tjeklisteFields.length === 0) {
+        validationErrors.tjeklisteFields = 'Du skal tilføje mindst ét felt til tjeklisten'
+        return false
+      }
+      validationErrors.tjeklisteFields = ''
+      return true
+    }
+
     const currentStepFields = props.config?.fields?.[`step${currentStepIndex}`] || []
     let hasErrors = false
 
@@ -157,7 +169,20 @@ defineExpose({
         <div class="step-content">
           <h2 class="step-heading heading-3">{{ step.heading }}</h2>
 
-           <template v-if="context === 'brugere' && index === 2">
+          <!-- Special handling for tjekliste setup step -->
+          <template v-if="context === 'tjeklister' && index === 1">
+            <TjeklisteSetupComponent
+              :modelValue="formData.tjeklisteFields || []"
+              :previewTitle="formData.navn"
+              @update:modelValue="updateFormValue('tjeklisteFields', $event)"
+            />
+            <div v-if="validationErrors.tjeklisteFields" class="error-message">
+              {{ validationErrors.tjeklisteFields }}
+            </div>
+          </template>
+
+          <!-- Special handling for users step 3 -->
+          <template v-else-if="context === 'brugere' && index === 2">
             <div class="form-row">
               <div class="form-group">
                 <component
@@ -186,7 +211,8 @@ defineExpose({
             </div>
           </template>
 
-          <template v-else-if="context !== 'brugere' && index === 2 && config.step3Groups">
+          <!-- Special handling for other contexts step 3 with groups -->
+          <template v-else-if="context !== 'brugere' && context !== 'tjeklister' && index === 2 && config.step3Groups">
             <div v-for="(group, idx) in config.step3Groups" :key="idx">
               <h3 class="section-label">{{ group.label }}</h3>
               <div class="form-row">
@@ -207,6 +233,7 @@ defineExpose({
             </div>
           </template>
 
+          <!-- Default handling for regular form fields -->
           <template v-else>
             <div class="form-group" v-for="fieldKey in config.fields[`step${index + 1}`]" :key="fieldKey">
               <component
@@ -283,7 +310,7 @@ defineExpose({
 }
 
 .step-heading {
-  margin-bottom: $spacing-xlarge;
+  margin-bottom: $spacing-medium;
 }
 
 .form-group {
@@ -342,5 +369,15 @@ defineExpose({
 
 .wizard-tab-content {
   padding: 0 !important;
+}
+
+.error-message {
+  background: $error-100;
+  border: 1px solid $error-200;
+  color: $error-500;
+  padding: $spacing-small $spacing-medium;
+  border-radius: $border-radius-sm;
+  margin-top: $spacing-medium;
+  font-size: 0.875rem;
 }
 </style>

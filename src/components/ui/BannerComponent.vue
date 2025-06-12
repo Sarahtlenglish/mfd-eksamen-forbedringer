@@ -26,6 +26,8 @@ const props = defineProps({
   }
 })
 
+const emit = defineEmits(['click:link'])
+
 const getIconComponent = computed(() => {
   switch (props.variant) {
     case 'warning':
@@ -38,6 +40,11 @@ const getIconComponent = computed(() => {
       return IconAlertCircle
   }
 })
+
+const handleLinkClick = (event) => {
+  event.preventDefault()
+  emit('click:link')
+}
 </script>
 
 <template>
@@ -55,12 +62,29 @@ const getIconComponent = computed(() => {
 		<div class="banner-content">
 			<template v-if="!linkBreak">
 				<span class="banner-text">{{ text }}</span>
-				<a v-if="link" class="banner-link" :href="link">{{ linkText || 'Opsæt Checkliste' }}</a>
+				<a
+					v-if="link"
+					class="banner-link"
+					:href="link"
+					@click="handleLinkClick"
+				>
+					{{ linkText || 'Opsæt Checkliste' }}
+				</a>
 			</template>
 			<template v-else>
 				<div class="banner-text">{{ text }}</div>
-				<a v-if="link" class="banner-link" :href="link">{{ linkText || 'Opsæt Checkliste' }}</a>
+				<a
+					v-if="link"
+					class="banner-link"
+					:href="link"
+					@click="handleLinkClick"
+				>
+					{{ linkText || 'Opsæt Checkliste' }}
+				</a>
 			</template>
+
+			<!-- Ny slot for custom actions -->
+			<slot name="actions"></slot>
 		</div>
 	</div>
 </template>
@@ -70,8 +94,8 @@ const getIconComponent = computed(() => {
 @use '@/assets/icons' as *;
 
 .banner {
-	display: inline-flex;
-	padding: $spacing-medium;
+	display: flex;
+	padding: $spacing-medium-plus;
 	gap: $spacing-medium;
 	border-radius: $border-radius-lg;
 	width: auto;
@@ -99,9 +123,10 @@ const getIconComponent = computed(() => {
 
 .banner-icon {
 	display: flex;
-	align-items: center;
+	align-items: flex-start;
 	justify-content: center;
 	flex-shrink: 0;
+	margin-top: 2px;
 
 	svg {
 		width: $icon-medium;
@@ -132,6 +157,7 @@ const getIconComponent = computed(() => {
 	line-height: $body-1-line-height;
 	font-weight: $body-1-font-weight-regular;
 	color: $neutral-900;
+	margin-bottom: $spacing-xs;
 }
 
 .banner-link {
@@ -164,5 +190,51 @@ const getIconComponent = computed(() => {
 .banner.link-break .banner-content {
 	display: flex;
 	flex-direction: column;
+}
+
+/* Når der er actions, lav altid kolonne layout */
+.banner-content:has(.banner-actions) {
+	display: flex !important;
+	flex-direction: column !important;
+	align-items: flex-start !important;
+}
+
+/* Nye styles for actions slot */
+.banner-content :deep(.banner-actions) {
+	display: flex;
+	flex-direction: row;
+	gap: $spacing-xlarge;
+	margin-top: $spacing-medium;
+	flex-wrap: wrap;
+	width: 100%;
+	justify-content: flex-start;
+}
+
+.banner-content :deep(.banner-link-action) {
+	background: none;
+	border: none;
+	color: $neutral-700;
+	text-decoration: underline;
+	cursor: pointer;
+	padding: 0;
+	font-size: $body-2-font-size;
+	font-family: inherit;
+	text-align: left;
+	transition: $transition-base;
+	flex: 0 0 auto;
+
+	&:hover {
+		color: $neutral-900;
+		text-decoration: none;
+	}
+
+	&.primary {
+		font-weight: $body-1-font-weight-semibold;
+		color: $neutral-800;
+
+		&:hover {
+			color: $neutral-900;
+		}
+	}
 }
 </style>
