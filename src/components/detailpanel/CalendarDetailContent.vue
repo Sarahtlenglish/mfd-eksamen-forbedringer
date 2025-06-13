@@ -11,6 +11,7 @@ import TjeklisteModal from '@/components/ui/TjeklisteModalComponent.vue'
 import StatusUpdateModal from '@/components/ui/StatusUpdateModalComponent.vue'
 import { IconCheck } from '@tabler/icons-vue'
 import { getBannerType, getUserName, getEnhedName, getTjeklisteName, getFrekvensLabel, getTidspunktLabel } from '@/utils/labelHelpers'
+import { useOfflineStore } from '@/stores/offlineStore'
 
 const props = defineProps({
   item: {
@@ -23,6 +24,7 @@ const egenkontrolStore = useEgenkontrolStore()
 const brugerStore = useBrugerStore()
 const enhedStore = useEnhedStore()
 const tjeklisteStore = useTjeklisteStore()
+const offlineStore = useOfflineStore()
 
 // Modal states
 const showTjeklisteModal = ref(false)
@@ -33,7 +35,8 @@ const selectedTask = computed(() => {
   const allTasks = egenkontrolStore.getCalendarTasksSync()
   const dateKey = props.item.dato
   if (!allTasks[dateKey]) return null
-  return allTasks[dateKey].find(t => t.id === props.item.id) || null
+  const realId = offlineStore.getRealId(props.item.id)
+  return allTasks[dateKey].find(t => t.id === realId) || null
 })
 
 const bannerType = computed(() => {

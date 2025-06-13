@@ -50,6 +50,21 @@ const { handleDelete } = useDeleteHandler({
   onDeleted: () => selectedItem.value = null
 })
 
+// Global function to update selectedItem when temp IDs are replaced
+function updateSelectedEgenkontrolId(oldId, newId) {
+  console.log(`🔄 Attempting to update selectedItem in EgenkontrolView: ${oldId} → ${newId}`)
+
+  if (selectedItem.value && selectedItem.value.id === oldId) {
+    selectedItem.value = { ...selectedItem.value, id: newId, tempId: oldId }
+    console.log(`✅ Updated selectedItem ID in EgenkontrolView: ${oldId} → ${newId}`)
+  }
+}
+
+// Make function available globally for offline store
+if (typeof window !== 'undefined') {
+  window.updateSelectedEgenkontrolId = updateSelectedEgenkontrolId
+}
+
 </script>
 
 <template>

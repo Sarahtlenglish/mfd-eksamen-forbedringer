@@ -30,9 +30,18 @@ const selectedItem = ref(null)
 const selectedTaskId = ref(null)
 const selectedTask = computed(() => {
   if (!selectedTaskId.value) return null
-  return Object.values(calendarTasks.value)
-    .flat()
-    .find(task => task.id === selectedTaskId.value) || null
+
+  const allTasks = Object.values(calendarTasks.value).flat()
+
+  // First try to find by main ID
+  let task = allTasks.find(task => task.id === selectedTaskId.value)
+
+  // If not found, try to find by tempId
+  if (!task) {
+    task = allTasks.find(task => task.tempId === selectedTaskId.value)
+  }
+
+  return task || null
 })
 const detailPanelRef = ref(null)
 const router = useRouter()
@@ -81,11 +90,14 @@ function onSelectTask(task) {
   selectedTaskId.value = task?.id || null
 }
 
-// Global function to update selectedTaskId when temp IDs are replaced
 function updateSelectedTaskId(oldId, newId) {
   if (selectedTaskId.value === oldId) {
     selectedTaskId.value = newId
-    console.log(`🔄 Updated selectedTaskId in HomeView: ${oldId} → ${newId}`)
+    const allTasks = Object.values(calendarTasks.value).flat()
+    const updatedTask = allTasks.find(t => t.id === newId)
+    if (updatedTask) {
+      selectedItem.value = updatedTask
+    }
   }
 }
 

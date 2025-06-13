@@ -417,6 +417,7 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
             afsluttetDato: entry.afsluttetDato,
             dato: entry.dato,
             id: task.id,
+            tempId: task.tempId,
             title: task.navn || task.name || 'Egenkontrol',
             details: task.lokation || task.location || '',
             historik: task.historik,
@@ -437,6 +438,7 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
         calendarTasks[dateKey].push({
           ...task,
           id: task.id,
+          tempId: task.tempId,
           title: task.navn || task.name || 'Egenkontrol',
           details: task.lokation || task.location || '',
           status: 'inaktiv',
