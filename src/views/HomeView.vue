@@ -80,6 +80,19 @@ function onSelectTask(task) {
   selectedItem.value = task
   selectedTaskId.value = task?.id || null
 }
+
+// Global function to update selectedTaskId when temp IDs are replaced
+function updateSelectedTaskId(oldId, newId) {
+  if (selectedTaskId.value === oldId) {
+    selectedTaskId.value = newId
+    console.log(`🔄 Updated selectedTaskId in HomeView: ${oldId} → ${newId}`)
+  }
+}
+
+// Make function available globally for offline store
+if (typeof window !== 'undefined') {
+  window.updateSelectedTaskId = updateSelectedTaskId
+}
 </script>
 
 <template>

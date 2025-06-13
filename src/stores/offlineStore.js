@@ -112,13 +112,18 @@ export const useOfflineStore = defineStore('offline', () => {
     }
   }
 
-  // Adds an action to the sync queue
+  // Adds an action to the sync queue with temp ID mapping
   const addPendingAction = async (action) => {
     try {
       const actionWithTimestamp = {
         ...action,
         timestamp: Date.now(),
         id: `${action.type}_${Date.now()}_${Math.random()}`
+      }
+
+      // For ADD operations, store the temp ID for later replacement
+      if (action.type.startsWith('ADD_') && action.tempId) {
+        actionWithTimestamp.tempId = action.tempId
       }
 
       pendingActions.value.push(actionWithTimestamp)
@@ -137,55 +142,182 @@ export const useOfflineStore = defineStore('offline', () => {
 
   // Processes all queued actions when online
   const processPendingActions = async () => {
-    if (!isOnline.value) return
+    if (!isOnline.value) {
+      console.log('❌ Cannot process pending actions - offline')
+      return
+    }
+
+    console.log('🔄 Starting to process pending actions...')
 
     try {
       const actionsToProcess = await indexedDBManager.getAll('pendingActions')
-      if (actionsToProcess.length === 0) return
+      console.log(`📋 Found ${actionsToProcess.length} pending actions:`, actionsToProcess)
 
+      if (actionsToProcess.length === 0) {
+        console.log('✅ No pending actions to process')
+        return
+      }
+
+      console.log('🚀 Calling syncManager.processAll...')
       const results = await syncManager.processAll(actionsToProcess)
+      console.log('📊 Sync results:', results)
 
-      // Clean up successful actions and refresh data
+      // Process results and handle temp ID replacement
       for (const result of results) {
+        console.log('🔍 Processing result:', result)
+
         if (result.status === 'success') {
+          console.log('✅ Removing pending action:', result.id)
+
+          // Remove the pending action
           await indexedDBManager.delete('pendingActions', result.id)
           const actionIndex = pendingActions.value.findIndex(a => a.id === result.id)
           if (actionIndex >= 0) {
-            const action = pendingActions.value[actionIndex]
             pendingActions.value.splice(actionIndex, 1)
-
-            // For ADD actions: cleanup temp data and refresh cache
-            if (action.type.startsWith('ADD_')) {
-              const collection = action.type.replace('ADD_', '').toLowerCase() + (action.type === 'ADD_ENHED' ? 'er' : action.type === 'ADD_BRUGER' ? 'e' : action.type === 'ADD_TJEKLISTE' ? '' : '')
-
-              // Find and delete temp item
-              const tempItems = await indexedDBManager.getAll(collection)
-              const tempItem = tempItems.find(item =>
-                item.id && item.id.startsWith('temp_')
-                && Object.keys(action.data).some(key => item[key] === action.data[key])
-              )
-
-              if (tempItem) {
-                await indexedDBManager.delete(collection, tempItem.id)
-
-                // Refresh data from Firebase
-                const refreshMap = {
-                  ADD_ENHED: () => import('@/stores/enhedStore').then(m => m.useEnhedStore().fetchEnheder()),
-                  ADD_BRUGER: () => import('@/stores/brugerStore').then(m => m.useBrugerStore().fetchBrugere()),
-                  ADD_TJEKLISTE: () => import('@/stores/tjeklisteStore').then(m => m.useTjeklisteStore().fetchTjeklister()),
-                  ADD_EGENKONTROL: () => import('@/stores/egenkontrolStore').then(m => m.useEgenkontrolStore().fetchEgenkontroller())
-                }
-
-                if (refreshMap[action.type]) {
-                  await refreshMap[action.type]()
-                }
-              }
-            }
+            console.log('🗑️ Removed from local pendingActions array')
           }
+
+          // Replace temp records with real Firebase data
+          if (result.tempReplacement) {
+            console.log('🔄 Processing temp replacement:', result.tempReplacement)
+            await replaceTempWithReal(result.tempReplacement)
+          } else {
+            console.log('ℹ️ No temp replacement needed for this action')
+          }
+        } else {
+          console.warn('⚠️ Action failed:', result)
+        }
+      }
+
+      console.log('🎉 Finished processing all pending actions')
+
+      // Force refresh of egenkontrol data to get latest status after sync
+      if (results.some(r => r.id.includes('EGENKONTROL'))) {
+        console.log('🔄 Refreshing egenkontrol data after sync...')
+        try {
+          const { useEgenkontrolStore } = await import('./egenkontrolStore')
+          const egenkontrolStore = useEgenkontrolStore()
+          await egenkontrolStore.fetchEgenkontroller()
+          console.log('✅ Egenkontrol data refreshed')
+        } catch (error) {
+          console.warn('⚠️ Failed to refresh egenkontrol data:', error)
         }
       }
     } catch (error) {
-      console.error('Failed to process pending actions:', error.message)
+      console.error('❌ Failed to process pending actions:', error.message, error)
+    }
+  }
+
+  // Replace temp record with real Firebase data
+  const replaceTempWithReal = async (replacement) => {
+    const { collection, tempId, realRecord } = replacement
+
+    console.log(`🔄 Starting replaceTempWithReal: ${replacement}`)
+
+    try {
+      // Delete temp record from IndexedDB
+      console.log(`🗑️ Deleting temp record from IndexedDB: ${collection}/${tempId}`)
+      await indexedDBManager.delete(collection, tempId)
+
+      // Add real record with Firebase ID to IndexedDB
+      console.log(`💾 Adding real record to IndexedDB: ${collection}/${realRecord.id}`)
+      await indexedDBManager.put(collection, realRecord)
+
+      // Update local reactive state
+      console.log(`🔄 Updating local reactive state for ${collection}`)
+      if (offlineData.value[collection]) {
+        const tempIndex = offlineData.value[collection].findIndex(item => item.id === tempId)
+        console.log(`📍 Found temp record at index: ${tempIndex}`)
+
+        if (tempIndex >= 0) {
+          offlineData.value[collection][tempIndex] = realRecord
+          console.log('✅ Replaced temp record in offlineData')
+        } else {
+          console.warn(`⚠️ Temp record ${tempId} not found in offlineData`)
+        }
+      } else {
+        console.warn(`⚠️ Collection ${collection} not found in offlineData`)
+      }
+
+      // CRITICAL: Also update the store-specific reactive arrays
+      console.log('🔄 Updating store-specific reactive state')
+      await updateStoreReactiveState(collection, tempId, realRecord)
+
+      console.log(`✅ Successfully replaced temp ${collection} ${tempId} with real ${realRecord.id}`)
+    } catch (error) {
+      console.error(`❌ Failed to replace temp data for ${collection}:`, error.message, error)
+    }
+  }
+
+  // Update store-specific reactive arrays
+  const updateStoreReactiveState = async (collection, tempId, realRecord) => {
+    try {
+      switch (collection) {
+        case 'enheder': {
+          const { useEnhedStore } = await import('./enhedStore')
+          const enhedStore = useEnhedStore()
+          const tempIndex = enhedStore.enheder.findIndex(item => item.id === tempId)
+          if (tempIndex >= 0) {
+            enhedStore.enheder[tempIndex] = realRecord
+            console.log('✅ Updated enhedStore reactive state')
+          }
+          break
+        }
+        case 'brugere': {
+          const { useBrugerStore } = await import('./brugerStore')
+          const brugerStore = useBrugerStore()
+          const tempIndex = brugerStore.brugere.findIndex(item => item.id === tempId)
+          if (tempIndex >= 0) {
+            brugerStore.brugere[tempIndex] = realRecord
+            console.log('✅ Updated brugerStore reactive state')
+          }
+          break
+        }
+        case 'tjeklister': {
+          const { useTjeklisteStore } = await import('./tjeklisteStore')
+          const tjeklisteStore = useTjeklisteStore()
+          const tempIndex = tjeklisteStore.tjeklister.findIndex(item => item.id === tempId)
+          if (tempIndex >= 0) {
+            tjeklisteStore.tjeklister[tempIndex] = realRecord
+            console.log('✅ Updated tjeklisteStore reactive state')
+          }
+          break
+        }
+        case 'egenkontrol': {
+          console.log(`🔍 Processing egenkontrol case for tempId: ${tempId}`)
+          const { useEgenkontrolStore } = await import('./egenkontrolStore')
+          const egenkontrolStore = useEgenkontrolStore()
+          console.log(`📊 egenkontrolStore.egenkontrollerData length: ${egenkontrolStore.egenkontrollerData.length}`)
+          console.log('📋 Current egenkontrollerData IDs:', egenkontrolStore.egenkontrollerData.map(item => item.id))
+
+          const tempIndex = egenkontrolStore.egenkontrollerData.findIndex(item => item.id === tempId)
+          console.log(`📍 Found temp record at index: ${tempIndex}`)
+          if (tempIndex >= 0) {
+            egenkontrolStore.egenkontrollerData[tempIndex] = realRecord
+            console.log('✅ Updated egenkontrolStore reactive state')
+
+            // Update any UI components that might be tracking this temp ID
+            console.log(`🔍 Checking if we need to update selectedTaskId for: ${tempId}`)
+            if (typeof window !== 'undefined') {
+              console.log('🌐 Window object available, checking for updateSelectedTaskId function')
+              if (window.updateSelectedTaskId) {
+                console.log(`✅ Found updateSelectedTaskId function, calling with: ${tempId} → ${realRecord.id}`)
+                window.updateSelectedTaskId(tempId, realRecord.id)
+                console.log(`🔄 Updated selectedTaskId: ${tempId} → ${realRecord.id}`)
+              } else {
+                console.warn('⚠️ updateSelectedTaskId function not found on window object')
+              }
+            } else {
+              console.warn('⚠️ Window object not available')
+            }
+          } else {
+            console.warn(`⚠️ Temp record ${tempId} not found in egenkontrollerData`)
+          }
+          break
+        }
+      }
+    } catch (error) {
+      console.error(`❌ Failed to update ${collection} store reactive state:`, error)
     }
   }
 

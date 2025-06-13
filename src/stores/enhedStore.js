@@ -96,8 +96,9 @@ export const useEnhedStore = defineStore('enhedStore', () => {
 
     // Offline: Store temporarily
     if (!offlineStore.isOnline) {
+      const tempId = `temp_enhed_${Date.now()}`
       const tempEnhed = {
-        id: `temp_enhed_${Date.now()}`,
+        id: tempId,
         name: enhed.name,
         description: enhed.description,
         location: enhed.location,
@@ -106,8 +107,12 @@ export const useEnhedStore = defineStore('enhedStore', () => {
       }
       enheder.value = [...enheder.value, tempEnhed]
       await offlineStore.storeLocalData('enheder', tempEnhed)
-      await offlineStore.addPendingAction({ type: 'ADD_ENHED', data: enhed })
-      return tempEnhed.id
+      await offlineStore.addPendingAction({
+        type: 'ADD_ENHED',
+        data: enhed,
+        tempId
+      })
+      return tempId
     }
 
     // Online: Original logic
@@ -197,8 +202,9 @@ export const useEnhedStore = defineStore('enhedStore', () => {
 
     // Offline: Store temporarily
     if (!offlineStore.isOnline) {
+      const tempId = `temp_gruppe_${Date.now()}`
       const tempGruppe = {
-        id: `temp_gruppe_${Date.now()}`,
+        id: tempId,
         name: gruppe.name,
         description: gruppe.description,
         location: gruppe.location,
@@ -209,9 +215,10 @@ export const useEnhedStore = defineStore('enhedStore', () => {
       await offlineStore.storeLocalData('enheder', tempGruppe)
       await offlineStore.addPendingAction({
         type: 'ADD_ENHED',
-        data: { ...gruppe, type: 'Gruppe' }
+        data: { ...gruppe, type: 'Gruppe' },
+        tempId
       })
-      return tempGruppe.id
+      return tempId
     }
 
     // Online: Original logic

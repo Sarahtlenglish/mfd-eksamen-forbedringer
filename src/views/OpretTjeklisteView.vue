@@ -20,7 +20,6 @@ const formData = reactive({
   beskrivelse: '',
   type: '',
   frekvens: '',
-  tidspunkt: '',
   opgaver: [],
   tjeklisteFields: []
 })

@@ -39,6 +39,10 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
       error.value = err
       // Fallback to cache
       egenkontrollerData.value = await offlineStore.getCachedData('egenkontrol')
+      // Update statuses based on date even when offline
+      if (egenkontrollerData.value && egenkontrollerData.value.length > 0) {
+        await updateStatusesBasedOnDate()
+      }
     } finally {
       loading.value = false
     }
@@ -85,22 +89,10 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
         throw new Error('No history entry found for the target date')
       }
 
-      const currentEntry = taskData.historik[historyIndex]
-
-      // VIGTIG: Respekter manuelt fuldførte opgaver
-      if (currentEntry.manueltFuldført && (currentEntry.status === 'udført' || currentEntry.status === 'afvigelse')) {
-        return // Undgå at overskrive manuelt fuldførte opgaver
-      }
-
       const updatedHistorik = [...taskData.historik]
       updatedHistorik[historyIndex] = {
         ...updatedHistorik[historyIndex],
-        status: newStatus,
-        ...(completedData && {
-          afsluttetAf: completedData.afsluttetAf,
-          afsluttetDato: completedData.afsluttetDato,
-          tjeklisteResultat: completedData.tjeklisteResultat
-        })
+        status: newStatus
       }
 
       await updateDoc(taskRef, { historik: updatedHistorik })
@@ -119,31 +111,73 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
   }
 
   const updateStatusesBasedOnDate = async () => {
+    const offlineStore = useOfflineStore()
     const today = new Date()
     today.setHours(0, 0, 0, 0)
+
     for (const task of egenkontrollerData.value) {
       if (!Array.isArray(task.historik)) continue
-      for (const entry of task.historik) {
+      let taskUpdated = false
+      const updatedHistorik = [...task.historik]
+
+      for (let i = 0; i < updatedHistorik.length; i++) {
+        const entry = updatedHistorik[i]
         const entryDate = new Date(entry.dato)
         entryDate.setHours(0, 0, 0, 0)
         let newStatus = entry.status
 
-        // VIGTIG: Bevar udført og afvigelse status - overskrid dem ALDRIG
-        if (entry.status === 'udført' || entry.status === 'afvigelse') {
-          continue // Skip denne entry - den er allerede fuldført
-        }
-
-        // Kun opdater status for ikke-fuldførte opgaver
-        if (entryDate < today && entry.status !== 'udført' && entry.status !== 'afvigelse') {
+        if (entry.status === 'udført') {
+          newStatus = 'udført'
+        } else if (entry.status === 'afvigelse' && entryDate < today) {
+          newStatus = 'afvigelse'
+        } else if (entryDate < today && entry.status !== 'udført' && entry.status !== 'afvigelse') {
           newStatus = 'overskredet'
-        } else if (entryDate.getTime() === today.getTime()) {
+        } else if (entryDate.getTime() === today.getTime() && entry.status !== 'udført' && entry.status !== 'afvigelse') {
           newStatus = 'aktiv'
-        } else if (entryDate > today) {
+        } else if (entryDate > today && entry.status !== 'udført' && entry.status !== 'afvigelse') {
           newStatus = 'inaktiv'
         }
 
         if (entry.status !== newStatus) {
-          await updateStatusInFirebase(task.id, newStatus, entry.dato)
+          updatedHistorik[i] = { ...entry, status: newStatus }
+          taskUpdated = true
+        }
+      }
+
+      // If task was updated, update it in the store
+      if (taskUpdated) {
+        const taskIndex = egenkontrollerData.value.findIndex(t => t.id === task.id)
+        if (taskIndex !== -1) {
+          egenkontrollerData.value[taskIndex] = {
+            ...task,
+            historik: updatedHistorik,
+            updatedAt: new Date().toISOString()
+          }
+
+          // If offline, store locally. If online, sync will happen via updateStatusInFirebase calls
+          if (!offlineStore.isOnline) {
+            await offlineStore.storeLocalData('egenkontrol', egenkontrollerData.value[taskIndex])
+            // Queue individual status updates for sync when back online
+            for (let i = 0; i < updatedHistorik.length; i++) {
+              if (task.historik[i] && task.historik[i].status !== updatedHistorik[i].status) {
+                await offlineStore.addPendingAction({
+                  type: 'UPDATE_EGENKONTROL_STATUS',
+                  data: {
+                    taskId: task.id,
+                    newStatus: updatedHistorik[i].status,
+                    targetDate: updatedHistorik[i].dato
+                  }
+                })
+              }
+            }
+          } else {
+            // Online: Use Firebase updates
+            for (let i = 0; i < updatedHistorik.length; i++) {
+              if (task.historik[i] && task.historik[i].status !== updatedHistorik[i].status) {
+                await updateStatusInFirebase(task.id, updatedHistorik[i].status, updatedHistorik[i].dato)
+              }
+            }
+          }
         }
       }
     }
@@ -163,35 +197,6 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
       if (!egenkontrol) continue
 
       const historik = egenkontrol.historik || []
-      let needsUpdate = false
-
-      // Opdater eksisterende historik entries der mangler tjeklisteFields
-      for (let i = 0; i < historik.length; i++) {
-        if (!historik[i].tjeklisteFields || historik[i].tjeklisteFields.length === 0) {
-          const baseTjeklisteFields = tjekliste.tjeklisteFields || []
-          const tjeklisteFields = baseTjeklisteFields.map(field => ({
-            id: field.id,
-            title: field.title,
-            description: field.description || '',
-            type: field.type,
-            required: field.required || false,
-            order: field.order || 1,
-            // Svar felter
-            answer: null,
-            comment: '',
-            imageUrl: null,
-            completed: false
-          }))
-
-          historik[i] = {
-            ...historik[i],
-            tjeklisteFields: tjeklisteFields
-          }
-          needsUpdate = true
-        }
-      }
-
-      // Tilføj nye fremtidige opgaver
       let lastDate = historik.length > 0 ? new Date(historik[historik.length - 1].dato) : new Date()
       lastDate.setHours(0, 0, 0, 0)
 
@@ -201,64 +206,19 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
         nextDate = getNextDateByFrequency(nextDate, freq)
         if (nextDate > endDate) break
         if (!historik.some(h => h.dato === formatDateToISO(nextDate))) {
-          const baseTjeklisteFields = tjekliste.tjeklisteFields || []
-          const tjeklisteFields = baseTjeklisteFields.map(field => ({
-            id: field.id,
-            title: field.title,
-            description: field.description || '',
-            type: field.type,
-            required: field.required || false,
-            order: field.order || 1,
-            // Svar felter
-            answer: null,
-            comment: '',
-            imageUrl: null,
-            completed: false
-          }))
-
           historik.push({
             dato: formatDateToISO(nextDate),
             status: 'inaktiv',
             afsluttetAf: '',
-            noter: '',
-            tjeklisteFields: tjeklisteFields
+            noter: ''
           })
-          needsUpdate = true
         }
       }
-
-      // Opdater kun hvis der faktisk er ændringer
-      if (needsUpdate) {
-        await updateDoc(doc(db, 'Egenkontrol', egenkontrol.id), { historik })
-        // Opdater lokal data
-        const index = egenkontrollerData.value.findIndex(e => e.id === egenkontrol.id)
-        if (index !== -1) {
-          egenkontrollerData.value[index].historik = historik
-        }
-      }
+      await updateDoc(doc(db, 'Egenkontrol', egenkontrol.id), { historik })
     }
   }
 
-  const fetchEgenkontroller = async () => {
-    loading.value = true
-    try {
-      const querySnapshot = await getDocs(collection(db, 'Egenkontrol'))
-      const egenkontroller = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }))
-      egenkontrollerData.value = egenkontroller
-
-      await ensureFutureTasks()
-      await updateStatusesBasedOnDate()
-    } catch (err) {
-      error.value = err
-      console.error('Error in fetchEgenkontroller:', err)
-    } finally {
-      loading.value = false
-    }
-  }
-
+  // Sets up real-time updates from Firebase (only online)
   const setupEgenkontrollerListener = () => {
     const offlineStore = useOfflineStore()
     if (!offlineStore.isOnline) return null
@@ -304,8 +264,9 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
         noter: ''
       }))
 
+      const tempId = `temp_egenkontrol_${Date.now()}`
       const tempEgenkontrol = {
-        id: `temp_egenkontrol_${Date.now()}`,
+        id: tempId,
         navn: egenkontrol.navn || tjekliste.tjeklisteNavn,
         beskrivelse: egenkontrol.beskrivelse || tjekliste.beskrivelse || '',
         checkliste: tjeklisteId,
@@ -324,8 +285,16 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
 
       egenkontrollerData.value = [...egenkontrollerData.value, tempEgenkontrol]
       await offlineStore.storeLocalData('egenkontrol', tempEgenkontrol)
-      await offlineStore.addPendingAction({ type: 'ADD_EGENKONTROL', data: egenkontrol })
-      return tempEgenkontrol.id
+      await offlineStore.addPendingAction({
+        type: 'ADD_EGENKONTROL',
+        data: tempEgenkontrol,
+        tempId
+      })
+
+      // Update statuses immediately after adding the new egenkontrol
+      await updateStatusesBasedOnDate()
+
+      return tempId
     }
 
     // Online: Original logic
@@ -338,33 +307,12 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
     const startDato = egenkontrol.startDato || new Date().toISOString().split('T')[0]
     const frekvens = tjekliste.frekvens
     const datoer = generateDateArray(startDato, frekvens, 10)
-
-    const historik = datoer.map((dato) => {
-      // Initialiser tjeklisteFields baseret på tjekliste template
-      const baseTjeklisteFields = tjekliste.tjeklisteFields || []
-      const tjeklisteFields = baseTjeklisteFields.map(field => ({
-        id: field.id,
-        title: field.title,
-        description: field.description || '',
-        type: field.type,
-        required: field.required || false,
-        order: field.order || 1,
-        // Svar felter
-        answer: null,
-        comment: '',
-        imageUrl: null,
-        completed: false
-      }))
-
-      return {
-        dato,
-        status: 'inaktiv',
-        afsluttetAf: '',
-        noter: '',
-        tjeklisteFields: tjeklisteFields // Hovedstrukturen med svar-data inkluderet
-      }
-    })
-
+    const historik = datoer.map(dato => ({
+      dato,
+      status: 'inaktiv',
+      afsluttetAf: '',
+      noter: ''
+    }))
     const egenkontrolDoc = {
       navn: egenkontrol.navn || tjekliste.tjeklisteNavn,
       beskrivelse: egenkontrol.beskrivelse || tjekliste.beskrivelse || '',
@@ -408,140 +356,6 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
     }
   }
 
-  // Ny funktion til at opdatere tjeklisteFields for en specifik historik entry
-  const updateFieldResults = async (taskId, targetDate, tjeklisteFields, completedBy) => {
-    try {
-      const taskRef = doc(db, 'Egenkontrol', taskId)
-      const taskDoc = await getDoc(taskRef)
-      const taskData = taskDoc.data()
-
-      const historyIndex = taskData.historik.findIndex(entry => entry.dato === targetDate)
-      if (historyIndex === -1) {
-        throw new Error('No history entry found for the target date')
-      }
-
-      // VIGTIG: Tjek om der er nogen "nej" svar i yes_no_comment felter
-      const hasAnyDeviations = tjeklisteFields
-        .filter(field => field.type === 'yes_no_comment')
-        .some(field => field.answer === 'nej')
-
-      // Bestem status baseret på svarene
-      const newStatus = hasAnyDeviations ? 'afvigelse' : 'udført'
-
-      const updatedHistorik = [...taskData.historik]
-      updatedHistorik[historyIndex] = {
-        ...updatedHistorik[historyIndex],
-        status: newStatus,
-        tjeklisteFields: tjeklisteFields, // Gem alle svar i tjeklisteFields
-        afsluttetAf: completedBy,
-        afsluttetDato: new Date().toISOString(),
-        // Tilføj flag så vi ved at denne er manuelt fuldført
-        manueltFuldført: true
-      }
-
-      // Opdater hele historik arrayet i Firebase
-      await updateDoc(taskRef, {
-        historik: updatedHistorik,
-        updatedAt: new Date().toISOString()
-      })
-
-      // Opdater lokal state
-      const index = egenkontrollerData.value.findIndex(task => task.id === taskId)
-      if (index !== -1) {
-        egenkontrollerData.value[index] = {
-          ...egenkontrollerData.value[index],
-          historik: updatedHistorik
-        }
-      }
-
-      return newStatus
-    } catch (err) {
-      console.error('Error updating tjeklisteFields:', err)
-      throw err
-    }
-  }
-
-  // NY FUNKTION: Opdater status fra afvigelse til udført med korrektion
-  const updateEgenkontrolStatusWithCorrection = async (taskId, originalDate, correctionData) => {
-    try {
-      const taskRef = doc(db, 'Egenkontrol', taskId)
-      const taskDoc = await getDoc(taskRef)
-      const taskData = taskDoc.data()
-
-      const historyIndex = taskData.historik.findIndex(entry => entry.dato === originalDate)
-      if (historyIndex === -1) {
-        throw new Error('No history entry found for the original date')
-      }
-
-      const originalEntry = taskData.historik[historyIndex]
-
-      // Sikr at der faktisk var en afvigelse på denne dato
-      if (originalEntry.status !== 'afvigelse') {
-        throw new Error('Can only correct entries with deviation status')
-      }
-
-      const updatedHistorik = [...taskData.historik]
-
-      if (correctionData.afvigelseUdbedret === 'ja') {
-        // Marker som udført med korrektion
-        updatedHistorik[historyIndex] = {
-          ...originalEntry,
-          status: 'udført', // Ændrer status til udført
-          // Bevar den oprindelige afvigelse information
-          oprindeligAfvigelse: {
-            status: 'afvigelse',
-            afsluttetDato: originalEntry.afsluttetDato,
-            afsluttetAf: originalEntry.afsluttetAf,
-            tjeklisteFields: originalEntry.tjeklisteFields
-          },
-          // Tilføj korrektion information
-          korrektion: {
-            korrigeret: true,
-            korrektionsDato: correctionData.udbedringsDato,
-            korrigeretAf: correctionData.udbedretAf,
-            korrektionsBeskrivelse: correctionData.udbedringsBeskrivelse,
-            korrektionsTidspunkt: new Date().toISOString()
-          },
-          // Opdater hovedfelter
-          afsluttetDato: correctionData.udbedringsDato,
-          afsluttetAf: correctionData.udbedretAf,
-          manueltFuldført: true
-        }
-      } else {
-        // Opdater bare beskrivelsen hvis ikke udbedret endnu
-        updatedHistorik[historyIndex] = {
-          ...originalEntry,
-          statusOpdatering: {
-            dato: correctionData.udbedringsDato,
-            opdateretAf: correctionData.udbedretAf,
-            beskrivelse: correctionData.udbedringsBeskrivelse,
-            opdateringsTidspunkt: new Date().toISOString()
-          }
-        }
-      }
-
-      // Opdater hele historik arrayet i Firebase
-      await updateDoc(taskRef, {
-        historik: updatedHistorik,
-        updatedAt: new Date().toISOString()
-      })
-
-      // Opdater lokal state
-      const index = egenkontrollerData.value.findIndex(task => task.id === taskId)
-      if (index !== -1) {
-        egenkontrollerData.value[index] = {
-          ...egenkontrollerData.value[index],
-          historik: updatedHistorik
-        }
-      }
-
-      return correctionData.afvigelseUdbedret === 'ja' ? 'udført' : 'afvigelse'
-    } catch (err) {
-      console.error('Error updating egenkontrol status with correction:', err)
-      throw err
-    }
-  }
-
   const resolveReferences = async (egenkontrol) => {
     try {
       const [bruger, enhed, tjekliste] = await Promise.all([
@@ -564,14 +378,37 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
 
   const formatTasksForCalendar = (tasks) => {
     const calendarTasks = {}
+    const tjeklisteStore = useTjeklisteStore()
 
     tasks.forEach((task) => {
+      // Find tjekliste fields for this task
+      const tjekliste = tjeklisteStore.getTjeklisteById(task.checkliste)
+      const tjeklisteFields = tjekliste?.tjeklisteFields || []
+
       if (Array.isArray(task.historik)) {
         task.historik.forEach((entry) => {
           const dateKey = entry.dato
           if (!calendarTasks[dateKey]) {
             calendarTasks[dateKey] = []
           }
+
+          // Find korrektion og oprindelig afvigelse
+          const korrektion = entry.korrektion || null
+          // Find første afvigelse i historik før eller på denne dato
+          let oprindeligAfvigelse = null
+          if (entry.status === 'udført' && korrektion && korrektion.korrigeret) {
+            // Find den historik-entry med status 'afvigelse' tættest på denne dato (samme dato eller før)
+            const afvigelser = task.historik.filter(h => h.status === 'afvigelse' && new Date(h.dato) <= new Date(entry.dato))
+            if (afvigelser.length > 0) {
+              // Tag den seneste
+              const orig = afvigelser.reduce((a, b) => new Date(a.dato) > new Date(b.dato) ? a : b)
+              oprindeligAfvigelse = {
+                afsluttetDato: orig.afsluttetDato,
+                afsluttetAf: orig.afsluttetAf
+              }
+            }
+          }
+
           calendarTasks[dateKey].push({
             ...task,
             status: entry.status,
@@ -585,11 +422,9 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
             historik: task.historik,
             modtagere: task.modtagere,
             påmindelser: task.påmindelser,
-            // Tilføj adgang til tjeklisteFields for denne dato
-            tjeklisteFields: entry.tjeklisteFields || [],
-            // Tilføj korrektion og oprindelig afvigelse information
-            korrektion: entry.korrektion || null,
-            oprindeligAfvigelse: entry.oprindeligAfvigelse || null
+            tjeklisteFields: tjeklisteFields,
+            korrektion: korrektion,
+            oprindeligAfvigelse: oprindeligAfvigelse
           })
         })
       } else {
@@ -606,8 +441,7 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
           details: task.lokation || task.location || '',
           status: 'inaktiv',
           påmindelser: task.påmindelser,
-          tjeklisteFields: [],
-          fieldResults: []
+          tjeklisteFields: tjeklisteFields
         })
       }
     })
@@ -633,6 +467,172 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
     return formatTasksForCalendar(egenkontrollerData.value)
   }
 
+  // Updates egenkontrol with completed tjekliste field results
+  const updateFieldResults = async (egenkontrolId, targetDate, fieldResults, completedBy) => {
+    const offlineStore = useOfflineStore()
+
+    try {
+      // Find the egenkontrol
+      const egenkontrol = egenkontrollerData.value.find(e => e.id === egenkontrolId)
+      if (!egenkontrol) {
+        throw new Error('Egenkontrol ikke fundet')
+      }
+
+      // Check if there are any deviations in the field results
+      const hasDeviations = fieldResults.some((field) => {
+        if (field.type === 'yes_no_comment') {
+          return field.answer === 'nej'
+        }
+        return false
+      })
+
+      // Determine the final status based on whether there are deviations
+      const finalStatus = hasDeviations ? 'afvigelse' : 'udført'
+
+      // Update the specific history entry with field results
+      const updatedHistorik = egenkontrol.historik.map((entry) => {
+        if (entry.dato === targetDate) {
+          return {
+            ...entry,
+            status: finalStatus,
+            afsluttetAf: completedBy,
+            afsluttetDato: new Date().toISOString(),
+            tjeklisteFieldResults: fieldResults,
+            noter: entry.noter || ''
+          }
+        }
+        return entry
+      })
+
+      // Update locally first
+      const updatedEgenkontrol = {
+        ...egenkontrol,
+        historik: updatedHistorik,
+        updatedAt: new Date().toISOString()
+      }
+
+      // Update local state
+      const index = egenkontrollerData.value.findIndex(e => e.id === egenkontrolId)
+      if (index !== -1) {
+        egenkontrollerData.value[index] = updatedEgenkontrol
+      }
+
+      // If offline, queue for later sync
+      if (!offlineStore.isOnline) {
+        await offlineStore.storeLocalData('egenkontrol', updatedEgenkontrol)
+        await offlineStore.addPendingAction({
+          type: 'UPDATE_EGENKONTROL_FIELD_RESULTS',
+          data: {
+            egenkontrolId,
+            targetDate,
+            fieldResults,
+            completedBy
+          }
+        })
+        return
+      }
+
+      // If online, update Firebase immediately
+      await updateDoc(doc(db, 'Egenkontrol', egenkontrolId), {
+        historik: updatedHistorik,
+        updatedAt: new Date().toISOString()
+      })
+    } catch (err) {
+      console.error('Error updating field results:', err)
+      throw err
+    }
+  }
+
+  // Updates egenkontrol status with correction information for deviations
+  const updateEgenkontrolStatusWithCorrection = async (egenkontrolId, targetDate, correctionData) => {
+    const offlineStore = useOfflineStore()
+
+    try {
+      // Find the egenkontrol
+      const egenkontrol = egenkontrollerData.value.find(e => e.id === egenkontrolId)
+      if (!egenkontrol) {
+        throw new Error('Egenkontrol ikke fundet')
+      }
+
+      // Update the specific history entry with correction information
+      const updatedHistorik = egenkontrol.historik.map((entry) => {
+        if (entry.dato === targetDate) {
+          return {
+            ...entry,
+            status: correctionData.afvigelseUdbedret ? 'udført' : 'afvigelse',
+            korrektion: {
+              korrigeret: correctionData.afvigelseUdbedret,
+              korrektionsDato: correctionData.udbedringsDato,
+              korrigeretAf: correctionData.udbedretAf,
+              korrektionsBeskrivelse: correctionData.udbedringsBeskrivelse
+            },
+            updatedAt: new Date().toISOString()
+          }
+        }
+        return entry
+      })
+
+      // Update locally first
+      const updatedEgenkontrol = {
+        ...egenkontrol,
+        historik: updatedHistorik,
+        updatedAt: new Date().toISOString()
+      }
+
+      // Update local state
+      const index = egenkontrollerData.value.findIndex(e => e.id === egenkontrolId)
+      if (index !== -1) {
+        egenkontrollerData.value[index] = updatedEgenkontrol
+      }
+
+      // If offline, queue for later sync
+      if (!offlineStore.isOnline) {
+        await offlineStore.storeLocalData('egenkontrol', updatedEgenkontrol)
+        await offlineStore.addPendingAction({
+          type: 'UPDATE_EGENKONTROL_STATUS_WITH_CORRECTION',
+          data: {
+            egenkontrolId,
+            targetDate,
+            correctionData
+          }
+        })
+        return
+      }
+
+      // If online, update Firebase immediately
+      await updateDoc(doc(db, 'Egenkontrol', egenkontrolId), {
+        historik: updatedHistorik,
+        updatedAt: new Date().toISOString()
+      })
+    } catch (err) {
+      console.error('Error updating egenkontrol status with correction:', err)
+      throw err
+    }
+  }
+
+  // Set up periodic status updates (every 5 minutes)
+  let statusUpdateInterval = null
+
+  const startStatusUpdates = () => {
+    if (statusUpdateInterval) return
+
+    statusUpdateInterval = setInterval(async () => {
+      if (egenkontrollerData.value && egenkontrollerData.value.length > 0) {
+        await updateStatusesBasedOnDate()
+      }
+    }, 5 * 60 * 1000) // 5 minutes
+  }
+
+  const stopStatusUpdates = () => {
+    if (statusUpdateInterval) {
+      clearInterval(statusUpdateInterval)
+      statusUpdateInterval = null
+    }
+  }
+
+  // Start status updates when store is created
+  startStatusUpdates()
+
   return {
     egenkontrollerData,
     loading,
@@ -647,6 +647,8 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
     updateStatusesBasedOnDate,
     updateEgenkontrolStatus: updateStatusInFirebase,
     updateFieldResults,
-    updateEgenkontrolStatusWithCorrection
+    updateEgenkontrolStatusWithCorrection,
+    startStatusUpdates,
+    stopStatusUpdates
   }
 })

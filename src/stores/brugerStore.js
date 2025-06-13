@@ -76,17 +76,22 @@ export const useBrugerStore = defineStore('bruger', () => {
 
     // Offline: Store temporarily
     if (!offlineStore.isOnline) {
+      const tempId = `temp_${Date.now()}`
       const tempBruger = {
         ...bruger,
-        id: `temp_bruger_${Date.now()}`,
+        id: tempId,
         createdAt: new Date(),
         lederNavn: bruger.brugereRef ? brugerNavne.value[bruger.brugereRef] : null
       }
       brugere.value.push(tempBruger)
-      brugerNavne.value[tempBruger.id] = tempBruger.fuldeNavn
+      brugerNavne.value[tempId] = tempBruger.fuldeNavn
       await offlineStore.storeLocalData('brugere', tempBruger)
-      await offlineStore.addPendingAction({ type: 'ADD_BRUGER', data: bruger })
-      return tempBruger.id
+      await offlineStore.addPendingAction({
+        type: 'ADD_BRUGER',
+        data: bruger,
+        tempId
+      })
+      return tempId
     }
 
     // Online: Original logic
