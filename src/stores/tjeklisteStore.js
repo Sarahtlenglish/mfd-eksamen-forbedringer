@@ -69,11 +69,19 @@ export const useTjeklisteStore = defineStore('tjekliste', () => {
         type: tjekliste.type,
         frekvens: tjekliste.frekvens,
         tidspunkt: tjekliste.tidspunkt,
+        tjeklisteFields: tjekliste.tjeklisteFields || [],
         opgaver: tjekliste.opgaver || []
       }
+
       tjeklister.value = [...tjeklister.value, tempTjekliste]
       await offlineStore.storeLocalData('tjeklister', tempTjekliste)
-      await offlineStore.addPendingAction({ type: 'ADD_TJEKLISTE', data: tjekliste })
+
+      // 🔶  VIGTIGT: medsend tempId
+      await offlineStore.addPendingAction({
+        type: 'ADD_TJEKLISTE',
+        data: { ...tjekliste, tempId: tempTjekliste.id }
+      })
+
       return tempTjekliste.id
     }
 

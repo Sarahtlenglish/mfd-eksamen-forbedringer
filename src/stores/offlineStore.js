@@ -50,6 +50,12 @@ export const useOfflineStore = defineStore('offline', () => {
     if (wasOffline && isOnline.value) {
       console.log('🌐 Back online - processing pending actions')
       setTimeout(() => processPendingActions(), 1000)
+      setTimeout(async () => {
+        const pending = await indexedDBManager.getAll('pendingActions')
+        if (pending.length > 0) {
+          await processPendingActions()
+        }
+      }, 1000)
     } else if (!isOnline.value) {
       console.log('📴 Gone offline - entering offline mode')
     }
@@ -138,55 +144,102 @@ export const useOfflineStore = defineStore('offline', () => {
   // Processes all queued actions when online
   const processPendingActions = async () => {
     if (!isOnline.value) return
-
+  
     try {
+      /* 1. hent alle ventende handlinger */
       const actionsToProcess = await indexedDBManager.getAll('pendingActions')
       if (actionsToProcess.length === 0) return
-
+  
+      /* 2. kør syncManager */
       const results = await syncManager.processAll(actionsToProcess)
+  
+      /* 3. fjern KUN succes-handlinger i ét hug */
+      const finished = results
+        .filter(r => r.status === 'success')
+        .map(r => r.id)
+  
+      if (finished.length) {
+        await Promise.all(
+          finished.map(id => indexedDBManager.delete('pendingActions', id))
+        )
+        console.log(`🗑️  Removed ${finished.length} synced pending actions`)
 
-      // Clean up successful actions and refresh data
+        hasPendingActions.value = false
+      }
+  
+      /* 4. gå alle succes-handlinger igennem for at rydde temp-data + refresh */
       for (const result of results) {
-        if (result.status === 'success') {
-          await indexedDBManager.delete('pendingActions', result.id)
-          const actionIndex = pendingActions.value.findIndex(a => a.id === result.id)
-          if (actionIndex >= 0) {
-            const action = pendingActions.value[actionIndex]
-            pendingActions.value.splice(actionIndex, 1)
-
-            // For ADD actions: cleanup temp data and refresh cache
-            if (action.type.startsWith('ADD_')) {
-              const collection = action.type.replace('ADD_', '').toLowerCase() + (action.type === 'ADD_ENHED' ? 'er' : action.type === 'ADD_BRUGER' ? 'e' : action.type === 'ADD_TJEKLISTE' ? '' : '')
-
-              // Find and delete temp item
-              const tempItems = await indexedDBManager.getAll(collection)
-              const tempItem = tempItems.find(item =>
-                item.id && item.id.startsWith('temp_')
-                && Object.keys(action.data).some(key => item[key] === action.data[key])
-              )
-
-              if (tempItem) {
-                await indexedDBManager.delete(collection, tempItem.id)
-
-                // Refresh data from Firebase
-                const refreshMap = {
-                  ADD_ENHED: () => import('@/stores/enhedStore').then(m => m.useEnhedStore().fetchEnheder()),
-                  ADD_BRUGER: () => import('@/stores/brugerStore').then(m => m.useBrugerStore().fetchBrugere()),
-                  ADD_TJEKLISTE: () => import('@/stores/tjeklisteStore').then(m => m.useTjeklisteStore().fetchTjeklister()),
-                  ADD_EGENKONTROL: () => import('@/stores/egenkontrolStore').then(m => m.useEgenkontrolStore().fetchEgenkontroller())
-                }
-
-                if (refreshMap[action.type]) {
-                  await refreshMap[action.type]()
-                }
-              }
-            }
+        if (result.status !== 'success') continue
+  
+        const actionIndex = pendingActions.value.findIndex(a => a.id === result.id)
+        if (actionIndex === -1) continue
+  
+        const action = pendingActions.value[actionIndex]
+        pendingActions.value.splice(actionIndex, 1)           // fjern fra reactive state
+  
+        /* --- a) ADD-handlinger: fjern temp og refresh cache --- */
+        if (action.type.startsWith('ADD_')) {
+          const collection   = getCollectionFromActionType(action.type)
+          const tempId       = action.data.tempId || action.data.id
+          const tempItems    = await indexedDBManager.getAll(collection)
+          const tempItem     = tempItems.find(t => t.id === tempId)
+  
+          if (tempItem) await indexedDBManager.delete(collection, tempItem.id)
+  
+          /* speciel oprydning for egenkontrol */
+          if (action.type === 'ADD_EGENKONTROL' && tempId) {
+            await indexedDBManager.delete('egenkontrol', tempId)
           }
+  
+          /* refresh fra Firebase */
+          const addRefresh = {
+            ADD_ENHED:        () => import('@/stores/enhedStore').then(m => m.useEnhedStore().fetchEnheder()),
+            ADD_BRUGER:       () => import('@/stores/brugerStore').then(m => m.useBrugerStore().fetchBrugere()),
+            ADD_TJEKLISTE:    () => import('@/stores/tjeklisteStore').then(m => m.useTjeklisteStore().fetchTjeklister()),
+            ADD_EGENKONTROL:  () => import('@/stores/egenkontrolStore').then(m => m.useEgenkontrolStore().fetchEgenkontroller())
+          }
+          if (addRefresh[action.type]) await addRefresh[action.type]()
+        }
+  
+        /* --- b) UPDATE-handlinger: refresh én af de relevante stores --- */
+        if (action.type.startsWith('UPDATE_')) {
+          const updRefresh = {
+            UPDATE_BRUGER:     () => import('@/stores/brugerStore').then(m => m.useBrugerStore().fetchBrugere()),
+            UPDATE_ENHED:      () => import('@/stores/enhedStore').then(m => m.useEnhedStore().fetchEnheder()),
+            UPDATE_TJEKLISTE:  () => import('@/stores/tjeklisteStore').then(m => m.useTjeklisteStore().fetchTjeklister()),
+            UPDATE_EGENKONTROL_STATUS:              () => import('@/stores/egenkontrolStore').then(m => m.useEgenkontrolStore().fetchEgenkontroller()),
+            UPDATE_FIELD_RESULTS:                   () => import('@/stores/egenkontrolStore').then(m => m.useEgenkontrolStore().fetchEgenkontroller()),
+            UPDATE_EGENKONTROL_STATUS_WITH_CORRECTION: () => import('@/stores/egenkontrolStore').then(m => m.useEgenkontrolStore().fetchEgenkontroller())
+          }
+          if (updRefresh[action.type]) await updRefresh[action.type]()
+        }
+  
+        /* --- c) DELETE-handlinger: refresh for at sikre konsistens --- */
+        if (action.type.startsWith('DELETE_')) {
+          const delRefresh = {
+            DELETE_BRUGER:       () => import('@/stores/brugerStore').then(m => m.useBrugerStore().fetchBrugere()),
+            DELETE_ENHED:        () => import('@/stores/enhedStore').then(m => m.useEnhedStore().fetchEnheder()),
+            DELETE_TJEKLISTE:    () => import('@/stores/tjeklisteStore').then(m => m.useTjeklisteStore().fetchTjeklister()),
+            DELETE_EGENKONTROL:  () => import('@/stores/egenkontrolStore').then(m => m.useEgenkontrolStore().fetchEgenkontroller())
+          }
+          if (delRefresh[action.type]) await delRefresh[action.type]()
         }
       }
     } catch (error) {
       console.error('Failed to process pending actions:', error.message)
     }
+  }
+  
+
+  // Helper function to get collection name from action type
+  const getCollectionFromActionType = (actionType) => {
+    const typeToCollection = {
+      ADD_BRUGER: 'brugere',
+      ADD_ENHED: 'enheder',
+      ADD_TJEKLISTE: 'tjeklister',
+      ADD_EGENKONTROL: 'egenkontrol'
+    }
+    return typeToCollection[actionType] || ''
   }
 
   // Load pending actions from IndexedDB on init
@@ -219,6 +272,15 @@ export const useOfflineStore = defineStore('offline', () => {
     }
   }
 
+  async function removeDuplicatePendingAction(type, taskId, targetDate) {
+    const actions = await indexedDBManager.getAll('pendingActions')
+    const filtered = actions.filter(a => !(a.type === type && a.data?.taskId === taskId && a.data?.targetDate === targetDate))
+    await indexedDBManager.clear('pendingActions')
+    for (const action of filtered) {
+      await indexedDBManager.put('pendingActions', action)
+    }
+  }
+
   // Computed properties
   const hasConnection = computed(() => isOnline.value)
   const hasPendingActions = computed(() => pendingActions.value.length > 0)
@@ -248,6 +310,7 @@ export const useOfflineStore = defineStore('offline', () => {
 
     // Pending actions
     addPendingAction,
+    removeDuplicatePendingAction,
     processPendingActions,
     loadPendingActions,
 
