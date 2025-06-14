@@ -158,7 +158,7 @@ defineEmits(['close', 'edit', 'delete', 'microcopy'])
 
 .preview-header {
   background: $table-header;
-  padding: $spacing-medium;
+  padding: $spacing-small $spacing-medium;
   border-bottom: 1px solid $neutral-300;
 
   .preview-title {
