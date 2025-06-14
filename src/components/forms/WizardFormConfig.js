@@ -280,8 +280,8 @@ export function getWizardConfig(context, options = {}) {
         }
       ],
       fields: {
-        step1: ['navn', 'beskrivelse', 'type', 'frekvens'], // Frekvens er nu flyttet hertil
-        step2: [] // Dette bliver håndteret specielt i det nye tjekliste opsætning step
+        step1: ['navn', 'beskrivelse', 'type', 'frekvens'],
+        step2: [] // Dette bliver håndteret i tjekliste opsætning step
       },
       fieldDefinitions,
       dropdownOptions: options.dropdownOptions || {}

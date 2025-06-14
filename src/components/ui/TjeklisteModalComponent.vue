@@ -22,7 +22,6 @@ const emit = defineEmits(['close', 'complete'])
 
 const formTjeklisteFields = ref([])
 
-// Simple initialization function
 const initializeFields = () => {
   if (!props.tjeklisteFields || !Array.isArray(props.tjeklisteFields)) {
     formTjeklisteFields.value = []

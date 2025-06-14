@@ -93,7 +93,6 @@ const handleModalClose = () => {
 
 const createDeviationTask = () => alert('Opgave for afvigelse oprettet')
 
-// Nye funktioner til status opdatering
 const openStatusUpdateModal = () => {
   showStatusUpdateModal.value = true
 }
@@ -102,7 +101,6 @@ const handleStatusUpdate = async (updateData) => {
   try {
     if (!selectedTask.value) return
 
-    // Find brugernavnet baseret på ID
     const selectedBruger = brugerStore.brugere.find(b => b.id === updateData.udbedretAf)
     const brugerNavn = selectedBruger?.fuldeNavn || selectedBruger?.navn || 'Ukendt bruger'
 
@@ -112,7 +110,7 @@ const handleStatusUpdate = async (updateData) => {
       {
         afvigelseUdbedret: updateData.afvigelseUdbedret,
         udbedringsBeskrivelse: updateData.udbedringsBeskrivelse,
-        udbedretAf: brugerNavn, // Gem navnet, ikke ID'et
+        udbedretAf: brugerNavn,
         udbedringsDato: updateData.udbedringsDato
       }
     )

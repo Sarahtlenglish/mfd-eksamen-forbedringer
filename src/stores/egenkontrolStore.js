@@ -302,10 +302,9 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
       updatedHistorik[historyIndex] = {
         ...updatedHistorik[historyIndex],
         status: newStatus,
-        tjeklisteFields: tjeklisteFields, // Gem alle svar i tjeklisteFields
+        tjeklisteFields: tjeklisteFields,
         afsluttetAf: completedBy,
         afsluttetDato: new Date().toISOString(),
-        // Tilføj flag så vi ved at denne er manuelt fuldført
         manueltFuldført: true
       }
 
@@ -331,7 +330,6 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
     }
   }
 
-  // NY FUNKTION: Opdater status fra afvigelse til udført med korrektion
   const updateEgenkontrolStatusWithCorrection = async (taskId, originalDate, correctionData) => {
     try {
       const taskRef = doc(db, 'Egenkontrol', taskId)
@@ -345,7 +343,6 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
 
       const originalEntry = taskData.historik[historyIndex]
 
-      // Sikr at der faktisk var en afvigelse på denne dato
       if (originalEntry.status !== 'afvigelse') {
         throw new Error('Can only correct entries with deviation status')
       }
@@ -353,18 +350,15 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
       const updatedHistorik = [...taskData.historik]
 
       if (correctionData.afvigelseUdbedret === 'ja') {
-        // Marker som udført med korrektion
         updatedHistorik[historyIndex] = {
           ...originalEntry,
-          status: 'udført', // Ændrer status til udført
-          // Bevar den oprindelige afvigelse information
+          status: 'udført',
           oprindeligAfvigelse: {
             status: 'afvigelse',
             afsluttetDato: originalEntry.afsluttetDato,
             afsluttetAf: originalEntry.afsluttetAf,
             tjeklisteFields: originalEntry.tjeklisteFields
           },
-          // Tilføj korrektion information
           korrektion: {
             korrigeret: true,
             korrektionsDato: correctionData.udbedringsDato,
@@ -372,7 +366,6 @@ export const useEgenkontrolStore = defineStore('egenkontrol', () => {
             korrektionsBeskrivelse: correctionData.udbedringsBeskrivelse,
             korrektionsTidspunkt: new Date().toISOString()
           },
-          // Opdater hovedfelter
           afsluttetDato: correctionData.udbedringsDato,
           afsluttetAf: correctionData.udbedretAf,
           manueltFuldført: true

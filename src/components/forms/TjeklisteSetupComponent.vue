@@ -17,7 +17,7 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue'])
 
 const selectedFieldType = ref(null)
-const activeAddForm = ref(null) // 'first', 'end', 'after-0', 'after-1', etc.
+const activeAddForm = ref(null)
 const newField = ref({
   title: '',
   description: '',
