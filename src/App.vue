@@ -186,6 +186,19 @@ body, html {
   display: flex;
   flex-direction: column;
   height: 100%;
+  transition: margin-left 0.3s;
+}
+body.sidebar-collapsed .main-content {
+  margin-left: 72px;
+}
+
+@media (max-width: $tablet) {
+  .main-content {
+    margin-left: 200px;
+  }
+  body.sidebar-collapsed .main-content {
+    margin-left: 56px;
+  }
 }
 
 .main-content.full-width {
@@ -204,6 +217,12 @@ body, html {
   margin-top: 0;
 }
 
+@media (max-width: $mobile) {
+
+.content-area {
+  padding: 5%;
+}
+}
 // Adjust content when network status is shown
 .app-container:has(.network-status) .content-area {
   margin-top: calc(70px + 40px);

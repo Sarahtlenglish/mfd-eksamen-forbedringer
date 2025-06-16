@@ -129,4 +129,28 @@ const dayNumber = computed(() => props.date.getDate())
   gap: $spacing-xs;
   overflow: hidden;
 }
+
+@media (max-width: $desktop) {
+  .calendar-day {
+    aspect-ratio: 5.5 / 6;
+    font-size: 0.95rem;
+    padding: 0;
+  }
+  .day-header {
+    padding: $spacing-xs;
+    height: 28px;
+    min-height: 28px;
+  }
+  .day-number {
+    font-size: $body-3-font-size;
+    min-width: 18px;
+    height: 18px;
+  }
+}
+
+@media (max-width: $mobile) {
+  .calendar-day {
+    aspect-ratio: 3.5 / 6;
+  }
+}
 </style>

@@ -1,0 +1,143 @@
+@use './_variables.scss' as *;
+
+
+@media (max-width: 600px) {
+  .button.variant-primary.has-icon .button-text {
+    display: none !important;
+  }
+  .button.variant-primary.has-icon {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+}
+
+// Typografi
+.heading-1 {
+  font-size: 2.5rem;
+  line-height: 1.1;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: $neutral-900;
+}
+@media (max-width: $tablet) {
+  .heading-1 {
+    font-size: 2rem;
+  }
+}
+@media (max-width: $mobile) {
+  .heading-1 {
+    font-size: 1.5rem;
+  }
+}
+
+// Primærknap (kun ikon på mobil, padding kompakt)
+@media (max-width: $mobile) {
+  .button.variant-primary.has-icon .button-text {
+    display: none !important;
+  }
+  .button.variant-primary.has-icon {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+}
+
+@media (max-width: $tablet) {
+  .table th, .table td {
+    padding: 0.5rem 0.5rem;
+    font-size: 0.95rem;
+  }
+}
+@media (max-width: $mobile) {
+  .table {
+    font-size: 0.85rem;
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}
+
+// Detailpanel
+.detail-panel {
+  background: #F7F7F7;
+  max-width: 33vw;
+  min-width: 320px;
+  width: 33vw;
+  border-left: 1px solid #e2e8f0;
+  padding: 1rem;
+}
+@media (max-width: $tablet) {
+  .detail-panel {
+    position: fixed;
+    top: 10vh;
+    right: 0;
+    width: 100vw;
+    max-width: 450px;
+    min-width: 320px;
+    height: 90vh;
+    min-height: 0 !important;
+    z-index: 1001;
+    animation: slideInPanel 0.25s cubic-bezier(0.4,0,0.2,1);
+    border-left: none;
+    border-radius: 0;
+    box-shadow: -4px 0 24px rgba(0,0,0,0.12);
+  }
+  .detail-panel-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.15);
+    z-index: 1000;
+  }
+}
+
+@keyframes slideInPanel {
+  from {
+    transform: translateX(100%);
+    opacity: 0.5;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+// Main content margin-left responsivt efter navigation
+.main-content {
+  margin-left: 250px;
+  transition: margin-left 0.3s;
+}
+body.sidebar-collapsed .main-content {
+  margin-left: 72px;
+}
+@media (max-width: $tablet) {
+
+  body.sidebar-collapsed .main-content {
+    margin-left: 56px;
+  }
+
+  .content-area .table-section {
+    width: 100% !important;
+  }
+
+  .content-layout .detail-panel-section {
+    width: 0px !important;
+  }
+
+  .content-layout .gruppe-panel-section {
+    width: 50% !important;
+  }
+
+  .content-layout .calendar-section {
+    min-width: 100% !important;
+    max-width: 100% !important;
+  }
+
+}
+@media (max-width: $mobile) {
+  .main-content,
+  body.sidebar-collapsed .main-content {
+    margin-left: 0;
+  }
+} 

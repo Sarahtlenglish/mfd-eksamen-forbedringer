@@ -11,10 +11,12 @@ import { formatDateToISO } from '@/utils/dateHelpers'
 import { processCalendarTasks } from '@/utils/labelHelpers'
 import { useDeleteHandler } from '@/composables/useDeleteHandler'
 import { useEditHandler } from '@/composables/useEditHandler'
+import { useBreakpoint } from '@/composables/useBreakpoint'
 import { useCloseDetailPanelHandler } from '@/composables/useCloseDetailPanelHandler'
 
 const egenkontrolStore = useEgenkontrolStore()
 const enhedStore = useEnhedStore()
+const { isTablet } = useBreakpoint()
 
 const calendarTasks = computed(() => {
   const raw = egenkontrolStore.getCalendarTasksSync()
@@ -139,7 +141,13 @@ if (typeof window !== 'undefined') {
         @close="closeDetailPanel"
         @edit="handleEdit"
         @delete="handleDelete"
+        @back="closeDetailPanel"
       />
+      <div
+        v-if="selectedItem && isTablet"
+        class="detail-panel-overlay"
+        @click="closeDetailPanel"
+      ></div>
     </div>
   </div>
 </template>

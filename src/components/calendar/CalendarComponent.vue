@@ -130,4 +130,18 @@ const getTasksForDate = (date) => {
   text-align: right;
   font-weight: $body-2-font-weight-semibold;
 }
+
+@media (max-width: $tablet) {
+  .calendar-container {
+    border-radius: 8px;
+    padding: 0;
+    min-width: 0;
+    height: 100%;
+  }
+  .calendar {
+    border-radius: 8px;
+    padding: 0;
+    height: 100%;
+  }
+}
 </style>

@@ -174,7 +174,7 @@ function handleSelectTask(task) {
 </script>
 
 <template>
-  <BasePanel v-if="item" :class="{ 'calendar-panel': context === 'calendar' }">
+  <BasePanel v-if="item" class="detail-panel" :class="{ 'calendar-panel': context === 'calendar' }">
     <template #header>
       <div class="detail-panel-header"
         :class="{

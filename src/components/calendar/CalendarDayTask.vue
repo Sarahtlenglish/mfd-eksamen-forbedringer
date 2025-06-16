@@ -224,4 +224,21 @@ const getStatusIconClass = computed(() => {
     color: $warning-base;
   }
 }
+
+@media (max-width: $tablet) {
+  .calendar-day-task {
+    padding: 2px 4px;
+    font-size: 0.95rem;
+  }
+  .task-title {
+    font-size: $body-3-font-size;
+  }
+  .task-details {
+    font-size: 0.75rem;
+  }
+  .task-icon {
+    width: 16px;
+    height: 16px;
+  }
+}
 </style>

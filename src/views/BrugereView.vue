@@ -11,9 +11,11 @@ import { useDeleteHandler } from '@/composables/useDeleteHandler'
 import { useEditHandler } from '@/composables/useEditHandler'
 import { useCloseDetailPanelHandler } from '@/composables/useCloseDetailPanelHandler'
 import { processBrugere } from '@/utils/labelHelpers'
+import { useBreakpoint } from '@/composables/useBreakpoint'
 
 const router = useRouter()
 const brugerStore = useBrugerStore()
+const { isTablet } = useBreakpoint()
 
 const processedBrugere = computed(() => processBrugere(brugerStore.brugere))
 
@@ -104,6 +106,11 @@ onUnmounted(() => {
           @edit="handleEdit"
           @delete="handleDelete"
         />
+        <div
+          v-if="selectedItem && isTablet"
+          class="detail-panel-overlay"
+          @click="closeDetailPanel"
+        ></div>
       </div>
     </div>
   </div>

@@ -10,9 +10,11 @@ import { useDeleteHandler } from '@/composables/useDeleteHandler'
 import { useEditHandler } from '@/composables/useEditHandler'
 import { useCloseDetailPanelHandler } from '@/composables/useCloseDetailPanelHandler'
 import { processTjeklister } from '@/utils/labelHelpers'
+import { useBreakpoint } from '@/composables/useBreakpoint'
 
 const tjeklisteStore = useTjeklisteStore()
 const router = useRouter()
+const { isTablet } = useBreakpoint()
 
 // Local computed property for processed data
 const processedTjeklister = computed(() => processTjeklister(tjeklisteStore.tjeklister))
@@ -105,6 +107,11 @@ onUnmounted(() => {
       @edit="handleEdit"
       @delete="handleDelete"
     />
+    <div
+      v-if="selectedItem && isTablet"
+      class="detail-panel-overlay"
+      @click="closeDetailPanel"
+    ></div>
   </div>
 </div>
 </template>

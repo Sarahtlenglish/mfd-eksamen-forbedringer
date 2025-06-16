@@ -9,9 +9,11 @@ import { useEgenkontrolStore } from '@/stores/egenkontrolStore'
 import { useDeleteHandler } from '@/composables/useDeleteHandler'
 import { useEditHandler } from '@/composables/useEditHandler'
 import { useCloseDetailPanelHandler } from '@/composables/useCloseDetailPanelHandler'
+import { useBreakpoint } from '@/composables/useBreakpoint'
 
 const egenkontrolStore = useEgenkontrolStore()
 const router = useRouter()
+const { isTablet } = useBreakpoint()
 
 const columns = [
   { key: 'navn', label: 'Egenkontroller' },
@@ -103,6 +105,11 @@ if (typeof window !== 'undefined') {
         @edit="handleEdit"
         @delete="handleDelete"
       />
+      <div
+        v-if="selectedItem && isTablet"
+        class="detail-panel-overlay"
+        @click="closeDetailPanel"
+      ></div>
   </div>
 </div>
 </template>
