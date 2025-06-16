@@ -180,17 +180,16 @@ const toggleSidebar = () => {
 .toggle-btn-bottom {
   position: sticky;
   bottom: 0;
-  left: 0;
   width: 100%;
-  background: $neutral-200;
+  background: #F7F7F7;
   border: none;
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 16px 0;
+  justify-content: flex-end;
+  padding: 10%;
   cursor: pointer;
   z-index: 10;
-  border-top: 1px solid $neutral-300;
+  border-top: 1px solid #D1D3D4;
   transition: background 0.2s;
   &:hover {
     background-color: $neutral-300;
