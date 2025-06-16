@@ -146,6 +146,10 @@ const dayNumber = computed(() => props.date.getDate())
     min-width: 18px;
     height: 18px;
   }
+
+  .calendar-container {
+    height: fit-content !important;
+  }
 }
 
 @media (max-width: $mobile) {
