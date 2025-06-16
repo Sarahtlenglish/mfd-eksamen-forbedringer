@@ -201,6 +201,7 @@ const toggleSidebar = () => {
     width: 200px;
     &.collapsed {
       width: 56px;
+      max-height:100%;
       .favicon-img {
         width: 28px;
         height: 28px;
